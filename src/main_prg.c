@@ -1,5 +1,6 @@
 
-#include "lexeme.c"
+#include "lexeme.h"
+
 
 
 int main() {
