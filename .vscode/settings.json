@@ -1,0 +1,4 @@
+{
+    "editor.formatOnSave": true,
+    "clang-format.executable": "${workspaceRoot}/clang-format"
+}
