@@ -12,6 +12,7 @@
 char string[200] = {0};
 char *strings = &string[0];
 
+// TODO: add all states
 typedef enum {
     START,
     LPAR,
@@ -47,7 +48,11 @@ typedef struct {
     size_t data;
 
 } lexeme;
-
+/*
+TODO:
+- add all transitions
+- implement states for int lit, string lit, func id, var id and keywords
+*/
 States FSM(States curr_state, char edge) {
     switch (curr_state) {
     case ERROR:
@@ -81,6 +86,11 @@ States FSM(States curr_state, char edge) {
     }
     return ERROR;
 }
+/*
+TODO:
+- add all states
+- error handling
+*/
 lexeme create_lex(States final, char *token){
     switch(final){
         case LPAR:
@@ -100,11 +110,15 @@ lexeme create_lex(States final, char *token){
         case COLON:
             return (lexeme){.lex=L_COLON};
         case ERROR:
-            exit(1); // create error handling
+            exit(1);
     }
     exit(99);
 }
-
+/*
+TODO:
+- string handling
+- dynamical allocation
+*/
 lexeme get_lex_value() {
     States now = START;
     char *lex_start = string;
@@ -119,17 +133,23 @@ lexeme get_lex_value() {
         States next = FSM(now, edge);
         if (next == ERROR){
             ungetc(edge, stdin);
-            *(strings++) = '\0';
+            *(strings++) = '\0'; // remove just for testing should be implemented better
             return create_lex(now, lex_start);
         }
+        *(strings++) = edge;
         if (next == START){
             strings = lex_start;
         }
-        *(strings++) = edge;
         now = next;
     }
 }
-
+/*
+just for testing
+TODO:
+    - implement creating token strings
+    - uploading var id, func id to symtable
+    - sending tokens to syntax analyzer
+*/
 char* print_lex(lexeme lex){
     switch(lex.lex){
         case L_LPAR:
@@ -148,6 +168,8 @@ char* print_lex(lexeme lex){
             return ";";
         case L_COLON:
             return ":";
+        case LEOF:
+            return "EOF";
     }
     return "ERROR";
 }
