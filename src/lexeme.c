@@ -11,7 +11,7 @@ char *strings = &string[0];
 
 
 /*
-TODO:
+// TODO:
 - add all transitions
 - implement states for int lit, string lit, func id, var id and keywords
 */
@@ -66,7 +66,7 @@ lexeme create_lex(States final, char *token){
         case LCURL:
             return (lexeme){.lex=L_LCURL};
         case RCURL:
-            return (lexeme){.lex=L_RCURL};
+            // return (lexeme){.lex=L_RCURL};
         case SEMICOLON:
             return (lexeme){.lex=L_SEMICOL};
         case COLON:
@@ -76,6 +76,7 @@ lexeme create_lex(States final, char *token){
     }
     exit(99);
 }
+int test_func(int test){ printf("hello world");}     
 /*
 TODO:
 - string handling
