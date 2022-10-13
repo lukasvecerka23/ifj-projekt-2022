@@ -1,7 +1,4 @@
-#include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <ctype.h>
+#include "lexeme.h"
 
 /*
 
@@ -12,42 +9,7 @@
 char string[200] = {0};
 char *strings = &string[0];
 
-// TODO: add all states
-typedef enum {
-    START,
-    LPAR,
-    RPAR,
-    COMMA,
-    DOT,
-    LCURL,
-    RCURL,
-    COLON,
-    SEMICOLON,
-    ERROR,
-    PLUS,
-    DASH,
-    DIV,
-    VARID,
-    MUL,
-    FUNCID,
-} States;
 
-typedef struct {
-    enum {
-        L_LPAR,
-        L_RPAR,
-        L_COMMA,
-        L_SEMICOL,
-        L_COLON,
-        L_RCURL,
-        L_LCURL,
-        L_DOT,
-        LEOF
-    } lex;
-
-    size_t data;
-
-} lexeme;
 /*
 TODO:
 - add all transitions
@@ -174,11 +136,4 @@ char* print_lex(lexeme lex){
     return "ERROR";
 }
 
-int main() {
-    lexeme l = {0};
-    while (l.lex != LEOF){
-        l = get_lex_value();
-        puts(print_lex(l));
-    }
-    return 0; 
-}
+
