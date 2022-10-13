@@ -16,10 +16,11 @@ typedef enum {
     ERROR,
     PLUS,
     DASH,
-    DIV,
+    SLASH,
     VARID,
     MUL,
     FUNCID,
+    NUMBER,
 } States;
 // TODO: add all states
 
@@ -36,18 +37,22 @@ typedef struct {
         L_RCURL,
         L_LCURL,
         L_DOT,
-        LEOF
+        LEOF,
+        L_MUL,
+        L_SLASH,
+        L_PLUS,
+        L_DASH,
+        L_FUNCID,
+        L_VARID,
+        L_NUMBER,
     } lex;
 
     size_t data;
 
 } lexeme;
 
-
 States FSM(States curr_state, char edge);
-
 lexeme create_lex(States final, char *token);
-
 lexeme get_lex_value();
-
 char* print_lex(lexeme lex);
+

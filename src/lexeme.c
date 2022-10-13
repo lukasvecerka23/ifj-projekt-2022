@@ -1,4 +1,5 @@
 #include "lexeme.h"
+#include "error.h"
 
 /*
 
@@ -30,11 +31,13 @@ States FSM(States curr_state, char edge) {
         if (edge == '.') return DOT;
         if (edge == '+') return PLUS;
         if (edge == '-') return DASH;
-        if (edge == '/') return DIV;
+        if (edge == '/') return SLASH;
         if (edge == '$') return VARID;
         if (edge == '*') return MUL;
         if (isalpha(edge) || edge == '_') return FUNCID;
         if (isspace(edge)) return START;
+        // if (edge == '"') return L_STRING TODO
+        if (isdigit(edge)) return NUMBER;
         return ERROR;
     case RPAR:
     case COMMA:
@@ -52,6 +55,7 @@ States FSM(States curr_state, char edge) {
 TODO:
 - add all states
 - error handling
+- use token argument
 */
 lexeme create_lex(States final, char *token){
     switch(final){
@@ -66,17 +70,30 @@ lexeme create_lex(States final, char *token){
         case LCURL:
             return (lexeme){.lex=L_LCURL};
         case RCURL:
-            // return (lexeme){.lex=L_RCURL};
+            return (lexeme){.lex=L_RCURL};
         case SEMICOLON:
             return (lexeme){.lex=L_SEMICOL};
         case COLON:
             return (lexeme){.lex=L_COLON};
+        case MUL:
+            return (lexeme){.lex=L_MUL};
+        case SLASH:
+            return (lexeme){.lex=L_SLASH};
+        case PLUS:
+            return (lexeme){.lex=L_PLUS};
+        case DASH:
+            return (lexeme){.lex=L_DASH};
+        case FUNCID:
+            return (lexeme){.lex=L_FUNCID};
+        case VARID:
+            return (lexeme){.lex=L_VARID};
+        case NUMBER:
+            return (lexeme){.lex=L_NUMBER};
         case ERROR:
-            exit(1);
+            error_exit("reached end of token");
     }
-    exit(99);
+    error_exit("No state implemented for this input");
 }
-int test_func(int test){ printf("hello world");}     
 /*
 TODO:
 - string handling
@@ -133,7 +150,23 @@ char* print_lex(lexeme lex){
             return ":";
         case LEOF:
             return "EOF";
+        case L_PLUS:
+            return "+";
+        case L_MUL:
+            return "*";
+        case L_SLASH:
+            return "/";
+        case L_NUMBER:
+            return "num";
+        case L_VARID:
+            return "var_id";
+        case L_FUNCID:
+            return "FUNCID";
+        case L_DASH:
+            return "-";
+        warning_msg("reached end of file \n");
     }
+    warning_msg("token should have been printed (didnt you forget to add it print func)");
     return "ERROR";
 }
 
