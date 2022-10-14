@@ -1,13 +1,11 @@
 
 #include "lexeme.h"
 
-
-
 int main() {
     lexeme l = {0};
-    while (l.lex != LEOF){
+    while (l.lex != LEOF) {
         l = get_lex_value();
         puts(print_lex(l));
     }
-    return 0; 
+    return 0;
 }

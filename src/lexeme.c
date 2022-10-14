@@ -53,12 +53,21 @@ States FSM(States curr_state, char edge) {
             // if (edge == '"') return L_STRING TODO
             if (isdigit(edge))
                 return NUMBER;
+            if (edge == '=')
+                return EQ1;
             return ERROR;
-        case RPAR:
-        case COMMA:
-        case LCURL:
-        case RCURL:
-        case LPAR:
+        case NUMBER:
+            if (isdigit(edge))
+                return NUMBER;
+        case VARID:
+            if (isalnum(edge))
+                return VARID;
+        case EQ1:
+            if (edge == '=')
+                return EQ2;
+        case EQ2:
+            if (edge == '=')
+                return EQ3;
         default:
             return ERROR;
     }
@@ -99,9 +108,13 @@ lexeme create_lex(States final, char* token) {
         case FUNCID:
             return (lexeme){.lex = L_FUNCID};
         case VARID:
-            return (lexeme){.lex = L_VARID};
+            return (lexeme){.lex = L_VARID, .data = token - string};
         case NUMBER:
-            return (lexeme){.lex = L_NUMBER};
+            return (lexeme){.lex = L_NUMBER, .data = token - string};
+        case EQ1:
+            return (lexeme){.lex = L_EQ1};
+        case EQ3:
+            return (lexeme){.lex = L_EQ3};
         case ERROR:
             error_exit("reached end of token");
     }
@@ -171,13 +184,18 @@ char* print_lex(lexeme lex) {
         case L_SLASH:
             return "/";
         case L_NUMBER:
-            return "num";
+            return string + lex.data;
         case L_VARID:
-            return "var_id";
+            return string + lex.data;
         case L_FUNCID:
             return "FUNCID";
         case L_DASH:
             return "-";
+        case L_EQ1:
+            return "=";
+        case L_EQ3:
+            return "===";
+        default:
             warning_msg("reached end of file \n");
     }
     warning_msg(

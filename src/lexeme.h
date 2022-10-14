@@ -1,7 +1,7 @@
+#include <ctype.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <ctype.h>
 
 typedef enum {
     START,
@@ -21,11 +21,11 @@ typedef enum {
     MUL,
     FUNCID,
     NUMBER,
+    EQ1,
+    EQ2,
+    EQ3
 } States;
 // TODO: add all states
-
-
-
 
 typedef struct {
     enum {
@@ -45,6 +45,8 @@ typedef struct {
         L_FUNCID,
         L_VARID,
         L_NUMBER,
+        L_EQ1,
+        L_EQ3
     } lex;
 
     size_t data;
@@ -52,7 +54,6 @@ typedef struct {
 } lexeme;
 
 States FSM(States curr_state, char edge);
-lexeme create_lex(States final, char *token);
+lexeme create_lex(States final, char* token);
 lexeme get_lex_value();
 char* print_lex(lexeme lex);
-
