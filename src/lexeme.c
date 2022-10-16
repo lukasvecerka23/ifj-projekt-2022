@@ -132,9 +132,11 @@ States FSM(States curr_state, char edge) {
 TODO:
 - Number with Exp
 - String literals
-- Identificators
+- Type identificator with ?
 - error handling
-- use token data
+- store data to lexeme depends on its type
+- uploading var id, func id to symtable
+- sending tokens to syntax analyzer
 */
 lexeme create_lex(States final, char* token) {
     switch (final) {
@@ -222,71 +224,88 @@ lexeme get_lex_value() {
 }
 /*
 just for testing
-TODO:
-    - implement creating token strings
-    - uploading var id, func id to symtable
-    - sending tokens to syntax analyzer
 */
-char* print_lex(lexeme lex) {
-    char str[1000];
+void print_lex(lexeme lex) {
     switch (lex.lex) {
         case L_LPAR:
-            return "( ( )";
+            printf("( ( )\n");
+            return;
         case L_RPAR:
-            return "( ) )";
+            printf("( ) )\n");
+            return;
         case L_COMMA:
-            return "( , )";
+            printf("( , )\n");
+            return;
         case L_DOT:
-            return "( . )";
+            printf("( . )\n");
+            return;
         case L_LCURL:
-            return "( { )";
+            printf("( { )\n");
+            return;
         case L_RCURL:
-            return "( } )";
+            printf("( } )\n");
+            return;
         case L_SEMICOL:
-            return "( ; )";
+            printf("( ; )\n");
+            return;
         case L_COLON:
-            return "( : )";
+            printf("( : )\n");
+            return;
         case LEOF:
-            return "( EOF )";
+            printf("( EOF )\n");
+            return;
         case L_PLUS:
-            return "( + )";
+            printf("( + )\n");
+            return;
         case L_MUL:
-            return "( * )";
+            printf("( * )\n");
+            return;
         case L_SLASH:
-            return "( / )";
+            printf("( / )\n");
+            return;
         case L_NUMBER:
-            sprintf(str, "(integer, %s)", lex.string);
-            return str;
+            printf("(integer, %s)\n", lex.string);
+            return;
         case L_VARID:
-            sprintf(str, "(varid, %s)", lex.string);
-            return str;
+            printf("(varid, %s)\n", lex.string);
+            return;
         case L_ID:
-            sprintf(str, "(identifier, %s)", lex.string);
-            return str;
+            printf("(identifier, %s)\n", lex.string);
+            return;
         case L_DASH:
-            return "( - )";
+            printf("( - )\n");
+            return;
         case L_SET:
-            return "( = )";
+            printf("( = )\n");
+            return;
         case L_EQ:
-            return "( === )";
+            printf("( === )\n");
+            return;
         case L_NEQ:
-            return "( !== )";
+            printf("( !== )\n");
+            return;
         case L_LESS:
-            return "( < )";
+            printf("( < )\n");
+            return;
         case L_GREATER:
-            return "( > )";
+            printf("( > )\n");
+            return;
         case L_LESSEQ:
-            return "( <= )";
+            printf("( <= )\n");
+            return;
         case L_GREATEREQ:
-            return "( >= )";
+            printf("( >= )\n");
+            return;
         case L_FLOAT:
-            sprintf(str, "(float, %s)", lex.string);
-            return str;
+            printf("(float, %s)\n", lex.string);
+            return;
         default:
             warning_msg("reached end of file \n");
+            return;
     }
     warning_msg(
         "token should have been printed (didnt you forget to add it print "
         "func)");
-    return "ERROR";
+    printf("ERROR");
+    return;
 }
