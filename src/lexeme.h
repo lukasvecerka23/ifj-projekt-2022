@@ -53,6 +53,7 @@ typedef struct {
         L_DASH,
         L_ID,
         L_VARID,
+        L_FUNCID,
         L_NUMBER,
         L_SET,
         L_EQ,

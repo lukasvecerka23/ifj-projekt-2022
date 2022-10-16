@@ -1,4 +1,5 @@
 #include "lexeme.h"
+#include <string.h>
 #include "error.h"
 
 /*
@@ -7,7 +8,7 @@
 */
 
 // TODO: dynamically allocated
-char string[200] = {0};
+char string[2000] = {0};
 char* strings = &string[0];
 
 /*
@@ -16,7 +17,7 @@ char* strings = &string[0];
 - implement states for exp lit, string lit, func id, var id and keywords
 */
 
-lexeme isKeyword(char *keywd) {
+lexeme isKeyword(char* keywd) {
     if (strcmp(keywd, "else") == 0)
         return (lexeme){.lex = K_ELSE};
     if (strcmp(keywd, "float") == 0)
@@ -35,7 +36,9 @@ lexeme isKeyword(char *keywd) {
         return (lexeme){.lex = K_WHILE};
     if (strcmp(keywd, "string") == 0)
         return (lexeme){.lex = K_STRING};
-    return (lexeme){.lex = K_FUNCTION};
+    if (strcmp(keywd, "function") == 0)
+        return (lexeme){.lex = K_FUNCTION};
+    return (lexeme){.lex = L_FUNCID, .string = keywd};
 }
 
 States FSM(States curr_state, char edge) {
@@ -166,7 +169,7 @@ lexeme create_lex(States final, char* token) {
             return (lexeme){.lex = L_DASH};
         case ID1:
             // call function for decision between funcid, keyword or type id
-            return (lexeme){.lex = L_ID, .string = token};
+            return isKeyword(token);
         case VARID:
             return (lexeme){.lex = L_VARID, .string = token};
         case NUMBER:
@@ -298,6 +301,39 @@ void print_lex(lexeme lex) {
             return;
         case L_FLOAT:
             printf("(float, %s)\n", lex.string);
+            return;
+        case K_ELSE:
+            printf("( else )\n");
+            return;
+        case K_FUNCTION:
+            printf("( function )\n");
+            return;
+        case K_IF:
+            printf("( if )\n");
+            return;
+        case K_INT:
+            printf("( int )\n");
+            return;
+        case K_NULL:
+            printf("( null )\n");
+            return;
+        case K_RETURN:
+            printf("( return )\n");
+            return;
+        case K_STRING:
+            printf("( string )\n");
+            return;
+        case K_VOID:
+            printf("( void )\n");
+            return;
+        case K_WHILE:
+            printf("( while )\n");
+            return;
+        case K_FLOAT:
+            printf("( float )\n");
+            return;
+        case L_FUNCID:
+            printf("( funcid, %s )\n", lex.string);
             return;
         default:
             warning_msg("reached end of file \n");
