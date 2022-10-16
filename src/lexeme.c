@@ -109,9 +109,11 @@ States FSM(States curr_state, char edge) {
 TODO:
 - Number with Exp
 - String literals
-- Identificators
+- Type identificator with ?
 - error handling
-- use token data
+- store data to lexeme depends on its type
+- uploading var id, func id to symtable
+- sending tokens to syntax analyzer
 */
 lexeme create_lex(States final, char* token) {
     switch (final) {
@@ -199,10 +201,6 @@ lexeme get_lex_value() {
 }
 /*
 just for testing
-TODO:
-    - implement creating token strings
-    - uploading var id, func id to symtable
-    - sending tokens to syntax analyzer
 */
 void print_lex(lexeme lex) {
     switch (lex.lex) {
