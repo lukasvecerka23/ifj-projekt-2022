@@ -15,6 +15,29 @@ char* strings = &string[0];
 - add all transitions
 - implement states for exp lit, string lit, func id, var id and keywords
 */
+
+lexeme isKeyword(char *keywd) {
+    if (strcmp(keywd, "else") == 0)
+        return (lexeme){.lex = K_ELSE};
+    if (strcmp(keywd, "float") == 0)
+        return (lexeme){.lex = K_FLOAT};
+    if (strcmp(keywd, "if") == 0)
+        return (lexeme){.lex = K_IF};
+    if (strcmp(keywd, "int") == 0)
+        return (lexeme){.lex = K_INT};
+    if (strcmp(keywd, "null") == 0)
+        return (lexeme){.lex = K_NULL};
+    if (strcmp(keywd, "return") == 0)
+        return (lexeme){.lex = K_RETURN};
+    if (strcmp(keywd, "void") == 0)
+        return (lexeme){.lex = K_VOID};
+    if (strcmp(keywd, "while") == 0)
+        return (lexeme){.lex = K_WHILE};
+    if (strcmp(keywd, "string") == 0)
+        return (lexeme){.lex = K_STRING};
+    return (lexeme){.lex = K_FUNCTION};
+}
+
 States FSM(States curr_state, char edge) {
     switch (curr_state) {
         case ERROR:
