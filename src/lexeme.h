@@ -17,9 +17,9 @@ typedef enum {
     PLUS,
     DASH,
     SLASH,
-    VARID,
     MUL,
-    FUNCID,
+    ID1,
+    VARID,
     NUMBER,
     EQ1,
     EQ2,
@@ -30,7 +30,9 @@ typedef enum {
     GREATEREQ,
     NEQ1,
     NEQ2,
-    NEQ3
+    NEQ3,
+    FLOAT1,
+    FLOAT2
 } States;
 // TODO: add all states
 
@@ -49,15 +51,17 @@ typedef struct {
         L_SLASH,
         L_PLUS,
         L_DASH,
-        L_FUNCID,
+        L_ID,
         L_VARID,
         L_NUMBER,
-        L_EQ1,
-        L_EQ3,
+        L_SET,
+        L_EQ,
+        L_NEQ,
         L_LESS,
         L_GREATER,
         L_LESSEQ,
-        L_GREATEREQ
+        L_GREATEREQ,
+        L_FLOAT
     } lex;
 
     union {

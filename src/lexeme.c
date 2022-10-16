@@ -13,7 +13,7 @@ char* strings = &string[0];
 /*
 // TODO:
 - add all transitions
-- implement states for int lit, string lit, func id, var id and keywords
+- implement states for exp lit, string lit, func id, var id and keywords
 */
 States FSM(States curr_state, char edge) {
     switch (curr_state) {
@@ -48,8 +48,10 @@ States FSM(States curr_state, char edge) {
                 return MUL;
             if (edge == '<')
                 return LESS;
+            if (edge == '>')
+                return GREATER;
             if (isalpha(edge) || edge == '_')
-                return FUNCID;
+                return ID1;
             if (isspace(edge))
                 return START;
             // if (edge == '"') return L_STRING TODO
@@ -57,10 +59,23 @@ States FSM(States curr_state, char edge) {
                 return NUMBER;
             if (edge == '=')
                 return EQ1;
+            if (edge == '!')
+                return NEQ1;
             return ERROR;
         case NUMBER:
             if (isdigit(edge))
                 return NUMBER;
+            if (edge == '.')
+                return FLOAT1;
+        case FLOAT1:
+            if (isdigit(edge))
+                return FLOAT2;
+            else
+                return ERROR;
+        case FLOAT2:
+            if (isdigit(edge))
+                return FLOAT2;
+            // if (edge == 'e' || edge == 'E')
         case VARID:
             if (isalnum(edge))
                 return VARID;
@@ -70,6 +85,21 @@ States FSM(States curr_state, char edge) {
         case EQ2:
             if (edge == '=')
                 return EQ3;
+        case NEQ1:
+            if (edge == '=')
+                return NEQ2;
+        case NEQ2:
+            if (edge == '=')
+                return NEQ3;
+        case LESS:
+            if (edge == '=')
+                return LESSEQ;
+        case GREATER:
+            if (edge == '=')
+                return GREATEREQ;
+        case ID1:
+            if (isalnum(edge))
+                return ID1;
         default:
             return ERROR;
     }
@@ -77,9 +107,11 @@ States FSM(States curr_state, char edge) {
 }
 /*
 TODO:
-- add all states
+- Number with Exp
+- String literals
+- Identificators
 - error handling
-- use token argument
+- use token data
 */
 lexeme create_lex(States final, char* token) {
     switch (final) {
@@ -107,16 +139,29 @@ lexeme create_lex(States final, char* token) {
             return (lexeme){.lex = L_PLUS};
         case DASH:
             return (lexeme){.lex = L_DASH};
-        case FUNCID:
-            return (lexeme){.lex = L_FUNCID};
+        case ID1:
+            // call function for decision between funcid, keyword or type id
+            return (lexeme){.lex = L_ID, .string = token};
         case VARID:
             return (lexeme){.lex = L_VARID, .string = token};
         case NUMBER:
             return (lexeme){.lex = L_NUMBER, .string = token};
         case EQ1:
-            return (lexeme){.lex = L_EQ1};
+            return (lexeme){.lex = L_SET};
         case EQ3:
-            return (lexeme){.lex = L_EQ3};
+            return (lexeme){.lex = L_EQ};
+        case NEQ3:
+            return (lexeme){.lex = L_NEQ};
+        case LESSEQ:
+            return (lexeme){.lex = L_LESSEQ};
+        case GREATEREQ:
+            return (lexeme){.lex = L_GREATEREQ};
+        case LESS:
+            return (lexeme){.lex = L_LESS};
+        case GREATER:
+            return (lexeme){.lex = L_GREATER};
+        case FLOAT2:
+            return (lexeme){.lex = L_FLOAT, .string = token};
         case ERROR:
             error_exit("reached end of token");
     }
@@ -160,7 +205,7 @@ TODO:
     - sending tokens to syntax analyzer
 */
 char* print_lex(lexeme lex) {
-    char str[200];
+    char str[1000];
     switch (lex.lex) {
         case L_LPAR:
             return "( ( )";
@@ -192,14 +237,28 @@ char* print_lex(lexeme lex) {
         case L_VARID:
             sprintf(str, "(varid, %s)", lex.string);
             return str;
-        case L_FUNCID:
-            return "FUNCID";
+        case L_ID:
+            sprintf(str, "(identifier, %s)", lex.string);
+            return str;
         case L_DASH:
             return "( - )";
-        case L_EQ1:
+        case L_SET:
             return "( = )";
-        case L_EQ3:
+        case L_EQ:
             return "( === )";
+        case L_NEQ:
+            return "( !== )";
+        case L_LESS:
+            return "( < )";
+        case L_GREATER:
+            return "( > )";
+        case L_LESSEQ:
+            return "( <= )";
+        case L_GREATEREQ:
+            return "( >= )";
+        case L_FLOAT:
+            sprintf(str, "(float, %s)", lex.string);
+            return str;
         default:
             warning_msg("reached end of file \n");
     }
