@@ -1,3 +1,4 @@
 *.o
 main_prg
 example
+.DS_Store

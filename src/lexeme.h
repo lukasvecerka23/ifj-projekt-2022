@@ -75,4 +75,4 @@ typedef struct {
 States FSM(States curr_state, char edge);
 lexeme create_lex(States final, char* token);
 lexeme get_lex_value();
-char* print_lex(lexeme lex);
+void print_lex(lexeme lex);
