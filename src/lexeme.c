@@ -46,6 +46,8 @@ States FSM(States curr_state, char edge) {
                 return VARID;
             if (edge == '*')
                 return MUL;
+            if (edge == '<')
+                return LESS;
             if (isalpha(edge) || edge == '_')
                 return FUNCID;
             if (isspace(edge))
@@ -108,9 +110,9 @@ lexeme create_lex(States final, char* token) {
         case FUNCID:
             return (lexeme){.lex = L_FUNCID};
         case VARID:
-            return (lexeme){.lex = L_VARID, .data = token - string};
+            return (lexeme){.lex = L_VARID, .string = token};
         case NUMBER:
-            return (lexeme){.lex = L_NUMBER, .data = token - string};
+            return (lexeme){.lex = L_NUMBER, .string = token};
         case EQ1:
             return (lexeme){.lex = L_EQ1};
         case EQ3:
@@ -158,43 +160,46 @@ TODO:
     - sending tokens to syntax analyzer
 */
 char* print_lex(lexeme lex) {
+    char str[200];
     switch (lex.lex) {
         case L_LPAR:
-            return "(";
+            return "( ( )";
         case L_RPAR:
-            return ")";
+            return "( ) )";
         case L_COMMA:
-            return ",";
+            return "( , )";
         case L_DOT:
-            return ".";
+            return "( . )";
         case L_LCURL:
-            return "{";
+            return "( { )";
         case L_RCURL:
-            return "}";
+            return "( } )";
         case L_SEMICOL:
-            return ";";
+            return "( ; )";
         case L_COLON:
-            return ":";
+            return "( : )";
         case LEOF:
-            return "EOF";
+            return "( EOF )";
         case L_PLUS:
-            return "+";
+            return "( + )";
         case L_MUL:
-            return "*";
+            return "( * )";
         case L_SLASH:
-            return "/";
+            return "( / )";
         case L_NUMBER:
-            return string + lex.data;
+            sprintf(str, "(integer, %s)", lex.string);
+            return str;
         case L_VARID:
-            return string + lex.data;
+            sprintf(str, "(varid, %s)", lex.string);
+            return str;
         case L_FUNCID:
             return "FUNCID";
         case L_DASH:
-            return "-";
+            return "( - )";
         case L_EQ1:
-            return "=";
+            return "( = )";
         case L_EQ3:
-            return "===";
+            return "( === )";
         default:
             warning_msg("reached end of file \n");
     }

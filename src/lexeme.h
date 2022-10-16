@@ -23,7 +23,14 @@ typedef enum {
     NUMBER,
     EQ1,
     EQ2,
-    EQ3
+    EQ3,
+    LESS,
+    GREATER,
+    LESSEQ,
+    GREATEREQ,
+    NEQ1,
+    NEQ2,
+    NEQ3
 } States;
 // TODO: add all states
 
@@ -46,10 +53,18 @@ typedef struct {
         L_VARID,
         L_NUMBER,
         L_EQ1,
-        L_EQ3
+        L_EQ3,
+        L_LESS,
+        L_GREATER,
+        L_LESSEQ,
+        L_GREATEREQ
     } lex;
 
-    size_t data;
+    union {
+        char* string;
+        int val;
+        int index;
+    };
 
 } lexeme;
 
