@@ -70,6 +70,8 @@ States FSM(States curr_state, char edge) {
                 return SLASH;
             if (edge == '$')
                 return VARID;
+            if (edge == '?')
+                return VARPREF;
             if (edge == '*')
                 return MUL;
             if (edge == '<')
@@ -190,6 +192,8 @@ lexeme create_lex(States final, char* token) {
             return (lexeme){.lex = L_GREATER};
         case FLOAT2:
             return (lexeme){.lex = L_FLOAT, .string = token};
+        case VARPREF:
+            return (lexeme){.lex = L_VARPREF};
         case ERROR:
             error_exit("reached end of token");
     }
@@ -271,6 +275,9 @@ void print_lex(lexeme lex) {
             return;
         case L_VARID:
             printf("(varid, %s)\n", lex.string);
+            return;
+        case L_VARPREF:
+            printf("( ? )\n");
             return;
         case L_ID:
             printf("(identifier, %s)\n", lex.string);

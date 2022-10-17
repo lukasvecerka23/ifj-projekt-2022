@@ -32,7 +32,8 @@ typedef enum {
     NEQ2,
     NEQ3,
     FLOAT1,
-    FLOAT2
+    FLOAT2,
+    VARPREF
 } States;
 // TODO: add all states
 
@@ -63,6 +64,7 @@ typedef struct {
         L_LESSEQ,
         L_GREATEREQ,
         L_FLOAT,
+        L_VARPREF,
         K_ELSE,
         K_FUNCTION,
         K_IF,
