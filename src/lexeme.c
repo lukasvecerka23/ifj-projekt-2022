@@ -9,7 +9,7 @@
 
 // TODO: dynamically allocated
 char string[2000] = {0};
-char* strings = &string[0];
+char* string_start = &string[0];
 
 /*
 // TODO:
@@ -202,7 +202,7 @@ TODO:
 */
 lexeme get_lex_value() {
     States now = START;
-    char* lex_start = string;
+    char* lex_start = string_start;
     while (true) {
         char edge = getchar();
         if (edge == EOF) {
@@ -214,13 +214,13 @@ lexeme get_lex_value() {
         States next = FSM(now, edge);
         if (next == ERROR) {
             ungetc(edge, stdin);
-            *(strings++) =
+            *(string_start++) =
                 '\0';  // remove just for testing should be implemented better
             return create_lex(now, lex_start);
         }
-        *(strings++) = edge;
+        *(string_start++) = edge;
         if (next == START) {
-            strings = lex_start;
+            string_start = lex_start;
         }
         now = next;
     }
