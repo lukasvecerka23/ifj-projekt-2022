@@ -1,3 +1,16 @@
-function ahoj(): void{
-   $var !== 13242.23423 + 20;
+function ahoj(float $a, int $b): void{
+   $var = $a + $b;
+   return $var;
+}
+
+while ($i <= 6){
+   $a = $i;
+   $b = $i+1;
+   if ($a > $b){
+      write(ahoj($a, $b));
+   }
+   else {
+      write(ahoj($b, $a));
+   }
+   $i = $i+1;
 }

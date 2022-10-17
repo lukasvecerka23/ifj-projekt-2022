@@ -53,6 +53,7 @@ typedef struct {
         L_DASH,
         L_ID,
         L_VARID,
+        L_FUNCID,
         L_NUMBER,
         L_SET,
         L_EQ,
@@ -61,7 +62,17 @@ typedef struct {
         L_GREATER,
         L_LESSEQ,
         L_GREATEREQ,
-        L_FLOAT
+        L_FLOAT,
+        K_ELSE,
+        K_FUNCTION,
+        K_IF,
+        K_INT,
+        K_NULL,
+        K_RETURN,
+        K_STRING,
+        K_VOID,
+        K_WHILE,
+        K_FLOAT
     } lex;
 
     union {
