@@ -56,7 +56,7 @@ typedef struct {
         L_VARID,
         L_FUNCID,
         L_NUMBER,
-        L_SET,
+        L_ASSIGN,
         L_EQ,
         L_NEQ,
         L_LESS,

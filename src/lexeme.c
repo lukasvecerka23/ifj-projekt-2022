@@ -177,7 +177,7 @@ lexeme create_lex(States final, char* token) {
         case NUMBER:
             return (lexeme){.lex = L_NUMBER, .string = token};
         case EQ1:
-            return (lexeme){.lex = L_SET};
+            return (lexeme){.lex = L_ASSIGN};
         case EQ3:
             return (lexeme){.lex = L_EQ};
         case NEQ3:
@@ -285,7 +285,7 @@ void print_lex(lexeme lex) {
         case L_DASH:
             printf("( - )\n");
             return;
-        case L_SET:
+        case L_ASSIGN:
             printf("( = )\n");
             return;
         case L_EQ:
