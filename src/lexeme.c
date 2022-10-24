@@ -92,7 +92,6 @@ States FSM(States curr_state, char edge) {
                 return NEQ1;
             return ERROR;
         case SLASH:
-            // printf("edge: %c \n", edge);
             if (edge == '/')
                 return ONE_L_COMMENT;
         case ONE_L_COMMENT:
@@ -132,7 +131,6 @@ States FSM(States curr_state, char edge) {
         case LESS:
             if (edge == '=')
                 return LESSEQ;
-            // error_exit("chyba");
             printf("hit\n");
         case ID1:
             if (isalnum(edge))
@@ -156,7 +154,6 @@ TODO:
 - sending tokens to syntax analyzer
 */
 lexeme create_lex(States final, char* token) {
-    // (lexeme){.line_index = line_num};
     switch (final) {
         case LPAR:
             return (lexeme){.lex = L_LPAR};
@@ -232,16 +229,13 @@ lexeme get_lex_value() {
             if (now == START) {
                 return (lexeme){.lex = LEOF};
             }
-            // printf(" line num: %llu", line_num);
             return create_lex(now, lex_start);
         }
         States next = FSM(now, edge);
-        // printf("state: %d\n", next);
         if (next == ERROR) {
             ungetc(edge, stdin);
             *(string_start++) = '\0';  // remove just for testing should be
                                        // implemented better
-            // printf(" line num: %llu\n", line_num);
             return create_lex(now, lex_start);
         }
         *(string_start++) = edge;
@@ -255,7 +249,6 @@ lexeme get_lex_value() {
 just for testing
 */
 void print_lex(lexeme lex) {
-    // printf("line: %uul", lex.line_index);
     switch (lex.lex) {
         case L_LPAR:
             printf("( ( )\n");
