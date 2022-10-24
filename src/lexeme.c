@@ -79,11 +79,12 @@ States FSM(States curr_state, char edge) {
                 return LESS;
             if (edge == '>')
                 return GREATER;
+            if (edge == '"')
+                return STRING_LIT_E;
             if (isalpha(edge) || edge == '_')
                 return ID1;
             if (isspace(edge))
                 return START;
-            // if (edge == '"') return L_STRING TODO
             if (isdigit(edge))
                 return NUMBER;
             if (edge == '=')
@@ -91,12 +92,27 @@ States FSM(States curr_state, char edge) {
             if (edge == '!')
                 return NEQ1;
             return TOKEN_END;
+        case STRING_LIT_END:
+            return TOKEN_END;
+        case STRING_LIT_E:
+            if (edge == '"') {
+                return STRING_LIT_END;
+            }
+            if (edge == EOF) {
+                err_flag = 1;
+                return TOKEN_END;
+            }
+            if (edge == '\\') {
+                printf("escape sequence function should've been called\n");
+                return STRING_LIT_E;
+            }
+            return STRING_LIT_E;
         case SLASH:
             if (edge == '/')
                 return ONE_L_COMMENT;
             if (edge == '*')
                 return MULT_L_COMMENT;
-            return TOKEN_END;  // TOKEN_END
+            return TOKEN_END;
         case MULT_L_COMMENT:
             if (edge == EOF) {
                 err_flag = 1;
@@ -108,7 +124,7 @@ States FSM(States curr_state, char edge) {
                 return MULT_L_COMMENT;
         case STAR_END:
             if (edge == '/')
-                return TOKEN_END;  // end of token
+                return TOKEN_END;
             else {
                 return MULT_L_COMMENT;
             }
@@ -168,7 +184,6 @@ States FSM(States curr_state, char edge) {
         case GREATER:
             if (edge == '=')
                 return GREATEREQ;
-            err_flag = 1;
             return TOKEN_END;
         default:
             return TOKEN_END;
@@ -211,6 +226,8 @@ lexeme create_lex(States final, char* token) {
             return (lexeme){.lex = L_PLUS};
         case DASH:
             return (lexeme){.lex = L_DASH};
+        case STRING_LIT_END:
+            return (lexeme){.lex = L_STRING, .string = token};
         case ID1:
             // call function for decision between funcid, keyword or type id
             return isKeyword(token);
@@ -334,6 +351,9 @@ void print_lex(lexeme lex) {
             return;
         case L_ID:
             printf("(identifier, %s)\n", lex.string);
+            return;
+        case L_STRING:
+            printf("string, %s\n", lex.string);
             return;
         case L_DASH:
             printf("( - )\n");
