@@ -138,6 +138,8 @@ States FSM(States curr_state, char edge) {
                 return NUMBER;
             if (edge == '.')
                 return FLOAT1;
+            if (edge == 'e' || edge == 'E')
+                return EXP_1;
             else
                 return TOKEN_END;
         case FLOAT1:
@@ -150,7 +152,22 @@ States FSM(States curr_state, char edge) {
         case FLOAT2:
             if (isdigit(edge))
                 return FLOAT2;
-            return TOKEN_END;
+            if (edge == 'E' || edge == 'e')
+                return EXP_1;
+            else
+                return TOKEN_END;
+        case EXP_1:
+            if (edge == '+' || edge == '-' || isdigit(edge))
+                return EXP_2;
+            else {
+                err_flag = 1;
+                TOKEN_END;
+            }
+        case EXP_2:
+            if (isdigit(edge))
+                return EXP_2;
+            else
+                return TOKEN_END;
         case VARID:
             if (isalnum(edge))
                 return VARID;
@@ -228,6 +245,8 @@ lexeme create_lex(States final, char* token) {
             return (lexeme){.lex = L_DASH};
         case STRING_LIT_END:
             return (lexeme){.lex = L_STRING, .string = token};
+        case EXP_2:
+            return (lexeme){.lex = L_EXP, .string = token};
         case ID1:
             // call function for decision between funcid, keyword or type id
             return isKeyword(token);
@@ -340,6 +359,9 @@ void print_lex(lexeme lex) {
         case L_SLASH:
             printf("( / )\n");
             return;
+        case L_EXP:
+            printf("( exp, %s )\n", lex.string);
+            return;
         case L_NUMBER:
             printf("(integer, %s)\n", lex.string);
             return;
@@ -353,7 +375,7 @@ void print_lex(lexeme lex) {
             printf("(identifier, %s)\n", lex.string);
             return;
         case L_STRING:
-            printf("string, %s\n", lex.string);
+            printf("(string, %s)\n", lex.string);
             return;
         case L_DASH:
             printf("( - )\n");
