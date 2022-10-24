@@ -15,7 +15,7 @@ int err_flag = 0;
 /*
 // TODO:
 - add all transitions
-- implement states for exp lit, string lit, func id, var id and keywords
+- implement
 */
 
 lexeme isKeyword(char* keywd) {
