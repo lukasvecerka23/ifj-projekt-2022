@@ -10,6 +10,7 @@
 // TODO: dynamically allocated
 char string[2000] = {0};
 char* string_start = &string[0];
+unsigned long long line_num = 1;
 
 /*
 // TODO:
@@ -90,6 +91,15 @@ States FSM(States curr_state, char edge) {
             if (edge == '!')
                 return NEQ1;
             return ERROR;
+        case SLASH:
+            // printf("edge: %c \n", edge);
+            if (edge == '/')
+                return ONE_L_COMMENT;
+        case ONE_L_COMMENT:
+            if (edge == '\n' || edge == EOF)
+                return ERROR;
+            else
+                return ONE_L_COMMENT;
         case NUMBER:
             if (isdigit(edge))
                 return NUMBER;
@@ -122,12 +132,14 @@ States FSM(States curr_state, char edge) {
         case LESS:
             if (edge == '=')
                 return LESSEQ;
-        case GREATER:
-            if (edge == '=')
-                return GREATEREQ;
+            // error_exit("chyba");
+            printf("hit\n");
         case ID1:
             if (isalnum(edge))
                 return ID1;
+        case GREATER:
+            if (edge == '=')
+                return GREATEREQ;
         default:
             return ERROR;
     }
@@ -144,6 +156,7 @@ TODO:
 - sending tokens to syntax analyzer
 */
 lexeme create_lex(States final, char* token) {
+    // (lexeme){.line_index = line_num};
     switch (final) {
         case LPAR:
             return (lexeme){.lex = L_LPAR};
@@ -196,8 +209,11 @@ lexeme create_lex(States final, char* token) {
             return (lexeme){.lex = L_VARPREF};
         case ERROR:
             error_exit("reached end of token");
+        case ONE_L_COMMENT:
+            warning_msg("komentar\n");
+            break;
     }
-    error_exit("No state implemented for this input");
+    warning_msg("No state implemented for this input");
 }
 /*
 TODO:
@@ -209,17 +225,23 @@ lexeme get_lex_value() {
     char* lex_start = string_start;
     while (true) {
         char edge = getchar();
+        if (edge == '\n') {
+            line_num++;
+        }
         if (edge == EOF) {
             if (now == START) {
                 return (lexeme){.lex = LEOF};
             }
+            // printf(" line num: %llu", line_num);
             return create_lex(now, lex_start);
         }
         States next = FSM(now, edge);
+        // printf("state: %d\n", next);
         if (next == ERROR) {
             ungetc(edge, stdin);
-            *(string_start++) =
-                '\0';  // remove just for testing should be implemented better
+            *(string_start++) = '\0';  // remove just for testing should be
+                                       // implemented better
+            // printf(" line num: %llu\n", line_num);
             return create_lex(now, lex_start);
         }
         *(string_start++) = edge;
@@ -233,6 +255,7 @@ lexeme get_lex_value() {
 just for testing
 */
 void print_lex(lexeme lex) {
+    // printf("line: %uul", lex.line_index);
     switch (lex.lex) {
         case L_LPAR:
             printf("( ( )\n");
@@ -343,7 +366,7 @@ void print_lex(lexeme lex) {
             printf("( funcid, %s )\n", lex.string);
             return;
         default:
-            warning_msg("reached end of file \n");
+            warning_msg("did not match any token \n");
             return;
     }
     warning_msg(

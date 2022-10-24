@@ -33,7 +33,8 @@ typedef enum {
     NEQ3,
     FLOAT1,
     FLOAT2,
-    VARPREF
+    VARPREF,
+    ONE_L_COMMENT
 } States;
 // TODO: add all states
 
@@ -78,8 +79,9 @@ typedef struct {
     } lex;
 
     union {
+        unsigned long long line_index;
         char* string;
-        int val;
+        unsigned long long val;
         int index;
     };
 

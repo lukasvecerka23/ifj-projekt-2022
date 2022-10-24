@@ -7,7 +7,7 @@ void warning_msg(const char* fmt, ...) {
     va_list args;
 
     va_start(args, fmt);
-    fprintf(stderr, "ERROR: ");
+    fprintf(stderr, "WARNING: ");
     vfprintf(stderr, fmt, args);
     fprintf(stderr, "\n");
     va_end(args);
