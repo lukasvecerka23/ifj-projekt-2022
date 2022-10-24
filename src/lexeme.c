@@ -11,7 +11,7 @@
 char string[2000] = {0};
 char* string_start = &string[0];
 unsigned long long line_num = 1;
-
+int err_flag = 0;
 /*
 // TODO:
 - add all transitions
@@ -44,7 +44,7 @@ lexeme isKeyword(char* keywd) {
 
 States FSM(States curr_state, char edge) {
     switch (curr_state) {
-        case ERROR:
+        case TOKEN_END:
             fprintf(stderr, "token should have been created.");
         case START:
             if (edge == ')')
@@ -90,13 +90,31 @@ States FSM(States curr_state, char edge) {
                 return EQ1;
             if (edge == '!')
                 return NEQ1;
-            return ERROR;
+            return TOKEN_END;
         case SLASH:
             if (edge == '/')
                 return ONE_L_COMMENT;
+            if (edge == '*')
+                return MULT_L_COMMENT;
+            return TOKEN_END;  // TOKEN_END
+        case MULT_L_COMMENT:
+            if (edge == EOF) {
+                err_flag = 1;
+                return TOKEN_END;
+            }
+            if (edge == '*')
+                return STAR_END;
+            else
+                return MULT_L_COMMENT;
+        case STAR_END:
+            if (edge == '/')
+                return TOKEN_END;  // end of token
+            else {
+                return MULT_L_COMMENT;
+            }
         case ONE_L_COMMENT:
             if (edge == '\n' || edge == EOF)
-                return ERROR;
+                return TOKEN_END;
             else
                 return ONE_L_COMMENT;
         case NUMBER:
@@ -104,51 +122,65 @@ States FSM(States curr_state, char edge) {
                 return NUMBER;
             if (edge == '.')
                 return FLOAT1;
+            else
+                return TOKEN_END;
         case FLOAT1:
             if (isdigit(edge))
                 return FLOAT2;
-            else
-                return ERROR;
+            else {
+                return err_flag = 1;
+                return TOKEN_END;
+            }
         case FLOAT2:
             if (isdigit(edge))
                 return FLOAT2;
-            // if (edge == 'e' || edge == 'E')
+            return TOKEN_END;
         case VARID:
             if (isalnum(edge))
                 return VARID;
+            return TOKEN_END;
         case EQ1:
             if (edge == '=')
                 return EQ2;
+            return TOKEN_END;
         case EQ2:
             if (edge == '=')
                 return EQ3;
+            err_flag = 1;
+            return TOKEN_END;
         case NEQ1:
             if (edge == '=')
                 return NEQ2;
+            err_flag = 1;
+            return TOKEN_END;
         case NEQ2:
             if (edge == '=')
                 return NEQ3;
+            err_flag = 1;
+            return TOKEN_END;
         case LESS:
             if (edge == '=')
                 return LESSEQ;
-            printf("hit\n");
         case ID1:
             if (isalnum(edge))
                 return ID1;
+            return TOKEN_END;
         case GREATER:
             if (edge == '=')
                 return GREATEREQ;
+            err_flag = 1;
+            return TOKEN_END;
         default:
-            return ERROR;
+            return TOKEN_END;
     }
-    return ERROR;
+    return TOKEN_END;
 }
 /*
 TODO:
 - Number with Exp
 - String literals
 - Type identificator with ?
-- error handling
+- TOKEN_END handling
 - store data to lexeme depends on its type
 - uploading var id, func id to symtable
 - sending tokens to syntax analyzer
@@ -204,7 +236,7 @@ lexeme create_lex(States final, char* token) {
             return (lexeme){.lex = L_FLOAT, .string = token};
         case VARPREF:
             return (lexeme){.lex = L_VARPREF};
-        case ERROR:
+        case TOKEN_END:
             error_exit("reached end of token");
         case ONE_L_COMMENT:
             warning_msg("komentar\n");
@@ -232,11 +264,16 @@ lexeme get_lex_value() {
             return create_lex(now, lex_start);
         }
         States next = FSM(now, edge);
-        if (next == ERROR) {
+        if (next == TOKEN_END) {
             ungetc(edge, stdin);
-            *(string_start++) = '\0';  // remove just for testing should be
-                                       // implemented better
-            return create_lex(now, lex_start);
+            *(string_start++) = '\0';
+            if (!err_flag) {
+                return create_lex(now, lex_start);
+            } else {
+                warning_msg("error when creating token");
+                err_flag = 0;
+                next = START;
+            }
         }
         *(string_start++) = edge;
         if (next == START) {
@@ -365,6 +402,5 @@ void print_lex(lexeme lex) {
     warning_msg(
         "token should have been printed (didnt you forget to add it print "
         "func)");
-    printf("ERROR");
     return;
 }

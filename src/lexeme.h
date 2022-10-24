@@ -13,7 +13,7 @@ typedef enum {
     RCURL,
     COLON,
     SEMICOLON,
-    ERROR,
+    TOKEN_END,
     PLUS,
     DASH,
     SLASH,
@@ -34,7 +34,9 @@ typedef enum {
     FLOAT1,
     FLOAT2,
     VARPREF,
-    ONE_L_COMMENT
+    ONE_L_COMMENT,
+    MULT_L_COMMENT,
+    STAR_END
 } States;
 // TODO: add all states
 
