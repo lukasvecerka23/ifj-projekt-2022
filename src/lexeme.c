@@ -23,57 +23,54 @@ TODO:
 - make it functional
 */
 
-void string_init(){
+void string_init() {
     // char * str = malloc();
 }
 
-int return_digit(char * token){
+int return_digit(char* token) {
     return atoi(token);
 }
 
-double return_exp(char * token_exp){
+double return_exp(char* token_exp) {}
 
-}
-
-double return_float(char * token){\
+double return_float(char* token) {
     return atof(token);
 }
 
-int escape_sequence_parser(char * str){
+int escape_sequence_parser(char* str) {
     unsigned long long i = 0;
-    while (str[i] != '\0'){
-        if(str[i] == '\\'){
+    while (str[i] != '\0') {
+        if (str[i] == '\\') {
             i++;
-            if(str[i] == '$'){
-                str[(i-1)] = '$';
+            if (str[i] == '$') {
+                str[(i - 1)] = '$';
             }
-            if(str[i] == 'n'){
-                str[(i-1)] = '\n';
+            if (str[i] == 'n') {
+                str[(i - 1)] = '\n';
             }
-            if(str[i] == 't'){
-                str[(i-1)] = '\t';
+            if (str[i] == 't') {
+                str[(i - 1)] = '\t';
             }
-            if(str[i] == 'r'){
-                str[(i-1)] = '\r';
+            if (str[i] == 'r') {
+                str[(i - 1)] = '\r';
             }
-            if(str[i] == '\\'){
-                str[(i-1)] = '\\';
+            if (str[i] == '\\') {
+                str[(i - 1)] = '\\';
             }
-            if(str[i] == '"'){
-                str[(i-1)] = '\"';
+            if (str[i] == '"') {
+                str[(i - 1)] = '\"';
             }
-            if(str[i] == 'x'){
-                //nacitani hex 00 -> FF
+            if (str[i] == 'x') {
+                // nacitani hex 00 -> FF
             }
-            if(isdigit(str[i])){
+            if (isdigit(str[i])) {
                 // nacitani cisla 001 -> 255
-            }
-            else{
-                //delete /
+            } else {
+                // delete /
             }
         }
-        if(str[i] == '$'){
-            //error;
+        if (str[i] == '$') {
+            // error;
             return false;
         }
         i++;
@@ -217,18 +214,18 @@ States FSM(States curr_state, char edge) {
         case EXP_1:
             if (edge == '+' || edge == '-')
                 return EXP_1_5;
-            if(isdigit(edge)) //add one state to fix 10E+ is valid
+            if (isdigit(edge))  // add one state to fix 10E+ is valid
                 return EXP_2;
             else {
                 err_flag = 1;
                 TOKEN_END;
             }
         case EXP_1_5:
-            if(isdigit(edge))
+            if (isdigit(edge))
                 return EXP_2;
             else
                 err_flag = 1;
-                return TOKEN_END;
+            return TOKEN_END;
         case EXP_2:
             if (isdigit(edge))
                 return EXP_2;
@@ -353,7 +350,7 @@ lexeme get_lex_value() {
     char* lex_start = string_start;
     char edge = ' ';
     while (true) {
-        if(edge == '\n')
+        if (edge == '\n')
             line_num++;
         edge = getchar();
         if (edge == EOF) {
@@ -369,7 +366,7 @@ lexeme get_lex_value() {
             if (!err_flag) {
                 return create_lex(now, lex_start);
             } else {
-                warning_msg("line: %d token: %s",line_num,lex_start);
+                warning_msg("line: %d token: %s", line_num, lex_start);
                 err_flag = 0;
                 next = START;
             }

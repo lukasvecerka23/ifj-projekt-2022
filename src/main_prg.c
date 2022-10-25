@@ -1,7 +1,6 @@
 
 #include "lexeme.h"
 
-
 /*
 just for testing
 */
@@ -131,7 +130,6 @@ void print_lex(lexeme lex) {
         "func)");
     return;
 }
-
 
 int main() {
     lexeme l = {0};
