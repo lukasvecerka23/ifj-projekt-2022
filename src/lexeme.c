@@ -15,7 +15,7 @@ int err_flag = 0;
 /*
 // TODO:
 - add all transitions
-- implement
+- implement prolog and function for escape sequences
 */
 
 lexeme isKeyword(char* keywd) {
@@ -102,10 +102,6 @@ States FSM(States curr_state, char edge) {
                 err_flag = 1;
                 return TOKEN_END;
             }
-            if (edge == '\\') {
-                printf("escape sequence function should've been called\n");
-                return STRING_LIT_E;
-            }
             return STRING_LIT_E;
         case SLASH:
             if (edge == '/')
@@ -157,7 +153,7 @@ States FSM(States curr_state, char edge) {
             else
                 return TOKEN_END;
         case EXP_1:
-            if (edge == '+' || edge == '-' || isdigit(edge))
+            if (edge == '+' || edge == '-' || isdigit(edge)) //add one state to fix 10E+ is valid
                 return EXP_2;
             else {
                 err_flag = 1;
@@ -209,10 +205,6 @@ States FSM(States curr_state, char edge) {
 }
 /*
 TODO:
-- Number with Exp
-- String literals
-- Type identificator with ?
-- TOKEN_END handling
 - store data to lexeme depends on its type
 - uploading var id, func id to symtable
 - sending tokens to syntax analyzer
