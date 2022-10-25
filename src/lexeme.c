@@ -23,15 +23,9 @@ TODO:
 - make it functional
 */
 
-void string_init() {
-    // char * str = malloc();
-}
-
 int return_digit(char* token) {
     return atoi(token);
 }
-
-double return_exp(char* token_exp) {}
 
 double return_float(char* token) {
     return atof(token);
