@@ -18,6 +18,68 @@ int err_flag = 0;
 - implement prolog and function for escape sequences
 */
 
+/*
+TODO:
+- make it functional
+*/
+
+void string_init(){
+    // char * str = malloc();
+}
+
+int return_digit(char * token){
+    return atoi(token);
+}
+
+double return_exp(char * token_exp){
+
+}
+
+double return_float(char * token){\
+    return atof(token);
+}
+
+int escape_sequence_parser(char * str){
+    unsigned long long i = 0;
+    while (str[i] != '\0'){
+        if(str[i] == '\\'){
+            i++;
+            if(str[i] == '$'){
+                str[(i-1)] = '$';
+            }
+            if(str[i] == 'n'){
+                str[(i-1)] = '\n';
+            }
+            if(str[i] == 't'){
+                str[(i-1)] = '\t';
+            }
+            if(str[i] == 'r'){
+                str[(i-1)] = '\r';
+            }
+            if(str[i] == '\\'){
+                str[(i-1)] = '\\';
+            }
+            if(str[i] == '"'){
+                str[(i-1)] = '\"';
+            }
+            if(str[i] == 'x'){
+                //nacitani hex 00 -> FF
+            }
+            if(isdigit(str[i])){
+                // nacitani cisla 001 -> 255
+            }
+            else{
+                //delete /
+            }
+        }
+        if(str[i] == '$'){
+            //error;
+            return false;
+        }
+        i++;
+    }
+}
+
 lexeme isKeyword(char* keywd) {
     if (strcmp(keywd, "else") == 0)
         return (lexeme){.lex = K_ELSE};
@@ -153,12 +215,20 @@ States FSM(States curr_state, char edge) {
             else
                 return TOKEN_END;
         case EXP_1:
-            if (edge == '+' || edge == '-' || isdigit(edge)) //add one state to fix 10E+ is valid
+            if (edge == '+' || edge == '-')
+                return EXP_1_5;
+            if(isdigit(edge)) //add one state to fix 10E+ is valid
                 return EXP_2;
             else {
                 err_flag = 1;
                 TOKEN_END;
             }
+        case EXP_1_5:
+            if(isdigit(edge))
+                return EXP_2;
+            else
+                err_flag = 1;
+                return TOKEN_END;
         case EXP_2:
             if (isdigit(edge))
                 return EXP_2;
@@ -238,14 +308,15 @@ lexeme create_lex(States final, char* token) {
         case STRING_LIT_END:
             return (lexeme){.lex = L_STRING, .string = token};
         case EXP_2:
-            return (lexeme){.lex = L_EXP, .string = token};
+            return (lexeme){.lex = L_EXP, .float_val = return_float(token)};
+            // return (lexeme){.lex = L_EXP, .string = token};
         case ID1:
             // call function for decision between funcid, keyword or type id
             return isKeyword(token);
         case VARID:
             return (lexeme){.lex = L_VARID, .string = token};
         case NUMBER:
-            return (lexeme){.lex = L_NUMBER, .string = token};
+            return (lexeme){.lex = L_NUMBER, .val = return_digit(token)};
         case EQ1:
             return (lexeme){.lex = L_ASSIGN};
         case EQ3:
@@ -261,7 +332,7 @@ lexeme create_lex(States final, char* token) {
         case GREATER:
             return (lexeme){.lex = L_GREATER};
         case FLOAT2:
-            return (lexeme){.lex = L_FLOAT, .string = token};
+            return (lexeme){.lex = L_FLOAT, .float_val = return_float(token)};
         case VARPREF:
             return (lexeme){.lex = L_VARPREF};
         case TOKEN_END:
@@ -280,11 +351,11 @@ TODO:
 lexeme get_lex_value() {
     States now = START;
     char* lex_start = string_start;
+    char edge = ' ';
     while (true) {
-        char edge = getchar();
-        if (edge == '\n') {
+        if(edge == '\n')
             line_num++;
-        }
+        edge = getchar();
         if (edge == EOF) {
             if (now == START) {
                 return (lexeme){.lex = LEOF};
@@ -298,7 +369,7 @@ lexeme get_lex_value() {
             if (!err_flag) {
                 return create_lex(now, lex_start);
             } else {
-                warning_msg("error when creating token");
+                warning_msg("line: %d token: %s",line_num,lex_start);
                 err_flag = 0;
                 next = START;
             }
@@ -352,10 +423,11 @@ void print_lex(lexeme lex) {
             printf("( / )\n");
             return;
         case L_EXP:
-            printf("( exp, %s )\n", lex.string);
+            printf("( exp, %f)\n", lex.float_val);
+            // printf("( exp, %s)\n", lex.string);
             return;
         case L_NUMBER:
-            printf("(integer, %s)\n", lex.string);
+            printf("(integer, %lld)\n", lex.val);
             return;
         case L_VARID:
             printf("(varid, %s)\n", lex.string);
@@ -394,7 +466,7 @@ void print_lex(lexeme lex) {
             printf("( >= )\n");
             return;
         case L_FLOAT:
-            printf("(float, %s)\n", lex.string);
+            printf("(float, %f)\n", lex.float_val);
             return;
         case K_ELSE:
             printf("( else )\n");

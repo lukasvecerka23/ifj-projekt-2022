@@ -21,6 +21,7 @@ typedef enum {
     DASH,
     SLASH,
     MUL,
+    EXP_1_5,
     ID1,
     VARID,
     NUMBER,
@@ -45,8 +46,7 @@ typedef enum {
 } States;
 // TODO: add all states
 
-typedef struct {
-    enum {
+typedef enum {
         L_LPAR,
         L_RPAR,
         L_COMMA,
@@ -87,10 +87,15 @@ typedef struct {
         K_FLOAT
     } lex;
 
+typedef struct {
+
+    lex lex;
+
     union {
         unsigned long long line_index;
         char* string;
         unsigned long long val;
+        double float_val;
         int index;
     };
 
@@ -100,3 +105,4 @@ States FSM(States curr_state, char edge);
 lexeme create_lex(States final, char* token);
 lexeme get_lex_value();
 void print_lex(lexeme lex);
+lexeme isKeyword(char* keywd);
