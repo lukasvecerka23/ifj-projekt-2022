@@ -7,7 +7,7 @@ OBJ = main_prg.o lexeme.o error.o
 
 # test-run: $(PROG)
 run: main_prg
-	./main_prg < example
+	./main_prg
 
 # $(PROJECT)-test: $(PROJECT).c
 # 	$(CC) $(CFLAGS) -o $@ $(PROJECT).c
