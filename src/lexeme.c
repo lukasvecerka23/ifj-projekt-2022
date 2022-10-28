@@ -173,13 +173,13 @@ States FSM(States curr_state, char edge) {
                 return MULT_L_COMMENT;
         case STAR_END:
             if (edge == '/')
-                return TOKEN_END;
+                return START;
             else {
                 return MULT_L_COMMENT;
             }
         case ONE_L_COMMENT:
             if (edge == '\n' || edge == EOF)
-                return TOKEN_END;
+                return START;
             else
                 return ONE_L_COMMENT;
         case NUMBER:
@@ -332,9 +332,6 @@ lexeme create_lex(States final, char* token) {
             return (lexeme){.lex = L_VARPREF};
         case TOKEN_END:
             error_exit("reached end of token");
-        case ONE_L_COMMENT:
-            warning_msg("komentar\n");
-            break;
     }
     warning_msg("No state implemented for this input");
 }
