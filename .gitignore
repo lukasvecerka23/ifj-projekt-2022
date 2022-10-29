@@ -1,0 +1,4 @@
+*.o
+main_prg
+.DS_Store
+src/tests/build
