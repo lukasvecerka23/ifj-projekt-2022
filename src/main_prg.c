@@ -1,5 +1,4 @@
 #include "error.h"
-#include "lexeme.h"
 #include "parser.h"
 
 /*
