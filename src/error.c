@@ -3,6 +3,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+void exit_program(int err_code, char* msg) {
+    switch (err_code) {
+        case 51:
+            fprintf(stderr, "syntax error: %s\n", msg);
+            exit(51);
+    }
+}
+
 void warning_msg(const char* fmt, ...) {
     va_list args;
 

@@ -1,7 +1,7 @@
 <prolog> -> phpstart declare <program>
 
 <program> -> <statement> <program>
-<program> -> function funcid (<list_params>): <type> {<statement>} <program>
+<program> -> function funcid (<list_params>): <return_type> {<statement>} <program>
 <program> -> eof
 <program> -> phpend
 
@@ -23,6 +23,9 @@
 <term> -> float
 <term> -> null
 
+<return_type> -> type_id
+<return_type> -> ? type_id
+
 <type> -> type_id
 <type> -> ? type_id
 
@@ -31,6 +34,6 @@
 <statement> -> <expression>; <statement>
 <statement> -> funcid(<list_input_params>); <statement>
 <statement> -> if (<expression>){<statement>} else {<statement>} <statement>
-<statement> -> while (<expression>){<statement>}
+<statement> -> while (<expression>){<statement>} <statement>
 <statement> -> return <expression>;
 <statement> -> epsilon

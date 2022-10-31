@@ -137,8 +137,10 @@ int main() {
     //    l = get_lex_value();
     //    print_lex(l);
     // }
-    if (program()) {
+    if (syntax_analyse()) {
         printf("parser good");
+    } else {
+        printf("parser not good");
     }
     return 0;
 }
