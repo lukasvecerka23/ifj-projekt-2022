@@ -1,5 +1,7 @@
 
+#include "error.h"
 #include "lexeme.h"
+
 
 /*
 just for testing

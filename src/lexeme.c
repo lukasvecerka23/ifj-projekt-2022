@@ -237,13 +237,13 @@ States FSM(States curr_state, char edge) {
                 return MULT_L_COMMENT;
         case STAR_END:
             if (edge == '/')
-                return TOKEN_END;
+                return START;
             else {
                 return MULT_L_COMMENT;
             }
         case ONE_L_COMMENT:
             if (edge == '\n' || edge == EOF)
-                return TOKEN_END;
+                return START;
             else
                 return ONE_L_COMMENT;
         case NUMBER:
@@ -290,7 +290,7 @@ States FSM(States curr_state, char edge) {
             else
                 return TOKEN_END;
         case VARID:
-            if (isalnum(edge))
+            if (isalnum(edge) || edge == '_')
                 return VARID;
             return TOKEN_END;
         case EQ1:
@@ -316,8 +316,12 @@ States FSM(States curr_state, char edge) {
             if (edge == '=')
                 return LESSEQ;
         case ID1:
-            if (isalnum(edge))
-                return ID1;
+            if (isalpha(edge) || edge == '_')
+                return ID2;
+            return TOKEN_END;
+        case ID2:
+            if (isalnum(edge) || edge == '_')
+                return ID2;
             return TOKEN_END;
         case GREATER:
             if (edge == '=')
@@ -365,7 +369,7 @@ lexeme create_lex(States final, char* token) {
         case EXP_2:
             return (lexeme){.lex = L_EXP, .float_val = return_float(token)};
             // return (lexeme){.lex = L_EXP, .string = token};
-        case ID1:
+        case ID2:
             // call function for decision between funcid, keyword or type id
             return isKeyword(token);
         case VARID:
@@ -392,9 +396,6 @@ lexeme create_lex(States final, char* token) {
             return (lexeme){.lex = L_VARPREF};
         case TOKEN_END:
             error_exit("reached end of token");
-        case ONE_L_COMMENT:
-            warning_msg("komentar\n");
-            break;
     }
     warning_msg("No state implemented for this input");
 }

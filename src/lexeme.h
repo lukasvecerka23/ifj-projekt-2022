@@ -27,6 +27,7 @@ typedef enum {
     MUL,
     EXP_1_5,
     ID1,
+    ID2,
     VARID,
     NUMBER,
     EQ1,
