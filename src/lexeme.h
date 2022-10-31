@@ -17,6 +17,10 @@ typedef enum {
     STRING_LIT_S,
     STRING_LIT_E,
     STRING_LIT_END,
+    STRING_SLASH,
+    PHPSTART,
+    PHPEND,
+    DECLARE,
     PLUS,
     DASH,
     SLASH,
@@ -47,48 +51,47 @@ typedef enum {
 // TODO: add all states
 
 typedef enum {
-        L_LPAR,
-        L_RPAR,
-        L_COMMA,
-        L_SEMICOL,
-        L_COLON,
-        L_RCURL,
-        L_LCURL,
-        L_DOT,
-        LEOF,
-        L_MUL,
-        L_SLASH,
-        L_PLUS,
-        L_DASH,
-        L_ID,
-        L_VARID,
-        L_FUNCID,
-        L_NUMBER,
-        L_ASSIGN,
-        L_STRING,
-        L_EQ,
-        L_EXP,
-        L_NEQ,
-        L_LESS,
-        L_GREATER,
-        L_LESSEQ,
-        L_GREATEREQ,
-        L_FLOAT,
-        L_VARPREF,
-        K_ELSE,
-        K_FUNCTION,
-        K_IF,
-        K_INT,
-        K_NULL,
-        K_RETURN,
-        K_STRING,
-        K_VOID,
-        K_WHILE,
-        K_FLOAT
-    } lex;
+    L_LPAR,
+    L_RPAR,
+    L_COMMA,
+    L_SEMICOL,
+    L_COLON,
+    L_RCURL,
+    L_LCURL,
+    L_DOT,
+    LEOF,
+    L_MUL,
+    L_SLASH,
+    L_PLUS,
+    L_DASH,
+    L_ID,
+    L_VARID,
+    L_FUNCID,
+    L_NUMBER,
+    L_ASSIGN,
+    L_STRING,
+    L_EQ,
+    L_EXP,
+    L_NEQ,
+    L_LESS,
+    L_GREATER,
+    L_LESSEQ,
+    L_GREATEREQ,
+    L_FLOAT,
+    L_VARPREF,
+    K_ELSE,
+    K_FUNCTION,
+    K_IF,
+    K_INT,
+    K_NULL,
+    K_RETURN,
+    K_STRING,
+    K_VOID,
+    K_WHILE,
+    K_FLOAT
+} lex;
 
 typedef struct {
-
     lex lex;
 
     union {
@@ -100,6 +103,16 @@ typedef struct {
     };
 
 } lexeme;
+
+typedef struct {
+    unsigned long long line_num;
+    int err_flag;
+    int free_token;
+    char edge;
+    char* token;
+    int tokenmem;
+    int usedmem;
+} scanner_t;
 
 States FSM(States curr_state, char edge);
 lexeme create_lex(States final, char* token);
