@@ -2,6 +2,14 @@
 #include <stdbool.h>
 #include "error.h"
 
+/** TODO
+ * Dodelat rule pro prolog
+ * Propojit parser s hashtable - nacitani funkci, promennych a literalu
+ * Expression parser - parsovani a vyhodnocovani vyrazu
+ * AST - vytvoreni struktury a propojeni s parserem, generovani AST
+ * Prepinani mezi top/down bottom/up parsingem, predavani tokenu atd.
+ **/
+
 Parser parser;
 
 void get_next_token() {
