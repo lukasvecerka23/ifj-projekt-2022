@@ -1,0 +1,15 @@
+function asda(int $var, string $bar): int{
+    write("ahoj");
+}
+
+if (){
+    write("ahoj");
+} else {
+    write("ahoj");
+}
+
+while(){
+    write("ahoj");
+}
+
+$a = ahoj();
