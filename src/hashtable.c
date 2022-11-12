@@ -19,7 +19,8 @@ size_t htab_hash_function(htab_key_t str) {
 // inicializace tabulky
 htab_t* htab_init(size_t size) {
     if (size == 0) {
-        error_exit("Chyba: tabulka musí obsahovat alespoň jeden řádek.");
+        // error_exit("Chyba: tabulka musí obsahovat alespoň jeden řádek.");
+        exit(1);
     }
     htab_t* htab_new = malloc(sizeof(htab_t));
     if (htab_new == NULL) {
@@ -46,7 +47,7 @@ size_t htab_size(htab_t* table) {
 }
 
 // funkce pro zjisteni velikosti tabulky
-size_t htab_bucket_count(const htab_t* table) {
+size_t htab_bucket_count(htab_t* table) {
     return table->arr_size;
 }
 
@@ -64,7 +65,7 @@ void htab_resize(htab_t* table, size_t newsize) {
             htab_item_t* tmp = old_arr_ptr[i];
             while (tmp != NULL) {
                 htab_item_t* tmp2 = tmp->next;
-                htab_lookup_add(table, tmp->key, tmp->data);
+                htab_search_insert(table, tmp->key, tmp->data);
                 free((char*)tmp->key);
                 free(tmp);
                 table->size--;
@@ -76,7 +77,7 @@ void htab_resize(htab_t* table, size_t newsize) {
     free(old_arr_ptr);
 }
 
-htab_item_t* htab_find(htab_t* table, htab_key_t key) {
+htab_item_t* htab_search(htab_t* table, htab_key_t key) {
     size_t index = htab_hash_function(key) % table->arr_size;
     htab_item_t* tmp = table->arr_ptr[index];
 
@@ -86,7 +87,7 @@ htab_item_t* htab_find(htab_t* table, htab_key_t key) {
 
     while (tmp != NULL) {
         if (!strcmp(tmp->key, key)) {
-            return &(tmp->data);
+            return tmp;
         }
         tmp = tmp->next;
     }
@@ -114,20 +115,20 @@ htab_item_t* create_new_item(htab_key_t key, htab_item_data_type_t data) {
 }
 // try to search item with given key, when key's not found create new element
 // with this key
-htab_item_t* htab_lookup_add(htab_t* table,
-                             htab_key_t key,
-                             htab_item_data_type_t data) {
+htab_item_t* htab_search_insert(htab_t* table,
+                                htab_key_t key,
+                                htab_item_data_type_t data) {
     if (table->size > table->arr_size * AVG_LEN_MAX) {
         htab_resize(table, (table->arr_size * 2));
     }
     size_t index = (htab_hash_function(key) % table->arr_size);
     htab_item_t* tmp = table->arr_ptr[index];
-    htab_item_t* p = htab_find(table, key);
+    htab_item_t* p = htab_search(table, key);
     if (p != NULL) {
         return p;
     }
 
-    htab_item_t* new_item = create_new_pair(key, data);
+    htab_item_t* new_item = create_new_item(key, data);
     if (new_item == NULL) {
         return NULL;
     }
@@ -141,11 +142,11 @@ htab_item_t* htab_lookup_add(htab_t* table,
         }
         tmp->next = new_item;
     }
-    return &(new_item);
+    return new_item;
 }
 
 // delete item with specified key
-bool htab_erase(htab_t* table, htab_key_t key) {
+bool htab_delete(htab_t* table, htab_key_t key) {
     if (table->size < table->arr_size * AVG_LEN_MIN) {
         htab_resize(table, (table->arr_size / 2));
     }
@@ -157,6 +158,7 @@ bool htab_erase(htab_t* table, htab_key_t key) {
     }
 
     if (!strcmp(tmp->key, key)) {
+        printf("hit");
         if (tmp->next == NULL) {
             free((char*)tmp->key);
             free(tmp);
@@ -167,16 +169,18 @@ bool htab_erase(htab_t* table, htab_key_t key) {
             free(tmp);
             table->arr_ptr[index] = tmp_next;
         }
+        printf("hit1");
         table->size--;
         return true;
     }
-
+    printf("hit2");
     while (tmp->next != NULL) {
         if (!strcmp(tmp->next->key, key)) {
             htab_item_t* tmp_next = tmp->next->next;
             free((char*)tmp->next->key);
             free(tmp->next);
             tmp->next = tmp_next;
+            break;
         }
         if (tmp->next != NULL) {
             tmp = tmp->next;

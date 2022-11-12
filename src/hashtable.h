@@ -11,17 +11,15 @@ typedef enum {
 } RETURN_TYPE;
 
 typedef const char* htab_key_t;
-
+typedef struct htab_item htab_item_t;
 typedef struct htab_func_data {
     bool defined;
-    char* name;
     RETURN_TYPE ret_type;
     htab_item_t** params;
 
 } htab_func_data_t;
 
 typedef struct htab_var_data {
-    char* name;
     bool init;
     DTYPE data_type;
 } htab_var_data_t;
@@ -31,11 +29,11 @@ typedef union {
     htab_var_data_t* var_data;
 } htab_item_data_type_t;
 
-typedef struct htab_item {
+struct htab_item {
     htab_key_t key;
     htab_item_data_type_t data;
     htab_item_t* next;
-} htab_item_t;
+};
 
 typedef struct htab {
     size_t size;
