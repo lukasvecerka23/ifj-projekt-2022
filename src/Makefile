@@ -3,7 +3,7 @@ CC=gcc
 PROG=$(PROJECT)-test
 CFLAGS=-std=c99 -Wall -Wextra -pedantic -lm -fcommon
 EXEC = main_prg
-OBJ = main_prg.o lexeme.o error.o parser.o
+OBJ = main_prg.o lexeme.o error.o parser.o hashtable.o
 
 # test-run: $(PROG)
 run: main_prg
@@ -11,7 +11,7 @@ run: main_prg
 
 # $(PROJECT)-test: $(PROJECT).c
 # 	$(CC) $(CFLAGS) -o $@ $(PROJECT).c
-main_prg: main_prg.o lexeme.o error.o parser.o
+$(EXEC): $(OBJ)
 	$(CC) $(CFLAGS) $(OBJ) -o main_prg
 
 main_prg.o: main_prg.c
@@ -25,6 +25,9 @@ error.o: error.c error.h
 
 parser.o: parser.c parser.h
 	$(CC) $(CFLAGS) -c parser.c -o parser.o
+
+hashtable.o: hashtable.c hashtable.h
+	$(CC) $(CFLAGS) -c hashtable.c -o hashtable.o
 
 clean: 
 	rm $(EXEC) *.o
