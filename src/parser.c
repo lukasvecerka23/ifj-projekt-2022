@@ -36,18 +36,64 @@ bool check_token_type(lex token_type) {
     return false;
 }
 
+void create_new_local_data() {
+    htab_item_data_t* local_data =
+        (htab_item_data_t*)malloc(sizeof(htab_item_data_t));
+    parser.local_symtable_data = local_data;
+}
+
+void create_new_global_data() {
+    htab_item_data_t* global_data =
+        (htab_item_data_t*)malloc(sizeof(htab_item_data_t));
+
+    parser.global_symtable_data = global_data;
+}
+
 bool check_param_types() {
     if (!check_token_type(K_INT) && !check_token_type(K_STRING) &&
         !check_token_type(K_FLOAT)) {
         return false;
     }
+    // store var type to symtable
+    switch (parser.token.lex) {
+        case K_INT:
+            parser.local_symtable_data->var_data.data_type = DTYPE_INT;
+            break;
+        case K_STRING:
+            parser.local_symtable_data->var_data.data_type = DTYPE_STRING;
+            break;
+        case K_FLOAT:
+            parser.local_symtable_data->var_data.data_type = DTYPE_FLOAT;
+            break;
+    }
     return true;
+}
+
+void add_func_param(htab_var_data_t* var_data) {
+    parser.global_symtable_data->func_data
+        .params[parser.global_symtable_data->func_data.param_count] = var_data;
+    parser.global_symtable_data->func_data.param_count++;
 }
 
 bool check_return_type() {
     if (!check_token_type(K_INT) && !check_token_type(K_STRING) &&
         !check_token_type(K_FLOAT) && !check_token_type(K_VOID)) {
         return false;
+    }
+    // store function return type to symtable
+    switch (parser.token.lex) {
+        case K_INT:
+            parser.global_symtable_data->func_data.ret_type = RETTYPE_INT;
+            break;
+        case K_STRING:
+            parser.global_symtable_data->func_data.ret_type = RETTYPE_STRING;
+            break;
+        case K_FLOAT:
+            parser.global_symtable_data->func_data.ret_type = RETTYPE_FLOAT;
+            break;
+        case K_VOID:
+            parser.global_symtable_data->func_data.ret_type = RETTYPE_VOID;
+            break;
     }
     return true;
 }
@@ -177,6 +223,7 @@ bool statement() {
 bool type() {
     // ?type (int, string, float)
     if (parser.token.lex == L_VARPREF) {
+        parser.local_symtable_data->var_data.optional_type = true;
         get_next_token();
         if (check_param_types()) {
             return true;
@@ -198,8 +245,9 @@ bool type() {
 bool return_type() {
     // ?return_type (int, string, float, void)
     if (parser.token.lex == L_VARPREF) {
+        parser.global_symtable_data->func_data.optional_ret_type = true;
         get_next_token();
-        if (check_param_types()) {
+        if (check_return_type()) {
             return true;
         } else {
             printf("%d", parser.token.lex);
@@ -219,12 +267,17 @@ bool return_type() {
 // <next_parameter> rule
 bool next_parameter() {
     if (!check_token_type(L_RPAR)) {
+        create_new_local_data();
         consume_token(L_COMMA, "missing comma between arguments");
         get_next_token();
         type();
         get_token_consume_token(L_VARID,
                                 "missing variable identifier after data type "
                                 "in function declaration");
+        parser.local_symtable_data->type = ID_VAR;
+        add_func_param(&parser.local_symtable_data->var_data);
+        htab_insert_update(parser.local_symtable, parser.token.string,
+                           parser.local_symtable_data);
         get_next_token();
         next_parameter();
         return true;
@@ -236,13 +289,18 @@ bool next_parameter() {
 // <list_params> rule
 bool list_params() {
     if (!check_token_type(L_RPAR)) {
+        create_new_local_data();
         if (type()) {
             get_token_consume_token(
                 L_VARID, "missing variable identifier after data type");
-
+            parser.local_symtable_data->type = ID_VAR;
+            add_func_param(&parser.local_symtable_data->var_data);
+            htab_insert_update(parser.local_symtable, parser.token.string,
+                               parser.local_symtable_data);
             get_next_token();
             next_parameter();
 
+            // free(var_data);
             return true;
         }
     }
@@ -253,12 +311,23 @@ bool list_params() {
 
 // <program> rule
 bool program() {
+    parser.in_function = false;
+    parser.local_symtable = htab_init(10);
     if (parser.token.lex == LEOF) {
+        htab_free(parser.local_symtable);
         return true;
     }
     if (parser.token.lex == K_FUNCTION) {
+        parser.in_function = true;
         get_token_consume_token(L_FUNCID,
                                 "missing function identifier keyword");
+
+        create_new_global_data();
+        parser.global_symtable_data->func_data.defined = true;
+        parser.global_symtable_data->type = ID_FUNC;
+
+        htab_insert_update(parser.global_symtable, parser.token.string,
+                           parser.global_symtable_data);
         get_token_consume_token(L_LPAR,
                                 "missing left paren in function declaration");
 
@@ -281,6 +350,8 @@ bool program() {
                       "missing right curl bracket in function declaration");
 
         get_next_token();
+        ht_print_table(parser.local_symtable, "LOCAL");
+        htab_free(parser.local_symtable);
         program();
         return true;
     }
@@ -298,8 +369,15 @@ bool program() {
 
 bool syntax_analyse() {
     get_next_token();
+    parser.global_symtable = htab_init(10);
+    // load builtin funcs to symtable
     // prolog();
     program();
+
+    // just for testing
+    ht_print_table(parser.global_symtable, "GLOBAL");
+
+    htab_free(parser.global_symtable);
 
     return true;
 }

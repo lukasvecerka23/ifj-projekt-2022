@@ -42,7 +42,6 @@ void ht_print_table(htab_t* table) {
         if (count > max_count) {
             max_count = count;
         }
-        sum_count += count;
     }
 
     printf("------------------------------------\n");
