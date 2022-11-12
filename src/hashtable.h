@@ -3,6 +3,8 @@
 
 typedef enum { DTYPE_INT, DTYPE_STRING, DTYPE_FLOAT, DTYPE_NULL } DTYPE;
 
+typedef unsigned int uint32_t;
+
 typedef enum {
     RETTYPE_INT,
     RETTYPE_FLOAT,
