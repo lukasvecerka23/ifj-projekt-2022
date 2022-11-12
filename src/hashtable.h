@@ -26,12 +26,14 @@ typedef struct htab_var_data {
     DTYPE data_type;
 } htab_var_data_t;
 
+typedef union {
+    htab_func_data_t* func_data;
+    htab_var_data_t* var_data;
+} htab_item_data_type_t;
+
 typedef struct htab_item {
     htab_key_t key;
-    union {
-        htab_func_data_t func_data;
-        htab_var_data_t var_data;
-    };
+    htab_item_data_type_t data;
     htab_item_t* next;
 } htab_item_t;
 
@@ -40,3 +42,20 @@ typedef struct htab {
     size_t arr_size;
     htab_item_t** arr_ptr;
 } htab_t;
+
+size_t htab_hash_function(htab_key_t str);
+
+htab_t* htab_init(size_t size);
+size_t htab_size(htab_t* table);
+size_t htab_bucket_count(htab_t* table);
+void htab_resize(htab_t* table, size_t newsize);
+
+htab_item_t* htab_search(htab_t* table, htab_key_t key);
+htab_item_t* htab_search_insert(htab_t* table,
+                                htab_key_t key,
+                                htab_item_data_type_t data);
+
+bool htab_delete(htab_t* table, htab_key_t key);
+
+void htab_clear(htab_t* table);
+void htab_free(htab_t* table);
