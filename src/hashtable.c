@@ -20,16 +20,16 @@ void ht_print_table(htab_t* table, char* table_type) {
             if (item->data->type == ID_FUNC)
                 printf(
                     "(%s, RETURN_TYPE: %d, DEFINED: %d, OPTIONAL_RET: %d, "
-                    "PARAM_COUNT: %d, FIRST_PARAM_TYPE: %d)",
+                    "PARAM_COUNT: %d)",
                     item->key, item->data->func_data.ret_type,
                     item->data->func_data.defined,
                     item->data->func_data.optional_ret_type,
-                    item->data->func_data.param_count,
-                    item->data->func_data.params[0]->data_type);
+                    item->data->func_data.param_count);
             else if (item->data->type == ID_VAR)
-                printf("(%s, DATA_TYPE: %d, OPTIONAL: %d)", item->key,
-                       item->data->var_data.data_type,
-                       item->data->var_data.optional_type);
+                printf("(%s, DATA_TYPE: %d, OPTIONAL: %d, INITIALIZED: %d)",
+                       item->key, item->data->var_data.data_type,
+                       item->data->var_data.optional_type,
+                       item->data->var_data.init);
             count++;
             item = item->next;
         }
