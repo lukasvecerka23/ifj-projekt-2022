@@ -22,5 +22,5 @@ lexeme.o: lexeme.c lexeme.h
 error.o: error.c error.h
 	$(CC) $(CFLAGS) -c error.c -o error.o
 
-clean: 
+clean:
 	rm $(EXEC) *.o

@@ -18,7 +18,6 @@ int err_flag = 0;
 - implement prolog and function for escape sequences
 */
 
-
 int return_digit(char* token) {
     return atoi(token);
 }
@@ -27,12 +26,12 @@ double return_float(char* token) {
     return atof(token);
 }
 
-char * escape_sequence_parser(char* str) {
+char* escape_sequence_parser(char* str) {
     unsigned long long i = 0;
-    char * tmp = malloc(sizeof(char) * (strlen(str) + 1));
+    char* tmp = malloc(sizeof(char) * (strlen(str) + 1));
     unsigned long long j = 0;
-    for (i,j=0; str[i] != '\0';i++,j++) {
-        if (str[i] == '$') { //error
+    for (i, j = 0; str[i] != '\0'; i++, j++) {
+        if (str[i] == '$') {  // error
             return NULL;
         }
         if (str[i] == '\\') {
@@ -65,60 +64,61 @@ char * escape_sequence_parser(char* str) {
             if (str[i] == 'x') {
                 char hex_num[3];
                 int k;
-                for(k = 0; k < 2; k++){
-                    hex_num[k] = str[(i+k+1)]; // load of hex number to buffer
+                for (k = 0; k < 2; k++) {
+                    hex_num[k] =
+                        str[(i + k + 1)];  // load of hex number to buffer
                 }
-                char * err_str;
-                int num = (int)strtol(hex_num,&err_str,16); //hex -> dec
+                char* err_str;
+                int num = (int)strtol(hex_num, &err_str, 16);  // hex -> dec
                 hex_num[k++] = '\0';
-                if(strlen(err_str) >= 1){ //check if if valid hex else skip parsing hex.
+                if (strlen(err_str) >=
+                    1) {  // check if if valid hex else skip parsing hex.
                     tmp[j] = str[i];
                     // printf("err\n");
                     continue;
-                } else{
+                } else {
                     char buffer[3];
-                    sprintf(buffer,"%d", num); //convert dec num to str form.
-                    for(int l = 0; buffer[l] != '\0'; l++){
-                        tmp[j++] = buffer[l]; //load dec number to tmp
+                    sprintf(buffer, "%d", num);  // convert dec num to str form.
+                    for (int l = 0; buffer[l] != '\0'; l++) {
+                        tmp[j++] = buffer[l];  // load dec number to tmp
                     }
                 }
-                i = i+3; //skip original chars
+                i = i + 3;  // skip original chars
             }
 
-            if (isdigit(str[i])){
-                printf("hit\n");
+            if (isdigit(str[i])) {
+                // printf("hit\n");
                 char dec_num[4];
                 int k;
-                for(k = 0; k <= 2; k++){
-                    dec_num[k] = str[i+k];
-                    printf("loading...\n");
+                for (k = 0; k <= 2; k++) {
+                    dec_num[k] = str[i + k];
+                    // printf("loading...\n");
                 }
                 dec_num[3] = '\0';
-                printf("dec_num, %s :\n", dec_num);
-                char * err_str_dec;
-                int num = (int)strtol(dec_num,&err_str_dec,8);
-                printf("num: %d\n",num);
+                // printf("dec_num, %s :\n", dec_num);
+                char* err_str_dec;
+                int num = (int)strtol(dec_num, &err_str_dec, 8);
+                // printf("num: %d\n", num);
                 dec_num[k++] = '\0';
-                if(strlen(err_str_dec) >= 1){
+                if (strlen(err_str_dec) >= 1) {
                     tmp[j] = str[i];
                     continue;
                 } else {
                     char buffer_dec[4];
-                    sprintf(buffer_dec,"%d",num);
-                    for(int l = 0; buffer_dec[l] != '\0'; l++){
+                    sprintf(buffer_dec, "%d", num);
+                    for (int l = 0; buffer_dec[l] != '\0'; l++) {
                         tmp[j++] = buffer_dec[l];
-                        printf("c: %c\n",tmp[j]);
+                        // printf("c: %c\n", tmp[j]);
                     }
                 }
-                i = i+ 3;
-                printf("str: %c\n",str[i]);
+                i = i + 3;
+                // printf("str: %c\n", str[i]);
                 // tmp[j] = str[i];
                 // continue;
             }
             tmp[j] = str[i];
 
-        } else{
-
+        } else {
             tmp[j] = str[i];
         }
     }
@@ -149,6 +149,10 @@ lexeme isKeyword(char* keywd) {
         return (lexeme){.lex = K_STRING};
     if (strcmp(keywd, "function") == 0)
         return (lexeme){.lex = K_FUNCTION};
+    if (strcmp(keywd, "declare") == 0)
+        return (lexeme){.lex = K_DECLARE};
+    if (strcmp(keywd, "strict_types") == 0)
+        return (lexeme){.lex = K_STRICTTYPES};
     return (lexeme){.lex = L_FUNCID, .string = keywd};
 }
 
@@ -182,11 +186,11 @@ States FSM(States curr_state, char edge) {
             if (edge == '$')
                 return VARID;
             if (edge == '?')
-                return VARPREF;
+                return PHPEND;
             if (edge == '*')
                 return MUL;
             if (edge == '<')
-                return LESS;
+                return PHPSTART;
             if (edge == '>')
                 return GREATER;
             if (edge == '"')
@@ -204,11 +208,51 @@ States FSM(States curr_state, char edge) {
             return TOKEN_END;
         case STRING_LIT_END:
             return TOKEN_END;
+        case PHPSTART:
+            if (edge == '?') {
+                return PHPSTART2;
+            } else
+                return LESS;
+        case PHPSTART2:
+            if (edge == 'p') {
+                return PHPSTART3;
+            } else {
+                err_flag = 1;
+                return TOKEN_END;
+            }
+        case PHPSTART3:
+            if (edge == 'h') {
+                return PHPSTART4;
+            } else {
+                err_flag = 1;
+                return TOKEN_END;
+            }
+        case PHPSTART4:
+            if (edge == 'p') {
+                return PHPSTART5;
+            } else {
+                err_flag = 1;
+                return TOKEN_END;
+            }
+        case PHPSTART5:
+            if (isspace(edge)) {
+                return TOKEN_END;
+            }
+            return err_flag = 1;
+            return TOKEN_END;
+        case PHPEND:
+            if (edge == '>')
+                return PHPEND2;
+            else
+                return VARPREF;
+        case PHPEND2:
+            return TOKEN_END;
+        // case DECLARE:
         case STRING_LIT_E:
             if (edge == '"') {
                 return STRING_LIT_END;
             }
-            if(edge == '\\') {
+            if (edge == '\\') {
                 return STRING_SLASH;
             }
             if (edge == EOF) {
@@ -217,7 +261,7 @@ States FSM(States curr_state, char edge) {
             }
             return STRING_LIT_E;
         case STRING_SLASH:
-            if( edge == '"')
+            if (edge == '"')
                 return STRING_LIT_E;
             return STRING_LIT_E;
         case SLASH:
@@ -340,8 +384,12 @@ TODO:
 */
 lexeme create_lex(States final, char* token) {
     switch (final) {
+        case PHPEND2:
+            return (lexeme){.lex = L_PHPEND};
         case LPAR:
             return (lexeme){.lex = L_LPAR};
+        case PHPSTART5:
+            return (lexeme){.lex = L_PHPSTART};
         case RPAR:
             return (lexeme){.lex = L_RPAR};
         case COMMA:
@@ -365,7 +413,8 @@ lexeme create_lex(States final, char* token) {
         case DASH:
             return (lexeme){.lex = L_DASH};
         case STRING_LIT_END:
-            return (lexeme){.lex = L_STRING, .string = escape_sequence_parser(token)};
+            return (lexeme){.lex = L_STRING,
+                            .string = escape_sequence_parser(token)};
         case EXP_2:
             return (lexeme){.lex = L_EXP, .float_val = return_float(token)};
             // return (lexeme){.lex = L_EXP, .string = token};
@@ -432,19 +481,20 @@ TODO:
 //             }
 //         }
 //         *(string_start++) = edge;
-        // if (next == START) {
-        //     string_start = lex_start;
-        // }
+// if (next == START) {
+//     string_start = lex_start;
+// }
 //         now = next;
 //     }
 // }
 
 lexeme get_token_data(scanner_t scan) {
-      // tmp, move to main and pass as argument
+    // tmp, move to main and pass as argument
     States now = START;
     scan.tokenmem = 100;
     scan.usedmem = 0;
-    scan.token = (char *) calloc(scan.tokenmem,sizeof(char*));  // tmp, create fnc
+    scan.token =
+        (char*)calloc(scan.tokenmem, sizeof(char*));  // tmp, create fnc
     char edge = ' ';
     int idx = 0;
     while (true) {
@@ -463,7 +513,9 @@ lexeme get_token_data(scanner_t scan) {
             scan.token[idx++] = '\0';
             if (!err_flag) {
                 // printf("token %s\n", token);
+                // printf("createlex param: %s\n", scan.token);
                 return create_lex(now, scan.token);
+
             } else {
                 error_exit("line: %d token: %s", line_num, scan.token);
                 err_flag = 0;
@@ -473,12 +525,11 @@ lexeme get_token_data(scanner_t scan) {
         scan.token[idx] = edge;
         idx++;
         scan.usedmem++;
-        if(scan.usedmem >= (scan.tokenmem*0.9)){
+        if (scan.usedmem >= (scan.tokenmem * 0.9)) {
             printf("hit\n");
-            scan.tokenmem = scan.tokenmem*2;
-            scan.token = (char * ) realloc(scan.token,scan.tokenmem);
+            scan.tokenmem = scan.tokenmem * 2;
+            scan.token = (char*)realloc(scan.token, scan.tokenmem);
             scan.usedmem = 0;
-
         }
 
         if (next == START) {
@@ -488,14 +539,11 @@ lexeme get_token_data(scanner_t scan) {
     }
 }
 
-
-void token_free(lexeme * token){
-
+void token_free(lexeme* token) {
     free(token);
 }
 
-
-lexeme get_lex_value (){
+lexeme get_lex_value() {
     scanner_t scan;
 
     lexeme* token = malloc(sizeof(lexeme));
@@ -507,5 +555,4 @@ lexeme get_lex_value (){
     // }
 
     return *token;
-
 }

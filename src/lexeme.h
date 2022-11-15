@@ -19,7 +19,11 @@ typedef enum {
     STRING_LIT_END,
     STRING_SLASH,
     PHPSTART,
+    PHPSTART2,
+    PHPSTART3,
+    PHPSTART4,
     PHPEND,
+    PHPEND2,
     DECLARE,
     PLUS,
     DASH,
@@ -35,6 +39,7 @@ typedef enum {
     EQ3,
     LESS,
     GREATER,
+    PHPSTART5,
     LESSEQ,
     GREATEREQ,
     NEQ1,
@@ -52,6 +57,7 @@ typedef enum {
 // TODO: add all states
 
 typedef enum {
+    L_PHPEND,
     L_LPAR,
     L_RPAR,
     L_COMMA,
@@ -66,6 +72,7 @@ typedef enum {
     L_PLUS,
     L_DASH,
     L_ID,
+    L_PHPSTART,
     L_VARID,
     L_FUNCID,
     L_NUMBER,
@@ -89,6 +96,8 @@ typedef enum {
     K_STRING,
     K_VOID,
     K_WHILE,
+    K_DECLARE,
+    K_STRICTTYPES,
     K_FLOAT
 } lex;
 
