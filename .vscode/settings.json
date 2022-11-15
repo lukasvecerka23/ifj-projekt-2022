@@ -1,4 +1,4 @@
 {
     "editor.formatOnSave": true,
-    "clang-format.executable": "${workspaceRoot}/clang-format"
+    "editor.defaultFormatter": "xaver.clang-format",
 }

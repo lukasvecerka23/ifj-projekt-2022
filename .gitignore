@@ -1,3 +1,4 @@
 *.o
-src/tests
+main_prg
 .DS_Store
+src/tests/build

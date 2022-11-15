@@ -1,14 +1,26 @@
+PROJECT=lexeme
 CC=gcc
-CFLAGS=-Wall -std=c11 -pedantic -lm
-FILES=hashtable.c hashtable_test.c
+PROG=$(PROJECT)-test
+CFLAGS=-std=c99 -Wall -Wextra -pedantic -lm -fcommon
+EXEC = main_prg
+OBJ = main_prg.o lexeme.o error.o
 
-.PHONY: test clean
+# test-run: $(PROG)
+run: main_prg
+	./main_prg
 
-test: $(FILES)
-	$(CC) $(CFLAGS) -o $@ $(FILES)
+# $(PROJECT)-test: $(PROJECT).c
+# 	$(CC) $(CFLAGS) -o $@ $(PROJECT).c
+main_prg: main_prg.o lexeme.o error.o
+	$(CC) $(CFLAGS) $(OBJ) -o main_prg
 
-run: test
-	@./test
-	
+main_prg.o: main_prg.c
+	$(CC) $(CFLAGS) -c main_prg.c -o main_prg.o
+lexeme.o: lexeme.c lexeme.h
+	$(CC) $(CFLAGS) -c lexeme.c -o lexeme.o
+
+error.o: error.c error.h
+	$(CC) $(CFLAGS) -c error.c -o error.o
+
 clean:
-	rm -f test
+	rm $(EXEC) *.o
