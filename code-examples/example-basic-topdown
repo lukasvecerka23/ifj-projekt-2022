@@ -1,5 +1,6 @@
-function asda(int $var, string $bar): int{
+function asda(string $var, string $bar1): ?string{
     write("ahoj");
+    $var = readi();
 }
 
 if (){
@@ -13,3 +14,7 @@ while(){
 }
 
 $a = ahoj();
+
+function blalba(float $test, ?float $bar2): int{
+    write("ahoj");
+}

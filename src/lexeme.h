@@ -17,6 +17,14 @@ typedef enum {
     STRING_LIT_S,
     STRING_LIT_E,
     STRING_LIT_END,
+    STRING_SLASH,
+    PHPSTART,
+    PHPSTART2,
+    PHPSTART3,
+    PHPSTART4,
+    PHPEND,
+    PHPEND2,
+    DECLARE,
     PLUS,
     DASH,
     SLASH,
@@ -31,6 +39,7 @@ typedef enum {
     EQ3,
     LESS,
     GREATER,
+    PHPSTART5,
     LESSEQ,
     GREATEREQ,
     NEQ1,
@@ -48,6 +57,7 @@ typedef enum {
 // TODO: add all states
 
 typedef enum {
+    L_PHPEND,
     L_LPAR,
     L_RPAR,
     L_COMMA,
@@ -62,6 +72,7 @@ typedef enum {
     L_PLUS,
     L_DASH,
     L_ID,
+    L_PHPSTART,
     L_VARID,
     L_FUNCID,
     L_NUMBER,
@@ -85,6 +96,8 @@ typedef enum {
     K_STRING,
     K_VOID,
     K_WHILE,
+    K_DECLARE,
+    K_STRICTTYPES,
     K_FLOAT
 } lex;
 
@@ -100,6 +113,16 @@ typedef struct {
     };
 
 } lexeme;
+
+typedef struct {
+    unsigned long long line_num;
+    int err_flag;
+    int free_token;
+    char edge;
+    char* token;
+    int tokenmem;
+    int usedmem;
+} scanner_t;
 
 States FSM(States curr_state, char edge);
 lexeme create_lex(States final, char* token);

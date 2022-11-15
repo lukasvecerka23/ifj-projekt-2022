@@ -1,5 +1,7 @@
 #include "error.h"
+#include "lexeme.h"
 #include "parser.h"
+
 
 /*
 just for testing
@@ -120,6 +122,18 @@ void print_lex(lexeme lex) {
             return;
         case L_FUNCID:
             printf("( funcid, %s )\n", lex.string);
+            return;
+        case L_PHPEND:
+            printf("( php end )\n");
+            return;
+        case L_PHPSTART:
+            printf("( php start )\n");
+            return;
+        case K_STRICTTYPES:
+            printf("( strict_types )\n");
+            return;
+        case K_DECLARE:
+            printf("( declare )\n");
             return;
         default:
             warning_msg("did not match any token \n");
