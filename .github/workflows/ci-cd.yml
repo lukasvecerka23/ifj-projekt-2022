@@ -17,4 +17,8 @@ jobs:
       - name: make
         run: |
          cd src
+<<<<<<< HEAD
          make
+=======
+         make
+>>>>>>> master
