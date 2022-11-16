@@ -98,6 +98,9 @@ void rule_reduction() {
 
     - load until < if 4th loaded element is not < then error
     - push new non terminal on stack
+
+
+    todo ast generate call
     */
 }
 
@@ -116,22 +119,30 @@ void expression() {
 
     while(top != $S and b = $){
         a = top(stack);
-        b = token();
+        b = get_token();
         if(b == '{' || b == ';'){
             check stav zasobniku else err;
         }
-
-        case [a,b] of:
-            case = :
-                push (b) % precist dalsi symbol b ze vstupu
-            case < :
-                zmen a za a< na zasobniku & push b a precti dalsi symbol b ze
-    vstupu case > : if(<y je na vrcholu zasobniku a r: A -> je v P) tak zmen <y
-    za A a vypis r na vystup else chyba default chyba
-
-
+        prec state = prec_table[a][b];
+        switch(state)
+            case W:
+                stack_push(b);
+                b = get_token();
+            case S:
+                stack_push(S);
+                stack_push(B);
+                b = get_token;
+            case R:
+                rule_reduction(stack,);
+            case Er:
+                error();
+            default:
+                warning("something is very wrong");
     }
-
+    if(stack_top(stack) == E and (token == '{' || token == ';'})){
+        return true;
+    }
+    return false;
 
 
 
