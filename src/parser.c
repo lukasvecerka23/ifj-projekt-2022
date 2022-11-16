@@ -538,7 +538,6 @@ bool program() {
 
 // <prolog> rule
 bool prolog() {
-    printf("hit");
     if (parser.token.lex == L_PHPSTART) {
         get_token_consume_token(K_DECLARE, "missing declare after php head");
         get_token_consume_token(L_LPAR,

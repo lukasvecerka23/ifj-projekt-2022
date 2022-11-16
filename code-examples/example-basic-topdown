@@ -1,4 +1,7 @@
-function asda(string $var, string $bar1): ?string{
+<?php
+declare(strict_types=1);
+
+function asda(string $var, string $bar1): string{
     write("ahoj");
     $var = readi();
 }
@@ -15,6 +18,6 @@ while(){
 
 $a = ahoj();
 
-function blalba(float $test, ?float $bar2): int{
+function blalba(?float $test, float $bar2): int{
     write("ahoj");
 }
