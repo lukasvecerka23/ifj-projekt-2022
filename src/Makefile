@@ -5,14 +5,13 @@ CFLAGS=-std=c99 -Wall -Wextra -pedantic -lm -fcommon
 EXEC = main_prg
 OBJ = main_prg.o lexeme.o error.o parser.o hashtable.o
 
-# test-run: $(PROG)
-run: main_prg
-	./main_prg
+.PHONY: main_prg
 
-# $(PROJECT)-test: $(PROJECT).c
-# 	$(CC) $(CFLAGS) -o $@ $(PROJECT).c
 $(EXEC): $(OBJ)
 	$(CC) $(CFLAGS) $(OBJ) -o main_prg
+
+run: main_prg
+	./main_prg
 
 main_prg.o: main_prg.c
 	$(CC) $(CFLAGS) -c main_prg.c -o main_prg.o

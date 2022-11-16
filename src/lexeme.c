@@ -30,7 +30,7 @@ char* escape_sequence_parser(char* str) {
     unsigned long long i = 0;
     char* tmp = malloc(sizeof(char) * (strlen(str) + 1));
     unsigned long long j = 0;
-    for (i, j = 0; str[i] != '\0'; i++, j++) {
+    for (int i, j = 0; str[i] != '\0'; i++, j++) {
         if (str[i] == '$') {  // error
             return NULL;
         }
@@ -320,7 +320,7 @@ States FSM(States curr_state, char edge) {
                 return EXP_2;
             else {
                 err_flag = 1;
-                TOKEN_END;
+                return TOKEN_END;
             }
         case EXP_1_5:
             if (isdigit(edge))
