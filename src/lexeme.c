@@ -244,7 +244,7 @@ States FSM(States curr_state, char edge) {
             if (edge == '>')
                 return PHPEND2;
             else
-                return VARPREF;
+                return TOKEN_END;
         case PHPEND2:
             return TOKEN_END;
         // case DECLARE:
@@ -441,7 +441,7 @@ lexeme create_lex(States final, char* token) {
             return (lexeme){.lex = L_GREATER};
         case FLOAT2:
             return (lexeme){.lex = L_FLOAT, .float_val = return_float(token)};
-        case VARPREF:
+        case PHPEND:
             return (lexeme){.lex = L_VARPREF};
         case TOKEN_END:
             error_exit("reached end of token");

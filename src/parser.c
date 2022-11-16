@@ -18,6 +18,7 @@ void get_next_token() {
 
 void consume_token(lex token_type, char* err_msg) {
     if (parser.token.lex != token_type) {
+        htab_free(parser.global_symtable);
         exit_program(51, err_msg);
     }
 }
@@ -25,6 +26,7 @@ void consume_token(lex token_type, char* err_msg) {
 void get_token_consume_token(lex token_type, char* err_msg) {
     get_next_token();
     if (parser.token.lex != token_type) {
+        htab_free(parser.global_symtable);
         exit_program(51, err_msg);
     }
 }
@@ -491,6 +493,7 @@ bool program() {
         parser.global_symtable_data->func_data.defined = true;
         parser.global_symtable_data->type = ID_FUNC;
 
+        // if function exists in symtable return error
         htab_insert_update(parser.global_symtable, parser.token.string,
                            parser.global_symtable_data);
 
@@ -533,13 +536,42 @@ bool program() {
     return false;
 }
 
+// <prolog> rule
+bool prolog() {
+    printf("hit");
+    if (parser.token.lex == L_PHPSTART) {
+        get_token_consume_token(K_DECLARE, "missing declare after php head");
+        get_token_consume_token(L_LPAR,
+                                "missing left paren if strict type declare");
+        get_token_consume_token(K_STRICTTYPES,
+                                "missing strict_type declaration");
+        get_token_consume_token(L_ASSIGN, "missing assignment to strict_types");
+        get_token_consume_token(
+            L_NUMBER, "value assigned to strict_types must be integer");
+        if (parser.token.val != 1) {
+            exit_program(51, "strict_type muset be set to 1");
+        }
+        get_token_consume_token(L_RPAR,
+                                "missing right paren in declare strict types");
+        get_token_consume_token(L_SEMICOL, "missing semicolon after declare");
+
+        get_next_token();
+        program();
+        return true;
+    }
+    htab_free(parser.global_symtable);
+    exit_program(51, "missing php head and strict_types declaration");
+}
+
 bool syntax_analyse() {
     get_next_token();
     parser.global_symtable = htab_init(10);
-    load_builtin_funcs();
+
     // load builtin funcs to symtable
-    // prolog();
-    program();
+    load_builtin_funcs();
+
+    prolog();
+    // program();
 
     // just for testing
     ht_print_table(parser.global_symtable, "GLOBAL");
@@ -548,7 +580,3 @@ bool syntax_analyse() {
 
     return true;
 }
-
-// function for prolog
-/*void prolog() {
-}*/
