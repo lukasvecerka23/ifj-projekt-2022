@@ -14,6 +14,9 @@ run: main_prg
 $(EXEC): $(OBJ)
 	$(CC) $(CFLAGS) $(OBJ) -o main_prg
 
+exp_parse.o: exp_parser.c exp_parser.h
+	$(CC) $(CFLAGS) -c exp_parser.c -o exp_parser.o
+
 main_prg.o: main_prg.c
 	$(CC) $(CFLAGS) -c main_prg.c -o main_prg.o
 

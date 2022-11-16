@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-typedef enum {
+typedef enum States {
     START,
     LPAR,
     RPAR,
@@ -56,7 +56,7 @@ typedef enum {
 } States;
 // TODO: add all states
 
-typedef enum {
+typedef enum lex {
     L_PHPEND,
     L_LPAR,
     L_RPAR,

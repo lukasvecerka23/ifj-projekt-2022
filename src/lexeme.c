@@ -445,6 +445,8 @@ lexeme create_lex(States final, char* token) {
             return (lexeme){.lex = L_VARPREF};
         case TOKEN_END:
             error_exit("reached end of token");
+        default:
+            warning_msg("No state implemented for this input");
     }
     warning_msg("No state implemented for this input");
 }
