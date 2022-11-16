@@ -25,8 +25,8 @@ error.o: error.c error.h
 parser.o: parser.c parser.h
 	$(CC) $(CFLAGS) -c parser.c -o parser.o
 
-hashtable.o: hashtable.c hashtable.h
-	$(CC) $(CFLAGS) -c hashtable.c -o hashtable.o
+symtable.o: symtable.c symtable.h
+	$(CC) $(CFLAGS) -c symtable.c -o symtable.o
 
 clean: 
 	rm $(EXEC) *.o

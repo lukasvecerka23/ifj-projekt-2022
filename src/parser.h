@@ -1,6 +1,6 @@
 #include <stdbool.h>
-#include "hashtable.h"
 #include "lexeme.h"
+#include "symtable.h"
 
 typedef struct {
     lexeme token;
