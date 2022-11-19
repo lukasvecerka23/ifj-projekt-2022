@@ -103,9 +103,8 @@ typedef enum {
 
 typedef struct {
     lex lex;
-
+    unsigned long long line_index;
     union {
-        unsigned long long line_index;
         char* string;
         unsigned long long val;
         double float_val;

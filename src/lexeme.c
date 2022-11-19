@@ -10,7 +10,6 @@
 // TODO: dynamically allocated
 char string[2000] = {0};
 char* string_start = &string[0];
-unsigned long long line_num = 1;
 int err_flag = 0;
 /*
 // TODO:
@@ -499,7 +498,7 @@ lexeme get_token_data(scanner_t scan) {
     int idx = 0;
     while (true) {
         if (edge == '\n')
-            line_num++;
+            scan.line_num++;
         edge = getchar();
         if (edge == EOF) {
             if (now == START) {
@@ -517,7 +516,7 @@ lexeme get_token_data(scanner_t scan) {
                 return create_lex(now, scan.token);
 
             } else {
-                error_exit("line: %d token: %s", line_num, scan.token);
+                error_exit("line: %d token: %s", scan.line_num, scan.token);
                 err_flag = 0;
                 next = START;
             }
@@ -543,9 +542,7 @@ void token_free(lexeme* token) {
     free(token);
 }
 
-lexeme get_lex_value() {
-    scanner_t scan;
-
+lexeme get_lex_value(scanner_t scan) {
     lexeme* token = malloc(sizeof(lexeme));
 
     *token = get_token_data(scan);

@@ -8,6 +8,12 @@ void exit_program(int err_code, char* msg) {
         case 51:
             fprintf(stderr, "syntax error: %s\n", msg);
             exit(51);
+        case 3:
+            fprintf(stderr, "semantic error: %s\n", msg);
+            exit(3);
+        case 4:
+            fprintf(stderr, "semantic error: %s\n", msg);
+            exit(4);
     }
 }
 

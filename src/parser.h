@@ -9,6 +9,8 @@ typedef struct {
     htab_item_data_t* global_symtable_data;
     htab_item_data_t* local_symtable_data;
     bool in_function;
+    bool func_check;
+    int tmp_counter;
 } Parser;
 
 void get_next_token();
