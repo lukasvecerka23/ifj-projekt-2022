@@ -1,4 +1,5 @@
 #include "ast.h"
+#include "error.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -21,7 +22,7 @@ void dispose(ast_node_t* tree) {
 ast_node_t* make_tree(lexeme o, ast_node_t* a, ast_node_t* b) {
     ast_node_t* new = malloc(sizeof(struct ast_node));
     if (new == NULL) {
-        exit(99);
+        exit_program(99, "memory allocation failed");
         // nevim presne jak toto osetrit
     } else {
         new->token = o;
@@ -43,7 +44,7 @@ ast_node_t* make_tree(lexeme o, ast_node_t* a, ast_node_t* b) {
 ast_node_t* make_leaf(lexeme ia) {
     ast_node_t* new = malloc(sizeof(struct ast_node));
     if (new == NULL) {
-        exit(99);
+        exit_program(99, "memory allocation failed");
         // nevim presne jak toto osetrit
     } else {
         new->token = ia;

@@ -1,6 +1,7 @@
 #include "parser.h"
 #include <stdbool.h>
 #include "error.h"
+#include "code_gen.h"
 
 /** TODO
  * Expression parser - parsovani a vyhodnocovani vyrazu
@@ -600,6 +601,8 @@ bool prolog() {
                                 "missing right paren in declare strict types");
         get_token_consume_token(L_SEMICOL, "missing semicolon after declare");
 
+        generate_header();
+        
         get_next_token();
         program();
         return true;
