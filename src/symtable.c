@@ -1,9 +1,50 @@
-#include "hashtable.h"
+#include "symtable.h"
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 
 #define AVG_LEN_MAX 1.5
 #define AVG_LEN_MIN 0.35
+
+// test printing of table
+void ht_print_table(htab_t* table, char* table_type) {
+    int max_count = 0;
+    int sum_count = 0;
+
+    printf("------------%s HASH TABLE--------------\n", table_type);
+    for (int i = 0; i < table->arr_size; i++) {
+        printf("%i: ", i);
+        int count = 0;
+        htab_item_t* item = table->arr_ptr[i];
+        while (item != NULL) {
+            if (item->data->type == ID_FUNC)
+                printf(
+                    "(%s, RETURN_TYPE: %d, DEFINED: %d, OPTIONAL_RET: %d, "
+                    "PARAM_COUNT: %d)",
+                    item->key, item->data->func_data.ret_type,
+                    item->data->func_data.defined,
+                    item->data->func_data.optional_ret_type,
+                    item->data->func_data.param_count);
+            else if (item->data->type == ID_VAR)
+                printf("(%s, DATA_TYPE: %d, OPTIONAL: %d, INITIALIZED: %d)",
+                       item->key, item->data->var_data.data_type,
+                       item->data->var_data.optional_type,
+                       item->data->var_data.init);
+            count++;
+            item = item->next;
+        }
+        printf("\n");
+        if (count > max_count) {
+            max_count = count;
+        }
+        sum_count += count;
+    }
+
+    printf("------------------------------------\n");
+    printf("Total items in hash table: %i\n", sum_count);
+    printf("Maximum hash collisions: %i\n", max_count == 0 ? 0 : max_count - 1);
+    printf("------------------------------------\n");
+}
 
 // hashovaci funkce
 size_t htab_hash_function(htab_key_t str) {
@@ -65,7 +106,7 @@ void htab_resize(htab_t* table, size_t newsize) {
             htab_item_t* tmp = old_arr_ptr[i];
             while (tmp != NULL) {
                 htab_item_t* tmp2 = tmp->next;
-                htab_search_insert(table, tmp->key, tmp->data);
+                htab_insert_update(table, tmp->key, tmp->data);
                 free((char*)tmp->key);
                 free(tmp);
                 table->size--;
@@ -95,7 +136,7 @@ htab_item_t* htab_search(htab_t* table, htab_key_t key) {
     return NULL;
 }
 
-htab_item_t* create_new_item(htab_key_t key, htab_item_data_type_t data) {
+htab_item_t* create_new_item(htab_key_t key, htab_item_data_t* data) {
     htab_item_t* new_item = malloc(sizeof(htab_item_t));
     if (new_item == NULL) {
         return NULL;
@@ -115,9 +156,9 @@ htab_item_t* create_new_item(htab_key_t key, htab_item_data_type_t data) {
 }
 // try to search item with given key, when key's not found create new element
 // with this key
-htab_item_t* htab_search_insert(htab_t* table,
+htab_item_t* htab_insert_update(htab_t* table,
                                 htab_key_t key,
-                                htab_item_data_type_t data) {
+                                htab_item_data_t* data) {
     if (table->size > table->arr_size * AVG_LEN_MAX) {
         htab_resize(table, (table->arr_size * 2));
     }
@@ -125,6 +166,7 @@ htab_item_t* htab_search_insert(htab_t* table,
     htab_item_t* tmp = table->arr_ptr[index];
     htab_item_t* p = htab_search(table, key);
     if (p != NULL) {
+        p->data = data;
         return p;
     }
 

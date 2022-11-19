@@ -3,6 +3,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+void exit_program(int err_code, char* msg) {
+    switch (err_code) {
+        case 51:
+            fprintf(stderr, "syntax error: %s\n", msg);
+            exit(51);
+        case 3:
+            fprintf(stderr, "semantic error: %s\n", msg);
+            exit(3);
+        case 4:
+            fprintf(stderr, "semantic error: %s\n", msg);
+            exit(4);
+    }
+}
+
 void warning_msg(const char* fmt, ...) {
     va_list args;
 

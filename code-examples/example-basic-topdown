@@ -1,0 +1,23 @@
+<?php
+declare(strict_types=1);
+
+function asda(string $var, string $bar1): string{
+    write("ahoj");
+    $var = readi();
+}
+
+if (){
+    write("ahoj");
+} else {
+    write("ahoj");
+}
+
+while(){
+    write("ahoj");
+}
+
+$a = ahoj();
+
+function blalba(?float $test, float $bar2): int{
+    write("ahoj");
+}

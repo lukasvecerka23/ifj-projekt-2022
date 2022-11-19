@@ -10,7 +10,6 @@
 // TODO: dynamically allocated
 char string[2000] = {0};
 char* string_start = &string[0];
-unsigned long long line_num = 1;
 int err_flag = 0;
 /*
 // TODO:
@@ -30,7 +29,7 @@ char* escape_sequence_parser(char* str) {
     unsigned long long i = 0;
     char* tmp = malloc(sizeof(char) * (strlen(str) + 1));
     unsigned long long j = 0;
-    for (i, j = 0; str[i] != '\0'; i++, j++) {
+    for (int i, j = 0; str[i] != '\0'; i++, j++) {
         if (str[i] == '$') {  // error
             return NULL;
         }
@@ -244,7 +243,7 @@ States FSM(States curr_state, char edge) {
             if (edge == '>')
                 return PHPEND2;
             else
-                return VARPREF;
+                return TOKEN_END;
         case PHPEND2:
             return TOKEN_END;
         // case DECLARE:
@@ -320,7 +319,7 @@ States FSM(States curr_state, char edge) {
                 return EXP_2;
             else {
                 err_flag = 1;
-                TOKEN_END;
+                return TOKEN_END;
             }
         case EXP_1_5:
             if (isdigit(edge))
@@ -441,7 +440,7 @@ lexeme create_lex(States final, char* token) {
             return (lexeme){.lex = L_GREATER};
         case FLOAT2:
             return (lexeme){.lex = L_FLOAT, .float_val = return_float(token)};
-        case VARPREF:
+        case PHPEND:
             return (lexeme){.lex = L_VARPREF};
         case TOKEN_END:
             error_exit("reached end of token");
@@ -499,7 +498,7 @@ lexeme get_token_data(scanner_t scan) {
     int idx = 0;
     while (true) {
         if (edge == '\n')
-            line_num++;
+            scan.line_num++;
         edge = getchar();
         if (edge == EOF) {
             if (now == START) {
@@ -517,7 +516,7 @@ lexeme get_token_data(scanner_t scan) {
                 return create_lex(now, scan.token);
 
             } else {
-                error_exit("line: %d token: %s", line_num, scan.token);
+                error_exit("line: %d token: %s", scan.line_num, scan.token);
                 err_flag = 0;
                 next = START;
             }
@@ -543,9 +542,7 @@ void token_free(lexeme* token) {
     free(token);
 }
 
-lexeme get_lex_value() {
-    scanner_t scan;
-
+lexeme get_lex_value(scanner_t scan) {
     lexeme* token = malloc(sizeof(lexeme));
 
     *token = get_token_data(scan);

@@ -1,6 +1,5 @@
-
 #include "error.h"
-#include "lexeme.h"
+#include "parser.h"
 
 /*
 just for testing
@@ -145,10 +144,16 @@ void print_lex(lexeme lex) {
 }
 
 int main() {
-    lexeme l = {0};
-    while (l.lex != LEOF) {
-        l = get_lex_value();
-        print_lex(l);
+    // lexeme l = {0};
+    // while (l.lex != LEOF) {
+    //     l = get_lex_value();
+    //     print_lex(l);
+    // }
+
+    if (syntax_analyse()) {
+        printf("parser good");
+    } else {
+        printf("parser not good");
     }
     return 0;
 }
