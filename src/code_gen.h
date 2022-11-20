@@ -17,3 +17,4 @@ void generate_null_func_param(unsigned long long index);
 void generate_func_call(char* func_id);
 void generate_local_assignment(char* var_id);
 void generate_global_assignment(char* var_id);
+void generate_builtin_func();
