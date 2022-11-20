@@ -477,8 +477,10 @@ bool next_parameter() {
 
         if (parser.func_check == false) {
             parser.global_symtable_data->func_data.param_count++;
+            generate_func_param(parser.token.string, parser.global_symtable_data->func_data.param_count);
         } else {
             parser.tmp_counter++;
+            generate_func_param(parser.token.string, parser.tmp_counter);
         }
         parser.local_symtable_data->type = ID_VAR;
         htab_insert_update(parser.local_symtable, parser.token.string,
@@ -505,13 +507,17 @@ bool list_params() {
             // checking param count
             if (parser.func_check == false) {
                 parser.global_symtable_data->func_data.param_count++;
+                generate_func_param(parser.token.string, parser.global_symtable_data->func_data.param_count);
             } else {
                 parser.tmp_counter++;
+                generate_func_param(parser.token.string, parser.tmp_counter);
             }
             // add param variable to local symtable
             parser.local_symtable_data->type = ID_VAR;
             htab_insert_update(parser.local_symtable, parser.token.string,
                                parser.local_symtable_data);
+
+            
 
             get_next_token();
             next_parameter();
@@ -530,6 +536,7 @@ bool program() {
     parser.local_symtable = htab_init(10);
     if (parser.token.lex == LEOF || parser.token.lex == L_PHPEND) {
         // check if all functions are defined
+        generate_end();
         htab_free(parser.local_symtable);
         return true;
     }
@@ -539,6 +546,8 @@ bool program() {
                                 "missing function identifier keyword");
 
         check_func_id(true);
+
+        generate_func_header(parser.token.string);
 
         get_token_consume_token(L_LPAR,
                                 "missing left paren in function declaration");
@@ -567,9 +576,11 @@ bool program() {
         consume_token(L_RCURL,
                       "missing right curl bracket in function declaration");
 
-        get_next_token();
-        ht_print_table(parser.local_symtable, "LOCAL");
+        generate_func_end();
+        // ht_print_table(parser.local_symtable, "LOCAL");
         htab_free(parser.local_symtable);
+
+        get_next_token();
         program();
         return true;
     }
@@ -602,7 +613,7 @@ bool prolog() {
         get_token_consume_token(L_SEMICOL, "missing semicolon after declare");
 
         generate_header();
-        
+
         get_next_token();
         program();
         return true;
@@ -622,7 +633,7 @@ bool syntax_analyse() {
     prolog();
 
     // just for testing
-    ht_print_table(parser.global_symtable, "GLOBAL");
+    // ht_print_table(parser.global_symtable, "GLOBAL");
 
     htab_free(parser.global_symtable);
 

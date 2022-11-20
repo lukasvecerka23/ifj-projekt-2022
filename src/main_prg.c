@@ -150,10 +150,7 @@ int main() {
     //     print_lex(l);
     // }
 
-    if (syntax_analyse()) {
-        printf("parser good");
-    } else {
-        printf("parser not good");
-    }
+    syntax_analyse();
+
     return 0;
 }
