@@ -1,10 +1,12 @@
 #include "code_gen.h"
 #include <stdio.h>
 
-void create_function(){
-
-}
-
+/** TODO
+ * Functions for generate functino calls
+ * Checking params in function declaration
+ * Generating builtin functions
+ * Generating expression
+*/
 void generate_header(){
     printf(".IFcode22\n");
     printf("JUMP $$main\n");
