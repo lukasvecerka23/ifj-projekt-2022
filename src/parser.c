@@ -474,17 +474,18 @@ bool next_parameter() {
                                 "missing variable identifier after data type "
                                 "in function declaration");
         // add variable to symtable and add param to function declaration
-
-        if (parser.func_check == false) {
-            parser.global_symtable_data->func_data.param_count++;
-            generate_func_param(parser.token.string, parser.global_symtable_data->func_data.param_count);
-        } else {
-            parser.tmp_counter++;
-            generate_func_param(parser.token.string, parser.tmp_counter);
-        }
         parser.local_symtable_data->type = ID_VAR;
         htab_insert_update(parser.local_symtable, parser.token.string,
                            parser.local_symtable_data);
+
+        if (parser.func_check == false) {
+            parser.global_symtable_data->func_data.param_count++;
+            generate_func_param(htab_search(parser.local_symtable, parser.token.string), parser.global_symtable_data->func_data.param_count);
+        } else {
+            parser.tmp_counter++;
+            generate_func_param(htab_search(parser.local_symtable, parser.token.string), parser.tmp_counter);
+        }
+
 
         get_next_token();
         next_parameter();
@@ -504,20 +505,19 @@ bool list_params() {
             get_token_consume_token(
                 L_VARID, "missing variable identifier after data type");
 
-            // checking param count
-            if (parser.func_check == false) {
-                parser.global_symtable_data->func_data.param_count++;
-                generate_func_param(parser.token.string, parser.global_symtable_data->func_data.param_count);
-            } else {
-                parser.tmp_counter++;
-                generate_func_param(parser.token.string, parser.tmp_counter);
-            }
             // add param variable to local symtable
             parser.local_symtable_data->type = ID_VAR;
             htab_insert_update(parser.local_symtable, parser.token.string,
                                parser.local_symtable_data);
 
-            
+            // checking param count
+            if (parser.func_check == false) {
+                parser.global_symtable_data->func_data.param_count++;
+                generate_func_param(htab_search(parser.local_symtable, parser.token.string), parser.global_symtable_data->func_data.param_count);
+            } else {
+                parser.tmp_counter++;
+                generate_func_param(htab_search(parser.local_symtable, parser.token.string), parser.tmp_counter);
+            }
 
             get_next_token();
             next_parameter();
