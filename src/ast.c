@@ -19,14 +19,13 @@ void dispose(ast_node_t* tree) {
  * a vrati ukazatel na uzel o
  */
 
-ast_node_t* make_tree(lexeme o, htab_item_t ho, ast_node_t* a, ast_node_t* b) {
+ast_node_t* make_tree(lexeme o, ast_node_t* a, ast_node_t* b) {
     ast_node_t* new = malloc(sizeof(struct ast_node));
     if (new == NULL) {
         exit_program(99, "memory allocation failed");
         // nevim presne jak toto osetrit
     } else {
         new->token = o;
-        new->h_item = ho;
         new->left = a;
         new->right = b;
 
