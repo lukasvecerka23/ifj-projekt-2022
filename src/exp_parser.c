@@ -312,7 +312,7 @@ void rule_reduction(Stack* stack) {
     if (stack_data[0]->data == T_RPAR && stack_data[1]->data == E &&
         stack_data[2]->data == T_LPAR) {
         stack_push(stack, E);
-        stack_push(stack, E);
+        // stack_push(stack, E);
         // stack->top.tree_ptr = create_leaf(stack_data[0]->token);
         stack->top->token = stack_data[1]->token;
         // free(stack_data);
