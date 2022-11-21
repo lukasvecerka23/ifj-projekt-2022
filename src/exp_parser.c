@@ -122,7 +122,6 @@ void print_enum_as_str(precedence_symbols data) {
         case E:
             printf("E");
             break;
-
         default:
             printf("not in enum range %d", data);
             break;
@@ -206,7 +205,6 @@ void stack_shift_push(Stack* stack) {
         tmp = tmp->next_element;
     }
     //
-    return EMPTY;
 }
 
 void stack_print_stack(Stack* stack) {
@@ -222,15 +220,15 @@ void stack_print_stack(Stack* stack) {
 }
 
 // pops first element
-precedence_symbols stack_pop(Stack* stack) {
+Stack_exp stack_pop(Stack* stack) {
     if (stack->top->data != EMPTY) {
-        precedence_symbols to_return = stack->top->data;
+        Stack_exp to_return = stack->top;
         Stack_exp next = stack->top->next_element;
-        free(stack->top);
+        // free(stack->top);
         stack->top = next;
         return to_return;
     } else {
-        return EMPTY;
+        return NULL;
     }
 }
 
@@ -275,55 +273,63 @@ int exp_correct_syntax(Stack* stack) {
 // */
 
 void rule_reduction(Stack* stack) {
-    precedence_symbols stack_data[3] = {0};
-
-    // int cnt = 0;
-    // while (stack_data[cnt] != S) {
-    //     stack_data[cnt] = stack_pop(stack);
-    //     printf("popped: ");
-    //     print_enum_as_str(stack_data[cnt]);
-    //     printf("\n");
-    //     if (stack_data[cnt] == S || cnt == 3) {
-    //         printf("break!\n");
-    //         break;
-    //     }
-    //     cnt++;
-    // }
+    // Stack_exp* stack_data = malloc(sizeof(Stack_exp) * 5);
+    Stack_exp stack_data[4];
+    for (int j = 0; j < 5; j++) {
+        stack_data[j] = malloc(sizeof(Stack_exp));
+    }
+    // Stack_exp* stack_data;
 
     for (int i = 0; i <= 3; i++) {
         stack_data[i] = stack_pop(stack);
-        // printf("popped: ");
-        // print_enum_as_str(stack_data[i]);
-        // printf("\n");
-        if (stack_data[i] == S) {
-            // printf("break!\n");
+        printf("popped: ");
+        print_enum_as_str(stack_data[i]->data);
+        printf("\n");
+        if ((stack_data[i])->data == S) {
+            printf("break!\n");
             break;
         }
     }
+    printf("hit\n");
 
     // printf("stack reduced: ");
     // stack_print_stack(stack);
-    if (stack_data[0] == S) {
+    if (stack_data[0]->data == S) {
         // error
         printf("error < at the top of the stack\n");
+        // free(stack_data);
         return;
     }
-    if (stack_data[1] == S && stack_data[0] == T_INT) {  // i -> E
+    if (stack_data[1]->data == S && stack_data[0]->data == T_INT) {  // i -> E
         // stack_pop(stack);
         stack_push(stack, E);
+        // stack->top.tree_ptr = create_leaf(stack_data[0]->token);
+        stack->top->token = stack_data[0]->token;
+        // stack_data[0]
+        // free(stack_data);
         return;
     }
-    if (stack_data[0] == T_RPAR && stack_data[1] == E &&
-        stack_data[2] == T_LPAR) {
+    if (stack_data[0]->data == T_RPAR && stack_data[1]->data == E &&
+        stack_data[2]->data == T_LPAR) {
         stack_push(stack, E);
+        stack_push(stack, E);
+        // stack->top.tree_ptr = create_leaf(stack_data[0]->token);
+        stack->top->token = stack_data[1]->token;
+        // free(stack_data);
         return;
         // E -> (E)
     }
-    if (stack_data[0] == E && stack_data[2] == E) {  // E op E
+    if (stack_data[0]->data == E && stack_data[2]->data == E) {  // E op E
         printf("rule E -> E + E\n");
-        switch (stack_data[1]) {
+        // ast tree_ptr;
+        // lexeme operator;
+        // operator.value = 0;
+        //
+        switch (stack_data[1]->data) {
             case T_PLUS:
                 printf("AST create PLUS tree\n");
+                // operator.lex = L_PLUS;
+                // tree_ptr = create_tree(plus,stack[0]->token,stack[2]->token);
                 break;
             case T_MUL:
                 printf("AST create MUL tree\n");
@@ -340,6 +346,8 @@ void rule_reduction(Stack* stack) {
                 break;
             case T_MINUS:
                 break;
+            case T_CONCAT:
+                break;
 
             default:
                 // someting else == EROR
@@ -347,9 +355,11 @@ void rule_reduction(Stack* stack) {
                 break;
         }
         stack_push(stack, E);
+        // stack->top->tree_ptr = tree_ptr;
     } else {
         // error
         printf("no rule matched \n");
+        // free(stack_data);
         return;
     }
     /*
@@ -381,6 +391,7 @@ void rule_reduction(Stack* stack) {
 
     todo ast generate call
     */
+    // free(stack_data);
 }
 
 void map_token() {}
@@ -389,7 +400,7 @@ void stack_test() {
     Stack stack;
     stack_init(&stack);
     stack_push(&stack, EMPTY);
-    printf("stack empty:%d\n", stack_empty(&stack));
+    // printf("stack empty:%d\n", stack_empty(&stack));
     stack_push(&stack, $);
     print_enum_as_str(stack_top_nonterminal(&stack));
     stack_push(&stack, S);
@@ -492,7 +503,8 @@ int parse_expression(lexeme used_token) {
     stack_init(&stack);
     stack_push(&stack, EMPTY);
     // lexeme used_token;
-    precedence_symbols current_token = map_token_to_enum(used_token);
+    precedence_symbols current_token_enum = map_token_to_enum(used_token);
+    lexeme current_token = used_token;
     precedence_symbols top;
 
     stack_push(&stack, $);
@@ -501,32 +513,36 @@ int parse_expression(lexeme used_token) {
         stack_print_stack(&stack);
         // current_token = current_token;
         printf("current_token: ");
-        print_enum_as_str(current_token);
+        print_enum_as_str(current_token_enum);
         printf("\ncurrent top: ");
         top = stack_top_nonterminal(&stack);
         print_enum_as_str(top);
         printf("\n");
-        print_enum_as_str(prec_table[top][current_token]);
+        print_enum_as_str(prec_table[top][current_token_enum]);
         printf(" rule chosen \n");
-        switch (prec_table[top][current_token]) {
+        switch (prec_table[top][current_token_enum]) {
             case W:  // get next token and push current
                 // next token
-                stack_push(&stack, current_token);
-                current_token = map_token_to_enum(get_lex_value());
-                print_enum_as_str(current_token);
+                stack_push(&stack, current_token_enum);
+                stack.top->token = current_token;
+                current_token = get_lex_value();
+                current_token_enum = map_token_to_enum(current_token);
+                print_enum_as_str(current_token_enum);
 
                 break;
             case S:  // shift
                 // stack_push(&stack, S);
                 stack_shift_push(&stack);
-                stack_push(&stack, current_token);
-                current_token = map_token_to_enum(get_lex_value());
+                stack_push(&stack, current_token_enum);
+                stack.top->token = current_token;
+                current_token = get_lex_value();
+                current_token_enum = map_token_to_enum(current_token);
                 // printf(get_lex_value());
                 break;
             case R:  // reduce
                 rule_reduction(&stack);
                 // printf("stack after reduction ");
-                // stack_print_stack(&stack);
+                stack_print_stack(&stack);
                 // return;
                 break;
                 // return;
@@ -540,8 +556,10 @@ int parse_expression(lexeme used_token) {
                 return 0;
                 break;
         }
+        // printf("hit end\n");
+        // print_enum_as_str(current_token);
 
-    } while ((current_token != T_END_EXP) || (exp_correct_syntax(&stack) == 0));
+    } while ((current_token_enum != $) || (exp_correct_syntax(&stack) == 0));
     stack_print_stack(&stack);
     if (exp_correct_syntax(&stack)) {
         printf("expression is correct");
@@ -554,10 +572,11 @@ int parse_expression(lexeme used_token) {
 
 int main() {
     // stack_test();
-    non_token_expression();
-    // lexeme test_incoming_token;
+    // non_token_expression();
+    lexeme test_incoming_token;
     // test_incoming_token.lex = L_NUMBER;
     // test_incoming_token.val = 0;
-    // parse_expression(test_incoming_token);
+    test_incoming_token = get_lex_value();
+    parse_expression(test_incoming_token);
     return 1;
 }

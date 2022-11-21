@@ -19,6 +19,7 @@ typedef enum precedence_symbols {
     T_RPAR,
     T_INT,
     $,
+    T_CONCAT,
     T_FLOAT,
     T_STRING,
     T_DIV,
@@ -43,7 +44,7 @@ typedef enum precedence_symbols {
 typedef struct stack_el {
     precedence_symbols data;
     lexeme token;
-    // ast_tree tree;
+    // ast_node_t* tree;
     struct stack_el* next_element;
 
 } * Stack_exp;
@@ -61,7 +62,7 @@ precedence_symbols stack_top(Stack* stack);
 void stack_push(Stack* stack, precedence_symbols data);
 
 // // pops first element
-precedence_symbols stack_pop(Stack* stack);
+Stack_exp stack_pop(Stack* stack);
 
 int stack_empty(Stack* stack);
 
