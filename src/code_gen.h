@@ -1,5 +1,11 @@
 #include <stdbool.h>
 
+typedef struct dynamic_string {
+    int usedmem;
+    int stringmem;
+    char* string;
+} dynamic_string_t;
+
 void generate_header();
 void generate_end();
 void generate_func_header(char* func_id, int scope);

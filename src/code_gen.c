@@ -1,17 +1,45 @@
 #include "code_gen.h"
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "symtable.h"
 
 /** TODO
- * Functions for generate functino calls
- * Checking params in function declaration
- * Generating builtin functions
  * Generating expression
+ * IF
+ * WHILE
+ * RETURN TYPE CHECK
  */
+
+// Functions for dynamic string
+void string_add_char(dynamic_string_t* string, char c) {
+    if (string->usedmem + 1 >= (string->stringmem * 0.9)) {
+        string->stringmem = string->stringmem * 2;
+        string->string = (char*)realloc(string->string, string->stringmem);
+        string->usedmem = 0;
+    }
+    if (c != '"') {
+        string->string[string->usedmem++] = c;
+    }
+    string->string[string->usedmem] = '\0';
+}
+
+void string_add_string(dynamic_string_t* string, char* string2) {
+    int string_len = strlen(string2);
+    if ((string->usedmem + string_len) >= (string->stringmem * 0.9)) {
+        string->stringmem = string->stringmem * 2;
+        string->string = (char*)realloc(string->string, string->stringmem);
+        string->usedmem = 0;
+    }
+    string->usedmem += string_len;
+    strcat(string->string, string2);
+    string->string[string->usedmem] = '\0';
+}
 
 void generate_exit_label() {
     printf("# EXIT CODE LABELS\n");
     printf("LABEL $ERROR_SEM_TYPE_CHECK\n");
+    printf("DPRINT string@semantic\\032error\n");
     printf("EXIT int@4\n");
     printf("LABEL $ERROR_SEM_RET_EXP\n");
     printf("EXIT int@6\n");
@@ -151,12 +179,29 @@ void generate_float_func_param(unsigned long long index,
 void generate_string_func_param(unsigned long long index,
                                 char* string,
                                 bool is_write) {
+    dynamic_string_t* tmp_string =
+        (dynamic_string_t*)malloc(sizeof(dynamic_string_t));
+    tmp_string->stringmem = 100;
+    tmp_string->usedmem = 0;
+    tmp_string->string = (char*)calloc(tmp_string->stringmem, sizeof(char*));
+    char c;
+    char escape_seq[10];
+
+    for (int i = 0; (c = string[i]) != '\0'; i++) {
+        if (c == '#' || c == '\\' || c <= 32) {
+            string_add_char(tmp_string, '\\');
+            sprintf(escape_seq, "%03d", c);
+            string_add_string(tmp_string, escape_seq);
+        } else {
+            string_add_char(tmp_string, c);
+        }
+    }
     if (!is_write) {
         printf("DEFVAR TF@$%llu\n", index);
-        // create function which transfer special character to escape sequences
-        printf("MOVE TF@$%llu string@%s\n", index, string);
+        printf("MOVE TF@$%llu string@%s\n", index, tmp_string->string);
     } else
-        printf("WRITE string@%s", string);
+        printf("WRITE string@%s\n", tmp_string->string);
+    free(tmp_string);
 }
 
 void generate_null_func_param(unsigned long long index, bool is_write) {
@@ -164,7 +209,7 @@ void generate_null_func_param(unsigned long long index, bool is_write) {
         printf("DEFVAR TF@$%llu\n", index);
         printf("MOVE TF@$%llu nil@nil\n", index);
     } else
-        printf("WRITE string@\032\n");
+        printf("WRITE string@\n");
 }
 
 void generate_func_call(char* func_id) {
