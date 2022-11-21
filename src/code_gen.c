@@ -12,21 +12,21 @@
 void generate_exit_label() {
     printf("# EXIT CODE LABELS\n");
     printf("LABEL $ERROR_SEM_TYPE_CHECK\n");
-    printf("EXIT 4\n");
+    printf("EXIT int@4\n");
     printf("LABEL $ERROR_SEM_RET_EXP\n");
-    printf("EXIT 6\n");
+    printf("EXIT int@6\n");
     printf("LABEL $ERROR_SEM_OP_TYPES\n");
-    printf("EXIT 7\n");
+    printf("EXIT int@7\n");
     printf("LABEL $ERROR_SEM_OTHER\n");
-    printf("EXIT 9\n");
+    printf("EXIT int@9\n");
 }
 
 void generate_header() {
-    printf(".IFcode22\n");
+    printf(".IFJcode22\n");
     printf("DEFVAR GF@tmp_var\n");
+    printf("JUMP $$main\n");
     generate_exit_label();
     generate_builtin_func();
-    printf("JUMP $$main\n");
     printf("# START OF MAIN BODY\n");
     printf("LABEL $$main\n");
 }
@@ -35,16 +35,18 @@ void generate_end() {
     printf("# end of main\n");
 }
 
-void generate_func_header(char* func_id) {
+void generate_func_header(char* func_id, int scope) {
+    printf("JUMP $$main%d\n", scope);
     printf("LABEL $$%s\n", func_id);
     printf("PUSHFRAME\n");
     printf("DEFVAR LF@retval$1\n");
     printf("MOVE LF@retval$1 nil@nil\n");
 }
 
-void generate_func_end() {
+void generate_func_end(int scope) {
     printf("POPFRAME\n");
     printf("RETURN\n");
+    printf("LABEL $$main%d\n", scope);
 }
 
 void generate_func_param(htab_item_t* param_data,
@@ -106,47 +108,80 @@ void generate_local_var(char* var_id) {
 void generate_tmp_frame() {
     printf("CREATEFRAME\n");
 }
-void generate_global_var_func_param(unsigned long long index, char* var_id) {
-    printf("DEFVAR TF@$%llu\n", index);
-    printf("MOVE TF@$%llu GF@%s\n", index, var_id);
+void generate_global_var_func_param(unsigned long long index,
+                                    char* var_id,
+                                    bool is_write) {
+    if (!is_write) {
+        printf("DEFVAR TF@$%llu\n", index);
+        printf("MOVE TF@$%llu GF@%s\n", index, var_id);
+    } else
+        printf("WRITE GF@%s", var_id);
 }
 
-void generate_local_var_func_param(unsigned long long index, char* var_id) {
-    printf("DEFVAR TF@$%llu\n", index);
-    printf("MOVE TF@$%llu LF@%s\n", index, var_id);
+void generate_local_var_func_param(unsigned long long index,
+                                   char* var_id,
+                                   bool is_write) {
+    if (!is_write) {
+        printf("DEFVAR TF@$%llu\n", index);
+        printf("MOVE TF@$%llu LF@%s\n", index, var_id);
+    } else
+        printf("WRITE LF@%s\n", var_id);
 }
 
-void generate_int_func_param(unsigned long long index, int value) {
-    printf("DEFVAR TF@$%llu\n", index);
-    printf("MOVE TF@$%llu int@%d\n", index, value);
+void generate_int_func_param(unsigned long long index,
+                             int value,
+                             bool is_write) {
+    if (!is_write) {
+        printf("DEFVAR TF@$%llu\n", index);
+        printf("MOVE TF@$%llu int@%d\n", index, value);
+    } else
+        printf("WRITE int@%d\n", value);
 }
 
-void generate_float_func_param(unsigned long long index, double value) {
-    printf("DEFVAR TF@$%llu\n", index);
-    printf("MOVE TF@$%llu float@%f\n", index, value);
+void generate_float_func_param(unsigned long long index,
+                               double value,
+                               bool is_write) {
+    if (!is_write) {
+        printf("DEFVAR TF@$%llu\n", index);
+        printf("MOVE TF@$%llu float@%f\n", index, value);
+    } else
+        printf("WRITE float@%f\n", value);
 }
 
-void generate_string_func_param(unsigned long long index, char* string) {
-    printf("DEFVAR TF@$%llu\n", index);
-    // create function which transfer special character to escape sequences
-    printf("MOVE TF@$%llu string@%s\n", index, string);
+void generate_string_func_param(unsigned long long index,
+                                char* string,
+                                bool is_write) {
+    if (!is_write) {
+        printf("DEFVAR TF@$%llu\n", index);
+        // create function which transfer special character to escape sequences
+        printf("MOVE TF@$%llu string@%s\n", index, string);
+    } else
+        printf("WRITE string@%s", string);
 }
 
-void generate_null_func_param(unsigned long long index) {
-    printf("DEFVAR TF@$%llu\n", index);
-    printf("MOVE TF@$%llu nil@nil\n", index);
+void generate_null_func_param(unsigned long long index, bool is_write) {
+    if (!is_write) {
+        printf("DEFVAR TF@$%llu\n", index);
+        printf("MOVE TF@$%llu nil@nil\n", index);
+    } else
+        printf("WRITE string@\032\n");
 }
 
 void generate_func_call(char* func_id) {
     printf("CALL $$%s\n", func_id);
+    printf("MOVE GF@tmp_var TF@retval$1\n");
 }
 
 void generate_global_assignment(char* var_id) {
-    printf("MOVE GF@%s TF@retval$1\n", var_id);
+    printf("MOVE GF@%s GF@tmp_var\n", var_id);
 }
 
 void generate_local_assignment(char* var_id) {
-    printf("MOVE LF@%s TF@retval$1\n", var_id);
+    printf("MOVE LF@%s GF@tmp_var\n", var_id);
+}
+
+void generate_null_assignment() {
+    printf("MOVE GF@tmp_var nil@nil\n");
 }
 
 void generate_builtin_func() {
@@ -161,7 +196,7 @@ void generate_builtin_func() {
     printf("TYPE LF@type$var LF@$1\n");
     printf("JUMPIFEQ $floatval$int LF@type$var string@int\n");
 
-    printf("MOVE LF@retval$1 float@0.0\n");
+    printf("MOVE LF@retval$1 float@0x0.0p+0\n");
     printf("POPFRAME\n");
     printf("RETURN\n");
 
@@ -319,10 +354,10 @@ void generate_builtin_func() {
     printf("LABEL $$chr\n");
     printf("PUSHFRAME\n");
 
-    printf("DEFVAR LF@chr@int\n");
+    printf("DEFVAR LF@chr$int\n");
     printf("DEFVAR LF@retval$1\n");
 
-    printf("INT2CHAR LF@retval$1 LF@chr@int\n");
+    printf("INT2CHAR LF@retval$1 LF@chr$int\n");
     printf("POPFRAME\n");
     printf("RETURN\n");
 
@@ -331,7 +366,7 @@ void generate_builtin_func() {
     printf("PUSHFRAME\n");
 
     printf("DEFVAR LF@retval$1\n");
-    printf("READ LF@retval$1 string@string\n");
+    printf("READ LF@retval$1 string\n");
     printf("POPFRAME\n");
     printf("RETURN\n");
 
@@ -340,7 +375,7 @@ void generate_builtin_func() {
     printf("PUSHFRAME\n");
 
     printf("DEFVAR LF@retval$1\n");
-    printf("READ LF@retval$1 string@int\n");
+    printf("READ LF@retval$1 int\n");
     printf("POPFRAME\n");
     printf("RETURN\n");
 
@@ -349,7 +384,7 @@ void generate_builtin_func() {
     printf("PUSHFRAME\n");
 
     printf("DEFVAR LF@retval$1\n");
-    printf("READ LF@retval$1 string@float\n");
+    printf("READ LF@retval$1 float\n");
     printf("POPFRAME\n");
     printf("RETURN\n");
 }

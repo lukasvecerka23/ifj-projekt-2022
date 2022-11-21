@@ -10,6 +10,7 @@ typedef struct {
     htab_item_data_t* local_symtable_data;
     bool in_function;
     bool func_check;
+    int scope;
     int tmp_counter;
 } Parser;
 

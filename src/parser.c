@@ -290,31 +290,55 @@ bool term() {
                     exit_program(5,
                                  "undefined variable as function input param");
                 }
-                generate_local_var_func_param(parser.tmp_counter + 1,
-                                              parser.token.string);
+                if (strcmp(parser.global_symtable_data->name, "write") == 0) {
+                    generate_local_var_func_param(parser.tmp_counter + 1,
+                                                  parser.token.string, true);
+                } else
+                    generate_local_var_func_param(parser.tmp_counter + 1,
+                                                  parser.token.string, false);
             } else {
                 if (!htab_search(parser.global_symtable, parser.token.string)) {
                     exit_program(5,
                                  "undefined variable as function input param");
                 }
-                generate_global_var_func_param(parser.tmp_counter + 1,
-                                               parser.token.string);
+                if (strcmp(parser.global_symtable_data->name, "write") == 0) {
+                    generate_global_var_func_param(parser.tmp_counter + 1,
+                                                   parser.token.string, true);
+                } else
+                    generate_global_var_func_param(parser.tmp_counter + 1,
+                                                   parser.token.string, false);
             }
 
             return true;
         case L_STRING:
-            generate_string_func_param(parser.tmp_counter + 1,
-                                       parser.token.string);
+            if (strcmp(parser.global_symtable_data->name, "write") == 0) {
+                generate_string_func_param(parser.tmp_counter + 1,
+                                           parser.token.string, true);
+            } else
+                generate_string_func_param(parser.tmp_counter + 1,
+                                           parser.token.string, false);
             return true;
         case L_FLOAT:
-            generate_float_func_param(parser.tmp_counter + 1,
-                                      parser.token.float_val);
+            if (strcmp(parser.global_symtable_data->name, "write") == 0) {
+                generate_float_func_param(parser.tmp_counter + 1,
+                                          parser.token.float_val, true);
+            } else
+                generate_float_func_param(parser.tmp_counter + 1,
+                                          parser.token.float_val, false);
             return true;
         case L_NUMBER:
-            generate_int_func_param(parser.tmp_counter + 1, parser.token.val);
+            if (strcmp(parser.global_symtable_data->name, "write") == 0) {
+                generate_int_func_param(parser.tmp_counter + 1,
+                                        parser.token.val, true);
+            } else
+                generate_int_func_param(parser.tmp_counter + 1,
+                                        parser.token.val, false);
             return true;
         case K_NULL:
-            generate_null_func_param(parser.tmp_counter + 1);
+            if (strcmp(parser.global_symtable_data->name, "write") == 0) {
+                generate_null_func_param(parser.tmp_counter + 1, true);
+            } else
+                generate_null_func_param(parser.tmp_counter + 1, false);
             return true;
         default:
             exit_program(51, "wrong term in function call");
@@ -391,7 +415,11 @@ bool statement() {
                 consume_token(L_RPAR, "missing right paren in function call");
                 get_token_consume_token(L_SEMICOL,
                                         "missing semicolon after statement");
-                generate_func_call(parser.global_symtable_data->name);
+                if (strcmp(parser.global_symtable_data->name, "write") == 0) {
+                    generate_null_assignment();
+                } else {
+                    generate_func_call(parser.global_symtable_data->name);
+                }
                 if (parser.in_function) {
                     generate_local_assignment(tmp_var.string);
                 } else {
@@ -410,6 +438,7 @@ bool statement() {
     if (parser.token.lex == L_FUNCID) {
         check_func_id(false);
         get_token_consume_token(L_LPAR, "missing left paren in function call");
+        generate_tmp_frame();
         get_next_token();
         list_input_params();
 
@@ -421,7 +450,9 @@ bool statement() {
 
         consume_token(L_RPAR, "missing right paren in function call");
         get_token_consume_token(L_SEMICOL, "missing semicolon after statement");
-        generate_func_call(parser.global_symtable_data->name);
+        if (strcmp(parser.global_symtable_data->name, "write") != 0) {
+            generate_func_call(parser.global_symtable_data->name);
+        }
         get_next_token();
         statement();
         return true;
@@ -602,7 +633,7 @@ bool program() {
 
         check_func_id(true);
 
-        generate_func_header(parser.global_symtable_data->name);
+        generate_func_header(parser.global_symtable_data->name, parser.scope);
 
         get_token_consume_token(L_LPAR,
                                 "missing left paren in function declaration");
@@ -631,7 +662,8 @@ bool program() {
         consume_token(L_RCURL,
                       "missing right curl bracket in function declaration");
 
-        generate_func_end();
+        generate_func_end(parser.scope);
+        parser.scope++;
         // ht_print_table(parser.local_symtable, "LOCAL");
         htab_free(parser.local_symtable);
 
