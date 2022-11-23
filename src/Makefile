@@ -4,6 +4,7 @@ PROG=$(PROJECT)-test
 CFLAGS=-std=c99 -Wall -Wextra -pedantic -lm -fcommon
 EXEC = main_prg
 OBJ = main_prg.o lexeme.o error.o parser.o hashtable.o
+TESTOBJ = exp_parser.o lexeme.o error.o
 
 # test-run: $(PROG)
 run: main_prg
@@ -14,7 +15,10 @@ run: main_prg
 $(EXEC): $(OBJ)
 	$(CC) $(CFLAGS) $(OBJ) -o main_prg
 
-exp_parse.o: exp_parser.c exp_parser.h
+exp_parser: exp_parser.o
+	$(CC) $(CFLAGS) $(TESTOBJ) -o exp_parser
+
+exp_parser.o: exp_parser.c exp_parser.h lexeme.h
 	$(CC) $(CFLAGS) -c exp_parser.c -o exp_parser.o
 
 main_prg.o: main_prg.c

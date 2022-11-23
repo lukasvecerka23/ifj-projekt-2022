@@ -1,6 +1,7 @@
 #include "parser.h"
 #include <stdbool.h>
 #include "error.h"
+// #include "lexeme.h"
 
 /** TODO
  * Dodelat rule pro prolog
