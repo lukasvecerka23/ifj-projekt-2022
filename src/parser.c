@@ -482,6 +482,8 @@ bool statement() {
         return true;
     }
     if (parser.token.lex == K_WHILE) {
+        int while_scope = parser.scope + 1;
+        parser.scope++;
         get_token_consume_token(L_LPAR,
                                 "missing left paren in while statement");
         // expression parsing
@@ -633,12 +635,13 @@ bool program() {
     }
     if (parser.token.lex == K_FUNCTION) {
         parser.in_function = true;
+        int function_scope = parser.scope;
         get_token_consume_token(L_FUNCID,
                                 "missing function identifier keyword");
 
         check_func_id(true);
 
-        generate_func_header(parser.global_symtable_data->name, parser.scope);
+        generate_func_header(parser.global_symtable_data->name, function_scope);
 
         get_token_consume_token(L_LPAR,
                                 "missing left paren in function declaration");
@@ -667,7 +670,7 @@ bool program() {
         consume_token(L_RCURL,
                       "missing right curl bracket in function declaration");
 
-        generate_func_end(parser.scope);
+        generate_func_end(function_scope);
         parser.scope++;
         // ht_print_table(parser.local_symtable, "LOCAL");
         htab_free(parser.local_symtable);
