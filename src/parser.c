@@ -489,11 +489,13 @@ bool statement() {
         // expression parsing
         get_token_consume_token(L_RPAR,
                                 "missing right paren in while statement");
+        generate_while_start(while_scope);
         get_token_consume_token(L_LCURL,
                                 "missing left curl bracket in if statement");
         get_next_token();
         statement();
         consume_token(L_RCURL, "missing right curl bracket in if statement");
+        generate_while_end(while_scope);
         get_next_token();
         statement();
         return true;

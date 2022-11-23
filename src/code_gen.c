@@ -461,3 +461,15 @@ void generate_if_end(int scope) {
     printf("# IF END %d\n", scope);
     printf("LABEL $$if%dend\n", scope);
 }
+
+void generate_while_start(int scope) {
+    printf("# WHILE START %d\n", scope);
+    printf("LABEL $$while%dstart\n", scope);
+    printf("JUMPIFEQ $$while%dend GF@tmp_var bool@false\n", scope);
+}
+
+void generate_while_end(int scope) {
+    printf("JUMP $$while%dstart\n", scope);
+    printf("# WHILE END %d\n", scope);
+    printf("LABEL $$while%dend\n", scope);
+}

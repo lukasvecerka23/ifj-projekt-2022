@@ -38,3 +38,5 @@ void generate_null_assignment();
 void generate_if_then(int scope);
 void generate_if_else(int scope);
 void generate_if_end(int scope);
+void generate_while_start(int scope);
+void generate_while_end(int scope);
