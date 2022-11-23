@@ -6,12 +6,8 @@ EXEC = main_prg
 OBJ = main_prg.o lexeme.o error.o parser.o hashtable.o
 TESTOBJ = exp_parser.o lexeme.o error.o
 
-# test-run: $(PROG)
-run: main_prg
-	./main_prg
+.PHONY: main_prg
 
-# $(PROJECT)-test: $(PROJECT).c
-# 	$(CC) $(CFLAGS) -o $@ $(PROJECT).c
 $(EXEC): $(OBJ)
 	$(CC) $(CFLAGS) $(OBJ) -o main_prg
 
@@ -33,8 +29,11 @@ error.o: error.c error.h
 parser.o: parser.c parser.h
 	$(CC) $(CFLAGS) -c parser.c -o parser.o
 
-hashtable.o: hashtable.c hashtable.h
-	$(CC) $(CFLAGS) -c hashtable.c -o hashtable.o
+symtable.o: symtable.c symtable.h
+	$(CC) $(CFLAGS) -c symtable.c -o symtable.o
 
-clean: 
+code_gen.o: code_gen.c code_gen.h
+	$(CC) $(CFLAGS) -c code_gen.c -o code_gen.o
+
+clean:
 	rm $(EXEC) *.o

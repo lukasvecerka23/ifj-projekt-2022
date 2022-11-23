@@ -1,4 +1,4 @@
-<prolog> -> phpstart declare <program>
+<prolog> -> phpstart declare(strict_type=1) <program>
 
 <program> -> <statement> <program>
 <program> -> function funcid (<list_params>): <return_type> {<statement>} <program>
