@@ -445,3 +445,19 @@ void generate_builtin_func() {
     printf("POPFRAME\n");
     printf("RETURN\n");
 }
+
+void generate_if_then(int scope) {
+    printf("# IF THEN %d\n", scope);
+    printf("JUMPIFEQ $$if%delse GF@tmp_var bool@false\n", scope);
+}
+
+void generate_if_else(int scope) {
+    printf("JUMP $$if%dend\n", scope);
+    printf("# IF ELSE %d\n", scope);
+    printf("LABEL $$if%delse\n", scope);
+}
+
+void generate_if_end(int scope) {
+    printf("# IF END %d\n", scope);
+    printf("LABEL $$if%dend\n", scope);
+}

@@ -35,3 +35,6 @@ void generate_local_assignment(char* var_id);
 void generate_global_assignment(char* var_id);
 void generate_builtin_func();
 void generate_null_assignment();
+void generate_if_then(int scope);
+void generate_if_else(int scope);
+void generate_if_end(int scope);

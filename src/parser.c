@@ -291,10 +291,10 @@ bool term() {
                                  "undefined variable as function input param");
                 }
                 if (strcmp(parser.global_symtable_data->name, "write") == 0) {
-                    generate_local_var_func_param(parser.tmp_counter + 1,
+                    generate_local_var_func_param(parser.param_counter + 1,
                                                   parser.token.string, true);
                 } else
-                    generate_local_var_func_param(parser.tmp_counter + 1,
+                    generate_local_var_func_param(parser.param_counter + 1,
                                                   parser.token.string, false);
             } else {
                 if (!htab_search(parser.global_symtable, parser.token.string)) {
@@ -302,43 +302,43 @@ bool term() {
                                  "undefined variable as function input param");
                 }
                 if (strcmp(parser.global_symtable_data->name, "write") == 0) {
-                    generate_global_var_func_param(parser.tmp_counter + 1,
+                    generate_global_var_func_param(parser.param_counter + 1,
                                                    parser.token.string, true);
                 } else
-                    generate_global_var_func_param(parser.tmp_counter + 1,
+                    generate_global_var_func_param(parser.param_counter + 1,
                                                    parser.token.string, false);
             }
 
             return true;
         case L_STRING:
             if (strcmp(parser.global_symtable_data->name, "write") == 0) {
-                generate_string_func_param(parser.tmp_counter + 1,
+                generate_string_func_param(parser.param_counter + 1,
                                            parser.token.string, true);
             } else
-                generate_string_func_param(parser.tmp_counter + 1,
+                generate_string_func_param(parser.param_counter + 1,
                                            parser.token.string, false);
             return true;
         case L_FLOAT:
             if (strcmp(parser.global_symtable_data->name, "write") == 0) {
-                generate_float_func_param(parser.tmp_counter + 1,
+                generate_float_func_param(parser.param_counter + 1,
                                           parser.token.float_val, true);
             } else
-                generate_float_func_param(parser.tmp_counter + 1,
+                generate_float_func_param(parser.param_counter + 1,
                                           parser.token.float_val, false);
             return true;
         case L_NUMBER:
             if (strcmp(parser.global_symtable_data->name, "write") == 0) {
-                generate_int_func_param(parser.tmp_counter + 1,
+                generate_int_func_param(parser.param_counter + 1,
                                         parser.token.val, true);
             } else
-                generate_int_func_param(parser.tmp_counter + 1,
+                generate_int_func_param(parser.param_counter + 1,
                                         parser.token.val, false);
             return true;
         case K_NULL:
             if (strcmp(parser.global_symtable_data->name, "write") == 0) {
-                generate_null_func_param(parser.tmp_counter + 1, true);
+                generate_null_func_param(parser.param_counter + 1, true);
             } else
-                generate_null_func_param(parser.tmp_counter + 1, false);
+                generate_null_func_param(parser.param_counter + 1, false);
             return true;
         default:
             exit_program(51, "wrong term in function call");
@@ -352,10 +352,10 @@ bool next_input_param() {
         consume_token(L_COMMA, "missing comma before next input parameter");
         get_next_token();
         term();
-        parser.tmp_counter++;
+        parser.param_counter++;
         if (parser.func_check == false)
             parser.global_symtable_data->func_data.param_count =
-                parser.tmp_counter;
+                parser.param_counter;
         get_next_token();
         next_input_param();
         return true;
@@ -366,13 +366,13 @@ bool next_input_param() {
 
 // <list_input_params> rule
 bool list_input_params() {
-    parser.tmp_counter = 0;
+    parser.param_counter = 0;
     if (parser.token.lex != L_RPAR) {
         term();
-        parser.tmp_counter++;
+        parser.param_counter++;
         if (parser.func_check == false)
             parser.global_symtable_data->func_data.param_count =
-                parser.tmp_counter;
+                parser.param_counter;
         get_next_token();
         next_input_param();
         return true;
@@ -407,7 +407,7 @@ bool statement() {
                 list_input_params();
 
                 if (parser.func_check &&
-                    parser.tmp_counter !=
+                    parser.param_counter !=
                         parser.global_symtable_data->func_data.param_count) {
                     exit_program(4, "wrong param count in function call");
                 }
@@ -443,7 +443,7 @@ bool statement() {
         list_input_params();
 
         if (parser.func_check &&
-            parser.tmp_counter !=
+            parser.param_counter !=
                 parser.global_symtable_data->func_data.param_count) {
             exit_program(4, "wrong param count in function call");
         }
@@ -458,20 +458,25 @@ bool statement() {
         return true;
     }
     if (parser.token.lex == K_IF) {
+        int if_scope = parser.scope + 1;
+        parser.scope++;
         get_token_consume_token(L_LPAR, "missing left paren in if statement");
         // expresion
         get_token_consume_token(L_RPAR, "missing right paren in if statement");
+        generate_if_then(if_scope);
         get_token_consume_token(L_LCURL,
                                 "missing left curl bracket in if statement");
         get_next_token();
         statement();
         consume_token(L_RCURL, "missing right curl bracket in if statement");
         get_token_consume_token(K_ELSE, "missing else");
+        generate_if_else(if_scope);
         get_token_consume_token(L_LCURL,
                                 "missing left curl bracket in if statement");
         get_next_token();
         statement();
         consume_token(L_RCURL, "missing right curl bracket in if statement");
+        generate_if_end(if_scope);
         get_next_token();
         statement();
         return true;
@@ -563,10 +568,10 @@ bool next_parameter() {
                 htab_search(parser.local_symtable, parser.token.string),
                 parser.global_symtable_data->func_data.param_count);
         } else {
-            parser.tmp_counter++;
+            parser.param_counter++;
             generate_func_param(
                 htab_search(parser.local_symtable, parser.token.string),
-                parser.tmp_counter);
+                parser.param_counter);
         }
 
         get_next_token();
@@ -580,7 +585,7 @@ bool next_parameter() {
 
 // <list_params> rule
 bool list_params() {
-    parser.tmp_counter = 0;
+    parser.param_counter = 0;
     if (!check_token_type(L_RPAR)) {
         create_new_local_data();
         if (type()) {
@@ -599,10 +604,10 @@ bool list_params() {
                     htab_search(parser.local_symtable, parser.token.string),
                     parser.global_symtable_data->func_data.param_count);
             } else {
-                parser.tmp_counter++;
+                parser.param_counter++;
                 generate_func_param(
                     htab_search(parser.local_symtable, parser.token.string),
-                    parser.tmp_counter);
+                    parser.param_counter);
             }
 
             get_next_token();
@@ -642,7 +647,7 @@ bool program() {
         list_params();
 
         if (parser.func_check &&
-            parser.tmp_counter !=
+            parser.param_counter !=
                 parser.global_symtable_data->func_data.param_count) {
             exit_program(4, "wrong param count in function call");
         }

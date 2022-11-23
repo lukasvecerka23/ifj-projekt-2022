@@ -11,7 +11,7 @@ typedef struct {
     bool in_function;
     bool func_check;
     int scope;
-    int tmp_counter;
+    int param_counter;
 } Parser;
 
 void get_next_token();
