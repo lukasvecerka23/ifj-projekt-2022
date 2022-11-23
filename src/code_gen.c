@@ -39,14 +39,26 @@ void string_add_string(dynamic_string_t* string, char* string2) {
 void generate_exit_label() {
     printf("# EXIT CODE LABELS\n");
     printf("LABEL $ERROR_SEM_TYPE_CHECK\n");
-    printf("DPRINT string@semantic\\032error\n");
+    printf(
+        "DPRINT "
+        "string@semantic\\032error:"
+        "\\032wrong\\032number\\032or\\032type\\032in\\032function\\032call\n");
     printf("EXIT int@4\n");
     printf("LABEL $ERROR_SEM_RET_EXP\n");
+    printf(
+        "DPRINT "
+        "string@semantic\\032error:"
+        "\\032missing\\032expression\\032in\\032function\\032return\n");
     printf("EXIT int@6\n");
     printf("LABEL $ERROR_SEM_OP_TYPES\n");
+    printf(
+        "DPRINT "
+        "string@semantic\\032error:"
+        "\\032wrong\\032type\\032in\\032expression\\032operands\n");
     printf("EXIT int@7\n");
     printf("LABEL $ERROR_SEM_OTHER\n");
-    printf("EXIT int@9\n");
+    printf("DPRINT string@semantic\\032error\n");
+    printf("EXIT int@8\n");
 }
 
 void generate_header() {
@@ -171,9 +183,9 @@ void generate_float_func_param(unsigned long long index,
                                bool is_write) {
     if (!is_write) {
         printf("DEFVAR TF@$%llu\n", index);
-        printf("MOVE TF@$%llu float@%f\n", index, value);
+        printf("MOVE TF@$%llu float@%a\n", index, value);
     } else
-        printf("WRITE float@%f\n", value);
+        printf("WRITE float@%a\n", value);
 }
 
 void generate_string_func_param(unsigned long long index,
