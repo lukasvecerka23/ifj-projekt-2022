@@ -456,7 +456,7 @@ token_t get_token_data(scanner_t scan) {
             if (now == START) {
                 return (token_t){.token_type = LEOF};
             }
-            return create_lex(now, scan.token);
+            // return create_lex(now, scan.token);
         }
         States next = FSM(now, edge);
         if (next == TOKEN_END) {

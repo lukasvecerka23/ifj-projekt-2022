@@ -178,6 +178,8 @@ bool check_param_types() {
         case K_FLOAT:
             parser.local_symtable_data->var_data.data_type = DTYPE_FLOAT;
             break;
+        default:
+            break;
     }
     return true;
 }
@@ -278,6 +280,8 @@ bool check_return_type() {
             break;
         case K_VOID:
             parser.global_symtable_data->func_data.ret_type = RETTYPE_VOID;
+            break;
+        default:
             break;
     }
     return true;
@@ -719,6 +723,7 @@ bool prolog() {
     }
     htab_free(parser.global_symtable);
     exit_program(2, "missing php head and strict_types declaration");
+    return false;
 }
 
 bool syntax_analyse() {

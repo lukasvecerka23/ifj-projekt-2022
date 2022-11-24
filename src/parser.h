@@ -13,8 +13,8 @@ typedef struct {
     htab_item_data_t* local_symtable_data;
     bool in_function;
     bool func_check;
-    int scope;
-    int param_counter;
+    size_t scope;
+    size_t param_counter;
 } Parser;
 
 void get_next_token();
