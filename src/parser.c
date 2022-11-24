@@ -1,10 +1,5 @@
-
 #include "parser.h"
-#include <stdbool.h>
-#include "code_gen.h"
 #include "error.h"
-// #include "lexeme.h"
-
 /** TODO
  * Expression parser - parsovani a vyhodnocovani vyrazu
  * AST - vytvoreni struktury a propojeni s expresion parserem, generovani AST
@@ -263,6 +258,25 @@ void var_init() {
     }
 }
 
+void expression_parser(token_t* token, bool is_cond) {
+    ast_node_t* new_tree = NULL;
+    int err_code;
+    err_code = parse_expression(token, is_cond, &new_tree);
+
+    switch (err_code) {
+        case 0:
+            // ast_print_tree(new_tree);
+            generate_ast(new_tree);
+            break;
+        case 2:
+            exit_program(2, "syntax error in expression parser");
+            break;
+        case 5:
+            exit_program(5, "undefinded variable in expression");
+            break;
+    }
+}
+
 bool check_return_type() {
     if (!check_token_type(K_INT) && !check_token_type(K_STRING) &&
         !check_token_type(K_FLOAT) && !check_token_type(K_VOID)) {
@@ -403,6 +417,7 @@ bool statement() {
             } else {
                 generate_global_var(parser.global_symtable_data->name);
             }
+
             get_next_token();
             if (parser.token.token_type == L_FUNCID) {
                 check_func_id(false);
@@ -434,8 +449,16 @@ bool statement() {
                 get_next_token();
                 statement();
                 return true;
+            } else {
+                expression_parser(&parser.token, true);
+                if (parser.in_function) {
+                    generate_local_assignment(tmp_var.string);
+                } else {
+                    generate_global_assignment(tmp_var.string);
+                }
             }
             // expression call
+            get_next_token();
             statement();
             return true;
         }
@@ -467,11 +490,10 @@ bool statement() {
         int if_scope = parser.scope + 1;
         parser.scope++;
         get_token_consume_token(L_LPAR, "missing left paren in if statement");
-        // expresion
-        get_token_consume_token(L_RPAR, "missing right paren in if statement");
+        expression_parser(&parser.token, false);
+        // consume_token(L_RPAR, "missing right paren in if statement");
         generate_if_then(if_scope);
-        get_token_consume_token(L_LCURL,
-                                "missing left curl bracket in if statement");
+        // consume_token(L_LCURL, "missing left curl bracket in if statement");
         get_next_token();
         statement();
         consume_token(L_RCURL, "missing right curl bracket in if statement");
@@ -507,7 +529,19 @@ bool statement() {
         return true;
     }
     if (parser.token.token_type == K_RETURN) {
-        // expression parsing
+        if (parser.in_function) {
+            if (parser.declared_function->func_data.ret_type == RETTYPE_VOID) {
+                get_next_token();
+                if (!check_token_type(L_SEMICOL)) {
+                    exit_program(6,
+                                 "return in void function contain expression");
+                }
+            }
+        } else {
+            // expression parsing
+            // generate ast
+            // generate_return();
+        }
     }
     // epsilon
     return true;
@@ -650,6 +684,8 @@ bool program() {
 
         check_func_id(true);
 
+        // parser.declared_function = parser.global_symtable_data;
+
         generate_func_header(parser.global_symtable_data->name, function_scope);
 
         get_token_consume_token(L_LPAR,
@@ -678,7 +714,7 @@ bool program() {
         statement();
         consume_token(L_RCURL,
                       "missing right curl bracket in function declaration");
-
+        // check return of function
         generate_func_end(function_scope);
         parser.scope++;
         // ht_print_table(parser.local_symtable, "LOCAL");
@@ -689,6 +725,7 @@ bool program() {
         return true;
     }
     if (statement()) {
+        // get_next_token();
         program();
         return true;
     }

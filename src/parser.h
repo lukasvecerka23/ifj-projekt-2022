@@ -2,6 +2,8 @@
 #define IFJ_PARSER_H
 
 #include <stdbool.h>
+#include "code_gen.h"
+#include "exp_parser.h"
 #include "scanner.h"
 #include "symtable.h"
 
@@ -11,6 +13,7 @@ typedef struct {
     htab_t* local_symtable;
     htab_item_data_t* global_symtable_data;
     htab_item_data_t* local_symtable_data;
+    htab_item_data_t* declared_function;
     bool in_function;
     bool func_check;
     size_t scope;

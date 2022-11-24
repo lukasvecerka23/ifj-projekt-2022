@@ -112,6 +112,7 @@ void generate_func_header(char* func_id, int scope) {
 }
 
 void generate_func_end(int scope) {
+    // printf("LABEL $%s_return\n", func_id);
     printf("POPFRAME\n");
     printf("RETURN\n");
     printf("LABEL $$main%d\n", scope);
@@ -489,6 +490,9 @@ void generate_while_end(int scope) {
 
 void generate_ast(ast_node_t* current) {
     char* tmp_string;
+    if (current == NULL) {
+        return;
+    }
     generate_ast(current->left);
     generate_ast(current->right);
 
@@ -503,14 +507,14 @@ void generate_ast(ast_node_t* current) {
             printf(
                 "JUMPIFNEQ $ERROR_SEM_OP_TYPES GF@exp_type2 string@string\n");
 
-            printf("CONCAT GF@exp_result1 GF@exp_tmp1 GF@exp_tmp2\n");
-            printf("PUSHS GF@exp_result1\n");
+            printf("CONCAT GF@tmp_var GF@exp_tmp2 GF@exp_tmp1\n");
+            printf("PUSHS GF@tmp_var\n");
             break;
         case L_MUL:
             printf("POPS GF@exp_tmp1\n");
             printf("POPS GF@exp_tmp2\n");
-            printf("MUL GF@exp_result1 GF@exp_tmp1 GF@exp_tmp2\n");
-            printf("PUSHS GF@exp_result1\n");
+            printf("MUL GF@tmp_var GF@exp_tmp2 GF@exp_tmp1\n");
+            printf("PUSHS GF@tmp_var\n");
             break;
         case L_SLASH:
             printf("POPS GF@exp_tmp1\n");
@@ -520,20 +524,20 @@ void generate_ast(ast_node_t* current) {
             // printf("JUMPIFEQ $type1_to_float%d GF@exp_type1 string@int\n",
             // *cnt); printf("JUMPIFNEQ $ERROR_SEM_OP_TYPES GF@exp_type1
             // string@float\n");
-            printf("DIV GF@exp_result1 GF@exp_tmp1 GF@exp_tmp2\n");
-            printf("PUSHS GF@exp_result1\n");
+            printf("DIV GF@tmp_var GF@exp_tmp2 GF@exp_tmp1\n");
+            printf("PUSHS GF@tmp_var\n");
             break;
         case L_PLUS:
             printf("POPS GF@exp_tmp1\n");
             printf("POPS GF@exp_tmp2\n");
-            printf("ADD GF@exp_result1 GF@exp_tmp1 GF@exp_tmp2\n");
-            printf("PUSHS GF@exp_result1\n");
+            printf("ADD GF@tmp_var GF@exp_tmp2 GF@exp_tmp1\n");
+            printf("PUSHS GF@tmp_var\n");
             break;
         case L_DASH:
             printf("POPS GF@exp_tmp1\n");
             printf("POPS GF@exp_tmp2\n");
-            printf("SUB GF@exp_result1 GF@exp_tmp1 GF@exp_tmp2\n");
-            printf("PUSHS GF@exp_result1\n");
+            printf("SUB GF@tmp_var GF@exp_tmp2 GF@exp_tmp1\n");
+            printf("PUSHS GF@tmp_var\n");
             break;
         case L_NUMBER:
             // printf("");
@@ -546,8 +550,8 @@ void generate_ast(ast_node_t* current) {
         case L_EQ:
             printf("POPS GF@exp_tmp1\n");
             printf("POPS GF@exp_tmp2\n");
-            printf("EQ GF@exp_result1 GF@exp_tmp1 GF@exp_tmp2\n");
-            printf("PUSHS GF@exp_result1\n");
+            printf("EQ GF@tmp_var GF@exp_tmp1 GF@exp_tmp2\n");
+            printf("PUSHS GF@tmp_var\n");
             break;
         case L_EXP:
             printf("PUSHS float@%a\n", current->token.float_val);
@@ -555,44 +559,46 @@ void generate_ast(ast_node_t* current) {
         case L_NEQ:
             printf("POPS GF@exp_tmp1\n");
             printf("POPS GF@exp_tmp2\n");
-            printf("EQ GF@exp_result1 GF@exp_tmp1 GF@exp_tmp2\n");
-            printf("PUSHS GF@exp_result1\n");
+            printf("EQ GF@tmp_var GF@exp_tmp1 GF@exp_tmp2\n");
+            printf("PUSHS GF@tmp_var\n");
             printf("NOTS\n");
             break;
         case L_LESS:
             printf("POPS GF@exp_tmp1\n");
             printf("POPS GF@exp_tmp2\n");
-            printf("LT GF@exp_result1 GF@exp_tmp1 GF@exp_tmp2\n");
-            printf("PUSHS GF@exp_result1\n");
+            printf("LT GF@tmp_var GF@exp_tmp2 GF@exp_tmp1\n");
+            printf("PUSHS GF@tmp_var\n");
             break;
         case L_GREATER:
             printf("POPS GF@exp_tmp1\n");
             printf("POPS GF@exp_tmp2\n");
-            printf("GT GF@exp_result1 GF@exp_tmp1 GF@exp_tmp2\n");
-            printf("PUSHS GF@exp_result1\n");
+            printf("GT GF@tmp_var GF@exp_tmp2 GF@exp_tmp1\n");
+            printf("PUSHS GF@tmp_var\n");
             break;
         case L_LESSEQ:
             printf("POPS GF@exp_tmp1\n");
             printf("POPS GF@exp_tmp2\n");
-            printf("LT GF@exp_result1 GF@exp_tmp1 GF@exp_tmp2\n");
-            printf("EQ GF@exp_result2 GF@exp_tmp1 GF@exp_tmp2\n");
+            printf("LT GF@exp_result1 GF@exp_tmp2 GF@exp_tmp1\n");
+            printf("EQ GF@exp_result2 GF@exp_tmp2 GF@exp_tmp1\n");
             printf("PUSHS GF@exp_result1\n");
             printf("PUSHS GF@exp_result2\n");
             printf("ORS\n");
+            printf("POPS GF@tmp_var\n");
+            printf("PUSHS GF@tmp_var\n");
             break;
         case L_GREATEREQ:
             printf("POPS GF@exp_tmp1\n");
             printf("POPS GF@exp_tmp2\n");
-            printf("GT GF@exp_result1 GF@exp_tmp1 GF@exp_tmp2\n");
-            printf("EQ GF@exp_result2 GF@exp_tmp1 GF@exp_tmp2\n");
+            printf("GT GF@exp_result1 GF@exp_tmp2 GF@exp_tmp1\n");
+            printf("EQ GF@exp_result2 GF@exp_tmp2 GF@exp_tmp1\n");
             printf("PUSHS GF@exp_result1\n");
             printf("PUSHS GF@exp_result2\n");
             printf("ORS\n");
+            printf("POPS GF@tmp_var\n");
+            printf("PUSHS GF@tmp_var\n");
             break;
         case L_FLOAT:
             printf("PUSHS float@%a\n", current->token.float_val);
-            break;
-        default:
             break;
     }
 }

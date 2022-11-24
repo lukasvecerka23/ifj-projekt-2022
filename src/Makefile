@@ -1,7 +1,7 @@
 PROJECT=ifj_2022
 CC=gcc
 PROG=$(PROJECT)-test
-CFLAGS=-std=c99 -Wall -Wextra -pedantic -lm -fcommon
+CFLAGS=-std=c99 -Wall -Wextra -pedantic -lm -fcommon -g
 EXEC = ifj22_compiler
 OBJ = ifj22_compiler.o scanner.o error.o parser.o exp_parser.o symtable.o code_gen.o ast.o
 
