@@ -330,8 +330,14 @@ int rule_reduction(Stack* stack) {
     if (stack_data[1]->data == S && stack_data[0]->data == T_INT) {  // i -> E
         // stack_pop(stack);
         stack_push(stack, E);
-        // stack->top.tree_ptr = create_leaf(stack_data[0]->token);
         htab_item_t data;
+        if (stack_data[0]->token.token_type == L_VARID) {
+            // data = htab_search(table,
+            // stack_data[0]->token.string);
+            // if (data == NULL || data->data->var_data.init == 0) {
+            //     return 5;
+            // }
+        }
         stack->top->tree = make_leaf(stack_data[0]->token, data);
         stack->top->token = stack_data[0]->token;
         // stack_data[0]
