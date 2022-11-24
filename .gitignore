@@ -1,4 +1,6 @@
 *.o
+launch.json
+tasks.json
 ifj22_compiler
 .DS_Store
 src/tests/build
