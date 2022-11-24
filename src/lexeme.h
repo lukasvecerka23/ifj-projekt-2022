@@ -1,3 +1,6 @@
+#ifndef IFJ_SCANNER_H
+#define IFJ_SCANNER_H
+
 #include <ctype.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -128,3 +131,4 @@ lexeme create_lex(States final, char* token);
 lexeme get_lex_value();
 void print_lex(lexeme lex);
 lexeme isKeyword(char* keywd);
+#endif

@@ -1,3 +1,6 @@
+#ifndef IFJ_PARSER_H
+#define IFJ_PARSER_H
+
 #include <stdbool.h>
 #include "lexeme.h"
 #include "symtable.h"
@@ -10,7 +13,8 @@ typedef struct {
     htab_item_data_t* local_symtable_data;
     bool in_function;
     bool func_check;
-    int tmp_counter;
+    int scope;
+    int param_counter;
 } Parser;
 
 void get_next_token();
@@ -33,3 +37,4 @@ bool term();
 bool return_type();
 bool statement();
 // void prolog();
+#endif

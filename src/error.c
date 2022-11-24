@@ -14,6 +14,12 @@ void exit_program(int err_code, char* msg) {
         case 4:
             fprintf(stderr, "semantic error: %s\n", msg);
             exit(4);
+        case 5:
+            fprintf(stderr, "semantic error: %s\n", msg);
+            exit(5);
+        case 99:
+            fprintf(stderr, "internal error: %s\n", msg);
+            exit(99);
     }
 }
 

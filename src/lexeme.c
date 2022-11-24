@@ -1,3 +1,5 @@
+
+
 #include "lexeme.h"
 #include <string.h>
 #include "error.h"
@@ -29,7 +31,7 @@ char* escape_sequence_parser(char* str) {
     unsigned long long i = 0;
     char* tmp = malloc(sizeof(char) * (strlen(str) + 1));
     unsigned long long j = 0;
-    for (int i, j = 0; str[i] != '\0'; i++, j++) {
+    for (i, j = 0; str[i] != '\0'; i++, j++) {
         if (str[i] == '$') {  // error
             return NULL;
         }

@@ -3,7 +3,7 @@ CC=gcc
 PROG=$(PROJECT)-test
 CFLAGS=-std=c99 -Wall -Wextra -pedantic -lm -fcommon
 EXEC = main_prg
-OBJ = main_prg.o lexeme.o error.o parser.o symtable.o
+OBJ = main_prg.o lexeme.o error.o parser.o symtable.o code_gen.o
 
 .PHONY: main_prg
 
@@ -27,6 +27,9 @@ parser.o: parser.c parser.h
 
 symtable.o: symtable.c symtable.h
 	$(CC) $(CFLAGS) -c symtable.c -o symtable.o
+
+code_gen.o: code_gen.c code_gen.h
+	$(CC) $(CFLAGS) -c code_gen.c -o code_gen.o
 
 clean: 
 	rm $(EXEC) *.o

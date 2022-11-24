@@ -1,3 +1,6 @@
+#ifndef IFJ_SYMTABLE_H
+#define IFJ_SYMTABLE_H
+
 #include <stdbool.h>
 #include <string.h>
 
@@ -33,6 +36,7 @@ typedef struct htab_func_data {
 
 typedef struct htab_item_data {
     ID_TYPE type;
+    char* name;
     union {
         htab_func_data_t func_data;
         htab_var_data_t var_data;
@@ -69,3 +73,4 @@ void htab_clear(htab_t* table);
 void htab_free(htab_t* table);
 
 void ht_print_table(htab_t* table, char* table_type);
+#endif
