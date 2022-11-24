@@ -4,10 +4,9 @@
 #include <string.h>
 
 /** TODO
- * Generating expression
- * IF
- * WHILE
  * RETURN TYPE CHECK
+ * Semantic checks for type incompatibility in arithmetic and relation
+ * operations
  */
 
 // Functions for dynamic string
