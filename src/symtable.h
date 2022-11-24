@@ -1,3 +1,6 @@
+#ifndef IFJ_SYMTABLE_H
+#define IFJ_SYMTABLE_H
+
 #include <stdbool.h>
 #include <string.h>
 
@@ -70,3 +73,4 @@ void htab_clear(htab_t* table);
 void htab_free(htab_t* table);
 
 void ht_print_table(htab_t* table, char* table_type);
+#endif

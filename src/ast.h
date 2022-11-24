@@ -18,5 +18,4 @@ void dispose(ast_node_t* tree);
 
 ast_node_t* make_tree(lexeme o, ast_node_t* a, ast_node_t* b);
 ast_node_t* make_leaf(lexeme ia, htab_item_t hia);
-
 #endif

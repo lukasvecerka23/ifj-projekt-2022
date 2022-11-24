@@ -1,3 +1,6 @@
+#ifndef IFJ_PARSER_H
+#define IFJ_PARSER_H
+
 #include <stdbool.h>
 #include "lexeme.h"
 #include "symtable.h"
@@ -34,3 +37,4 @@ bool term();
 bool return_type();
 bool statement();
 // void prolog();
+#endif
