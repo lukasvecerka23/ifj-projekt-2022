@@ -220,7 +220,8 @@ void generate_float_func_param(unsigned long long index,
 void generate_string_func_param(unsigned long long index,
                                 char* string,
                                 bool is_write) {
-    char* tmp_string = formate_string(string);
+    char* tmp_string;
+    tmp_string = formate_string(string);
     if (!is_write) {
         printf("DEFVAR TF@$%llu\n", index);
         printf("MOVE TF@$%llu string@%s\n", index, tmp_string);
@@ -487,9 +488,10 @@ void generate_while_end(int scope) {
     printf("LABEL $$while%dend\n", scope);
 }
 
-void generate_ast(ast_node_t* current, int* cnt) {
-    generate_ast(current->left, cnt);
-    generate_ast(current->right, cnt);
+void generate_ast(ast_node_t* current) {
+    char* tmp_string;
+    generate_ast(current->left);
+    generate_ast(current->right);
 
     switch (current->token.lex) {
         case L_DOT:
@@ -504,11 +506,13 @@ void generate_ast(ast_node_t* current, int* cnt) {
 
             printf("CONCAT GF@exp_result1 GF@exp_tmp1 GF@exp_tmp2\n");
             printf("PUSHS GF@exp_result1\n");
+            break;
         case L_MUL:
             printf("POPS GF@exp_tmp1\n");
             printf("POPS GF@exp_tmp2\n");
             printf("MUL GF@exp_result1 GF@exp_tmp1 GF@exp_tmp2\n");
             printf("PUSHS GF@exp_result1\n");
+            break;
         case L_SLASH:
             printf("POPS GF@exp_tmp1\n");
             printf("POPS GF@exp_tmp2\n");
@@ -519,45 +523,55 @@ void generate_ast(ast_node_t* current, int* cnt) {
             // string@float\n");
             printf("DIV GF@exp_result1 GF@exp_tmp1 GF@exp_tmp2\n");
             printf("PUSHS GF@exp_result1\n");
+            break;
         case L_PLUS:
             printf("POPS GF@exp_tmp1\n");
             printf("POPS GF@exp_tmp2\n");
             printf("ADD GF@exp_result1 GF@exp_tmp1 GF@exp_tmp2\n");
             printf("PUSHS GF@exp_result1\n");
+            break;
         case L_DASH:
             printf("POPS GF@exp_tmp1\n");
             printf("POPS GF@exp_tmp2\n");
             printf("SUB GF@exp_result1 GF@exp_tmp1 GF@exp_tmp2\n");
             printf("PUSHS GF@exp_result1\n");
+            break;
         case L_NUMBER:
             // printf("");
-            printf("PUSHS int@%d\n", current->token.val);
+            printf("PUSHS int@%lld\n", current->token.val);
+            break;
         case L_STRING:
-            char* tmp_string = formate_string(current->token.string);
+            tmp_string = formate_string(current->token.string);
             printf("PUSHS string@%s\n", tmp_string);
+            break;
         case L_EQ:
             printf("POPS GF@exp_tmp1\n");
             printf("POPS GF@exp_tmp2\n");
             printf("EQ GF@exp_result1 GF@exp_tmp1 GF@exp_tmp2\n");
             printf("PUSHS GF@exp_result1\n");
+            break;
         case L_EXP:
             printf("PUSHS float@%a\n", current->token.float_val);
+            break;
         case L_NEQ:
             printf("POPS GF@exp_tmp1\n");
             printf("POPS GF@exp_tmp2\n");
             printf("EQ GF@exp_result1 GF@exp_tmp1 GF@exp_tmp2\n");
             printf("PUSHS GF@exp_result1\n");
             printf("NOTS\n");
+            break;
         case L_LESS:
             printf("POPS GF@exp_tmp1\n");
             printf("POPS GF@exp_tmp2\n");
             printf("LT GF@exp_result1 GF@exp_tmp1 GF@exp_tmp2\n");
             printf("PUSHS GF@exp_result1\n");
+            break;
         case L_GREATER:
             printf("POPS GF@exp_tmp1\n");
             printf("POPS GF@exp_tmp2\n");
             printf("GT GF@exp_result1 GF@exp_tmp1 GF@exp_tmp2\n");
             printf("PUSHS GF@exp_result1\n");
+            break;
         case L_LESSEQ:
             printf("POPS GF@exp_tmp1\n");
             printf("POPS GF@exp_tmp2\n");
@@ -566,6 +580,7 @@ void generate_ast(ast_node_t* current, int* cnt) {
             printf("PUSHS GF@exp_result1\n");
             printf("PUSHS GF@exp_result2\n");
             printf("ORS\n");
+            break;
         case L_GREATEREQ:
             printf("POPS GF@exp_tmp1\n");
             printf("POPS GF@exp_tmp2\n");
@@ -574,7 +589,9 @@ void generate_ast(ast_node_t* current, int* cnt) {
             printf("PUSHS GF@exp_result1\n");
             printf("PUSHS GF@exp_result2\n");
             printf("ORS\n");
+            break;
         case L_FLOAT:
             printf("PUSHS float@%a\n", current->token.float_val);
+            break;
     }
 }
