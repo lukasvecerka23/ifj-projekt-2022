@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include "ast.h"
 #include "lexeme.h"
-#define TABLE_SIZE 6
+#define TABLE_SIZE 8
 
 // typedef struct {
 //     lexeme token;
@@ -23,11 +23,11 @@ typedef enum precedence_symbols {
     T_RPAR,
     T_INT,
     $,
+    T_MINUS,
+    T_DIV,
     T_CONCAT,
     T_FLOAT,
     T_STRING,
-    T_DIV,
-    T_MINUS,
     T_LESS,
     T_GREATER,
     T_LESSEQ,
@@ -71,8 +71,22 @@ Stack_exp stack_pop(Stack* stack);
 int stack_empty(Stack* stack);
 
 precedence_symbols prec_table[TABLE_SIZE][TABLE_SIZE] = {
-    {R, S, S, R, S, R},   {R, R, S, R, S, R},   {S, S, S, W, S, Er},
-    {R, R, Er, R, Er, R}, {R, R, Er, R, Er, R}, {S, S, S, Er, S, Er}};
+    {R, S, S, R, S, R, R, S},   {R, R, S, R, S, R, R, R},
+    {S, S, S, W, S, Er, S, S},  {R, R, Er, R, Er, R, R, R},
+    {R, R, Er, R, Er, R, R, R}, {S, S, S, Er, S, Er, S, S},
+    {R, S, S, R, S, R, R, S},   {R, R, S, R, S, R, R, R}};
+/*
+ +  *  (  )  i  $  -  /
+{R, S, S, R, S, R, R, S} +
+{R, R, S, R, S, R, R, R} *
+{S, S, S, W, S, E, S, S} (
+{R, R, E, R, E, R, R, R} )
+{R, R, E, R, E, R, R, R} i
+{R, R, R, E, S, E, S, S} $
+{R, S, S, R, S, R, R, S} -
+{R, R, S, R, S, R, R, R} /
+*/
+
 /*
  +  *  (  )  i  $
 {R, S, S, R, S, R} +

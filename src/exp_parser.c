@@ -343,18 +343,46 @@ void rule_reduction(Stack* stack) {
                                      stack_data[0]->tree);
                 break;
             case T_DIV:
+                printf("AST create DIV tree\n");
+                operator.lex = L_SLASH;
+                tree_ptr = make_tree(operator, stack_data[2]->tree,
+                                     stack_data[0]->tree);
                 break;
             case T_GREATER:
+                printf("AST create MUL tree\n");
+                operator.lex = L_GREATER;
+                tree_ptr = make_tree(operator, stack_data[2]->tree,
+                                     stack_data[0]->tree);
                 break;
             case T_GREATEREQ:
+                printf("AST create MUL tree\n");
+                operator.lex = L_GREATEREQ;
+                tree_ptr = make_tree(operator, stack_data[2]->tree,
+                                     stack_data[0]->tree);
                 break;
             case T_LESS:
+                printf("AST create MUL tree\n");
+                operator.lex = L_LESS;
+                tree_ptr = make_tree(operator, stack_data[2]->tree,
+                                     stack_data[0]->tree);
                 break;
             case T_LESSEQ:
+                printf("AST create MUL tree\n");
+                operator.lex = L_LESSEQ;
+                tree_ptr = make_tree(operator, stack_data[2]->tree,
+                                     stack_data[0]->tree);
                 break;
             case T_MINUS:
+                printf("AST create MUL tree\n");
+                operator.lex = L_DASH;
+                tree_ptr = make_tree(operator, stack_data[2]->tree,
+                                     stack_data[0]->tree);
                 break;
             case T_CONCAT:
+                printf("AST create MUL tree\n");
+                operator.lex = L_DOT;
+                tree_ptr = make_tree(operator, stack_data[2]->tree,
+                                     stack_data[0]->tree);
                 break;
 
             default:
@@ -440,14 +468,21 @@ void stack_test() {
     printf("--------------- end stack test ---------------\n");
 }
 
-int parse_expression(lexeme used_token) {
+int parse_expression(lexeme* used_token) {
     // stack init
     Stack stack;
     stack_init(&stack);
     stack_push(&stack, EMPTY);
     // lexeme used_token;
-    precedence_symbols current_token_enum = map_token_to_enum(used_token);
-    lexeme current_token = used_token;
+    lexeme current_token;
+    precedence_symbols current_token_enum;
+    if (used_token != NULL) {
+        current_token_enum = map_token_to_enum(*used_token);
+        current_token = *used_token;
+    } else {
+        current_token = get_lex_value();
+        current_token_enum = map_token_to_enum(current_token);
+    }
     precedence_symbols top;
 
     stack_push(&stack, $);
@@ -491,6 +526,7 @@ int parse_expression(lexeme used_token) {
                 // return;
             case Er:
                 stack_print_stack(&stack);
+                ast_print_tree(stack.top->tree);
                 printf("--- SYNTAX ERROR ---\n");
                 return 0;
                 break;
@@ -521,7 +557,7 @@ int main() {
     lexeme test_incoming_token;
     // test_incoming_token.lex = L_NUMBER;
     // test_incoming_token.val = 0;
-    test_incoming_token = get_lex_value();
-    parse_expression(test_incoming_token);
+    // test_incoming_token = get_lex_value();
+    parse_expression(NULL);
     return 1;
 }
