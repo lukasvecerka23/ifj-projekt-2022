@@ -18,23 +18,23 @@ void get_next_token() {
     parser.token = get_lex_value();
 }
 
-void consume_token(lex token_type, char* err_msg) {
-    if (parser.token.lex != token_type) {
+void consume_token(token_type token_type, char* err_msg) {
+    if (parser.token.token_type != token_type) {
         htab_free(parser.global_symtable);
-        exit_program(51, err_msg);
+        exit_program(2, err_msg);
     }
 }
 
-void get_token_consume_token(lex token_type, char* err_msg) {
+void get_token_consume_token(token_type token_type, char* err_msg) {
     get_next_token();
-    if (parser.token.lex != token_type) {
+    if (parser.token.token_type != token_type) {
         htab_free(parser.global_symtable);
-        exit_program(51, err_msg);
+        exit_program(2, err_msg);
     }
 }
 
-bool check_token_type(lex token_type) {
-    if (parser.token.lex == token_type) {
+bool check_token_type(token_type token_type) {
+    if (parser.token.token_type == token_type) {
         return true;
     }
     return false;
@@ -168,7 +168,7 @@ bool check_param_types() {
         return false;
     }
     // store var type to symtable
-    switch (parser.token.lex) {
+    switch (parser.token.token_type) {
         case K_INT:
             parser.local_symtable_data->var_data.data_type = DTYPE_INT;
             break;
@@ -266,7 +266,7 @@ bool check_return_type() {
         return false;
     }
     // store function return type to symtable
-    switch (parser.token.lex) {
+    switch (parser.token.token_type) {
         case K_INT:
             parser.global_symtable_data->func_data.ret_type = RETTYPE_INT;
             break;
@@ -284,7 +284,7 @@ bool check_return_type() {
 }
 // <term> rule
 bool term() {
-    switch (parser.token.lex) {
+    switch (parser.token.token_type) {
         case L_VARID:
             if (parser.in_function) {
                 if (!htab_search(parser.local_symtable, parser.token.string)) {
@@ -342,14 +342,14 @@ bool term() {
                 generate_null_func_param(parser.param_counter + 1, false);
             return true;
         default:
-            exit_program(51, "wrong term in function call");
+            exit_program(2, "wrong term in function call");
     }
     return false;
 }
 
 // <next_input_param> rule
 bool next_input_param() {
-    if (parser.token.lex != L_RPAR) {
+    if (parser.token.token_type != L_RPAR) {
         consume_token(L_COMMA, "missing comma before next input parameter");
         get_next_token();
         term();
@@ -368,7 +368,7 @@ bool next_input_param() {
 // <list_input_params> rule
 bool list_input_params() {
     parser.param_counter = 0;
-    if (parser.token.lex != L_RPAR) {
+    if (parser.token.token_type != L_RPAR) {
         term();
         parser.param_counter++;
         if (parser.func_check == false)
@@ -385,12 +385,12 @@ bool list_input_params() {
 bool statement() {
     // <expression>
     // $a = $a + $a  5;
-    if (parser.token.lex == L_VARID) {
+    if (parser.token.token_type == L_VARID) {
         // add var to hashtable
         symtable_var_check();
-        lexeme tmp_var = parser.token;
+        token_t tmp_var = parser.token;
         get_next_token();
-        if (parser.token.lex == L_ASSIGN) {
+        if (parser.token.token_type == L_ASSIGN) {
             var_init();
             if (parser.in_function) {
                 generate_local_var(parser.local_symtable_data->name);
@@ -399,7 +399,7 @@ bool statement() {
                 generate_global_var(parser.global_symtable_data->name);
             }
             get_next_token();
-            if (parser.token.lex == L_FUNCID) {
+            if (parser.token.token_type == L_FUNCID) {
                 check_func_id(false);
                 get_token_consume_token(L_LPAR,
                                         "missing left paren in function call");
@@ -436,7 +436,7 @@ bool statement() {
         }
         // <expression>
     }
-    if (parser.token.lex == L_FUNCID) {
+    if (parser.token.token_type == L_FUNCID) {
         check_func_id(false);
         get_token_consume_token(L_LPAR, "missing left paren in function call");
         generate_tmp_frame();
@@ -458,7 +458,7 @@ bool statement() {
         statement();
         return true;
     }
-    if (parser.token.lex == K_IF) {
+    if (parser.token.token_type == K_IF) {
         int if_scope = parser.scope + 1;
         parser.scope++;
         get_token_consume_token(L_LPAR, "missing left paren in if statement");
@@ -482,7 +482,7 @@ bool statement() {
         statement();
         return true;
     }
-    if (parser.token.lex == K_WHILE) {
+    if (parser.token.token_type == K_WHILE) {
         int while_scope = parser.scope + 1;
         parser.scope++;
         get_token_consume_token(L_LPAR,
@@ -501,7 +501,7 @@ bool statement() {
         statement();
         return true;
     }
-    if (parser.token.lex == K_RETURN) {
+    if (parser.token.token_type == K_RETURN) {
         // expression parsing
     }
     // epsilon
@@ -511,13 +511,13 @@ bool statement() {
 // <type> rule
 bool type() {
     // ?type (int, string, float)
-    if (parser.token.lex == L_VARPREF) {
+    if (parser.token.token_type == L_VARPREF) {
         parser.local_symtable_data->var_data.optional_type = true;
         get_next_token();
         if (check_param_types()) {
             return true;
         } else {
-            exit_program(51,
+            exit_program(2,
                          "wrong data type of argument in function declaration");
         }
     }
@@ -525,7 +525,7 @@ bool type() {
     if (check_param_types()) {
         return true;
     } else {
-        exit_program(51, "wrong data type of argument in function declaration");
+        exit_program(2, "wrong data type of argument in function declaration");
     }
     return false;
 }
@@ -533,20 +533,20 @@ bool type() {
 // <return_type> rule
 bool return_type() {
     // ?return_type (int, string, float, void)
-    if (parser.token.lex == L_VARPREF) {
+    if (parser.token.token_type == L_VARPREF) {
         parser.global_symtable_data->func_data.optional_ret_type = true;
         get_next_token();
         if (check_return_type()) {
             return true;
         } else {
-            exit_program(51, "wrong return type in function declaration");
+            exit_program(2, "wrong return type in function declaration");
         }
     }
     // return_type (int, string, float, void)
     if (check_return_type()) {
         return true;
     } else {
-        exit_program(51, "wrong return type in function declaration");
+        exit_program(2, "wrong return type in function declaration");
     }
     return false;
 }
@@ -630,13 +630,14 @@ bool list_params() {
 bool program() {
     parser.in_function = false;
     parser.local_symtable = htab_init(10);
-    if (parser.token.lex == LEOF || parser.token.lex == L_PHPEND) {
+    if (parser.token.token_type == LEOF ||
+        parser.token.token_type == L_PHPEND) {
         // check if all functions are defined
         generate_end();
         htab_free(parser.local_symtable);
         return true;
     }
-    if (parser.token.lex == K_FUNCTION) {
+    if (parser.token.token_type == K_FUNCTION) {
         parser.in_function = true;
         int function_scope = parser.scope;
         get_token_consume_token(L_FUNCID,
@@ -687,14 +688,14 @@ bool program() {
         return true;
     }
 
-    exit_program(51, "missing eof or php epilog");
+    exit_program(2, "missing eof or php epilog");
 
     return false;
 }
 
 // <prolog> rule
 bool prolog() {
-    if (parser.token.lex == L_PHPSTART) {
+    if (parser.token.token_type == L_PHPSTART) {
         get_token_consume_token(K_DECLARE, "missing declare after php head");
         get_token_consume_token(L_LPAR,
                                 "missing left paren if strict type declare");
@@ -704,7 +705,7 @@ bool prolog() {
         get_token_consume_token(
             L_NUMBER, "value assigned to strict_types must be integer");
         if (parser.token.val != 1) {
-            exit_program(51, "strict_type muset be set to 1");
+            exit_program(2, "strict_type muset be set to 1");
         }
         get_token_consume_token(L_RPAR,
                                 "missing right paren in declare strict types");
@@ -717,7 +718,7 @@ bool prolog() {
         return true;
     }
     htab_free(parser.global_symtable);
-    exit_program(51, "missing php head and strict_types declaration");
+    exit_program(2, "missing php head and strict_types declaration");
 }
 
 bool syntax_analyse() {

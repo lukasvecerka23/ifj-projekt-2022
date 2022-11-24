@@ -1,23 +1,23 @@
-PROJECT=lexeme
+PROJECT=ifj_2022
 CC=gcc
 PROG=$(PROJECT)-test
 CFLAGS=-std=c99 -Wall -Wextra -pedantic -lm -fcommon
-EXEC = main_prg
-OBJ = main_prg.o lexeme.o error.o parser.o symtable.o code_gen.o
+EXEC = ifj22_compiler
+OBJ = ifj22_compiler.o scanner.o error.o parser.o symtable.o code_gen.o
 
-.PHONY: main_prg
+.PHONY: ifj22_compiler
 
 $(EXEC): $(OBJ)
-	$(CC) $(CFLAGS) $(OBJ) -o main_prg
+	$(CC) $(CFLAGS) $(OBJ) -o $(EXEC)
 
-run: main_prg
-	./main_prg
+run: ifj22_compiler
+	./ifj22_compiler
 
-main_prg.o: main_prg.c
-	$(CC) $(CFLAGS) -c main_prg.c -o main_prg.o
+ifj22_compiler.o: ifj22_compiler.c
+	$(CC) $(CFLAGS) -c ifj22_compiler.c -o ifj22_compiler.o
 
-lexeme.o: lexeme.c lexeme.h
-	$(CC) $(CFLAGS) -c lexeme.c -o lexeme.o
+scanner.o: scanner.c scanner.h
+	$(CC) $(CFLAGS) -c scanner.c -o scanner.o
 
 error.o: error.c error.h
 	$(CC) $(CFLAGS) -c error.c -o error.o

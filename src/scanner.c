@@ -1,23 +1,10 @@
 
 
-#include "lexeme.h"
+#include "scanner.h"
 #include <string.h>
 #include "error.h"
 
-/*
-
-
-*/
-
-// TODO: dynamically allocated
-char string[2000] = {0};
-char* string_start = &string[0];
 int err_flag = 0;
-/*
-// TODO:
-- add all transitions
-- implement prolog and function for escape sequences
-*/
 
 int return_digit(char* token) {
     return atoi(token);
@@ -129,32 +116,32 @@ char* escape_sequence_parser(char* str) {
     return tmp;
 }
 
-lexeme isKeyword(char* keywd) {
+token_t isKeyword(char* keywd) {
     if (strcmp(keywd, "else") == 0)
-        return (lexeme){.lex = K_ELSE};
+        return (token_t){.token_type = K_ELSE};
     if (strcmp(keywd, "float") == 0)
-        return (lexeme){.lex = K_FLOAT};
+        return (token_t){.token_type = K_FLOAT};
     if (strcmp(keywd, "if") == 0)
-        return (lexeme){.lex = K_IF};
+        return (token_t){.token_type = K_IF};
     if (strcmp(keywd, "int") == 0)
-        return (lexeme){.lex = K_INT};
+        return (token_t){.token_type = K_INT};
     if (strcmp(keywd, "null") == 0)
-        return (lexeme){.lex = K_NULL};
+        return (token_t){.token_type = K_NULL};
     if (strcmp(keywd, "return") == 0)
-        return (lexeme){.lex = K_RETURN};
+        return (token_t){.token_type = K_RETURN};
     if (strcmp(keywd, "void") == 0)
-        return (lexeme){.lex = K_VOID};
+        return (token_t){.token_type = K_VOID};
     if (strcmp(keywd, "while") == 0)
-        return (lexeme){.lex = K_WHILE};
+        return (token_t){.token_type = K_WHILE};
     if (strcmp(keywd, "string") == 0)
-        return (lexeme){.lex = K_STRING};
+        return (token_t){.token_type = K_STRING};
     if (strcmp(keywd, "function") == 0)
-        return (lexeme){.lex = K_FUNCTION};
+        return (token_t){.token_type = K_FUNCTION};
     if (strcmp(keywd, "declare") == 0)
-        return (lexeme){.lex = K_DECLARE};
+        return (token_t){.token_type = K_DECLARE};
     if (strcmp(keywd, "strict_types") == 0)
-        return (lexeme){.lex = K_STRICTTYPES};
-    return (lexeme){.lex = L_FUNCID, .string = keywd};
+        return (token_t){.token_type = K_STRICTTYPES};
+    return (token_t){.token_type = L_FUNCID, .string = keywd};
 }
 
 States FSM(States curr_state, char edge) {
@@ -383,113 +370,76 @@ TODO:
 - uploading var id, func id to symtable
 - sending tokens to syntax analyzer
 */
-lexeme create_lex(States final, char* token) {
+token_t create_lex(States final, char* token) {
     switch (final) {
         case PHPEND2:
-            return (lexeme){.lex = L_PHPEND};
+            return (token_t){.token_type = L_PHPEND};
         case LPAR:
-            return (lexeme){.lex = L_LPAR};
+            return (token_t){.token_type = L_LPAR};
         case PHPSTART5:
-            return (lexeme){.lex = L_PHPSTART};
+            return (token_t){.token_type = L_PHPSTART};
         case RPAR:
-            return (lexeme){.lex = L_RPAR};
+            return (token_t){.token_type = L_RPAR};
         case COMMA:
-            return (lexeme){.lex = L_COMMA};
+            return (token_t){.token_type = L_COMMA};
         case DOT:
-            return (lexeme){.lex = L_DOT};
+            return (token_t){.token_type = L_DOT};
         case LCURL:
-            return (lexeme){.lex = L_LCURL};
+            return (token_t){.token_type = L_LCURL};
         case RCURL:
-            return (lexeme){.lex = L_RCURL};
+            return (token_t){.token_type = L_RCURL};
         case SEMICOLON:
-            return (lexeme){.lex = L_SEMICOL};
+            return (token_t){.token_type = L_SEMICOL};
         case COLON:
-            return (lexeme){.lex = L_COLON};
+            return (token_t){.token_type = L_COLON};
         case MUL:
-            return (lexeme){.lex = L_MUL};
+            return (token_t){.token_type = L_MUL};
         case SLASH:
-            return (lexeme){.lex = L_SLASH};
+            return (token_t){.token_type = L_SLASH};
         case PLUS:
-            return (lexeme){.lex = L_PLUS};
+            return (token_t){.token_type = L_PLUS};
         case DASH:
-            return (lexeme){.lex = L_DASH};
+            return (token_t){.token_type = L_DASH};
         case STRING_LIT_END:
-            return (lexeme){.lex = L_STRING,
-                            .string = escape_sequence_parser(token)};
+            return (token_t){.token_type = L_STRING,
+                             .string = escape_sequence_parser(token)};
         case EXP_2:
-            return (lexeme){.lex = L_EXP, .float_val = return_float(token)};
-            // return (lexeme){.lex = L_EXP, .string = token};
+            return (token_t){.token_type = L_EXP,
+                             .float_val = return_float(token)};
         case ID2:
             // call function for decision between funcid, keyword or type id
             return isKeyword(token);
         case VARID:
-            return (lexeme){.lex = L_VARID, .string = token};
+            return (token_t){.token_type = L_VARID, .string = token};
         case NUMBER:
-            return (lexeme){.lex = L_NUMBER, .val = return_digit(token)};
+            return (token_t){.token_type = L_NUMBER,
+                             .val = return_digit(token)};
         case EQ1:
-            return (lexeme){.lex = L_ASSIGN};
+            return (token_t){.token_type = L_ASSIGN};
         case EQ3:
-            return (lexeme){.lex = L_EQ};
+            return (token_t){.token_type = L_EQ};
         case NEQ3:
-            return (lexeme){.lex = L_NEQ};
+            return (token_t){.token_type = L_NEQ};
         case LESSEQ:
-            return (lexeme){.lex = L_LESSEQ};
+            return (token_t){.token_type = L_LESSEQ};
         case GREATEREQ:
-            return (lexeme){.lex = L_GREATEREQ};
+            return (token_t){.token_type = L_GREATEREQ};
         case LESS:
-            return (lexeme){.lex = L_LESS};
+            return (token_t){.token_type = L_LESS};
         case GREATER:
-            return (lexeme){.lex = L_GREATER};
+            return (token_t){.token_type = L_GREATER};
         case FLOAT2:
-            return (lexeme){.lex = L_FLOAT, .float_val = return_float(token)};
+            return (token_t){.token_type = L_FLOAT,
+                             .float_val = return_float(token)};
         case PHPEND:
-            return (lexeme){.lex = L_VARPREF};
+            return (token_t){.token_type = L_VARPREF};
         case TOKEN_END:
-            error_exit("reached end of token");
+            exit_program(1, "wrong token");
     }
     warning_msg("No state implemented for this input");
 }
-/*
-TODO:
-- string handling
-- dynamical allocation
-*/
-// lexeme get_lex_value() {
-//     States now = START;
-//     char* lex_start = string_start;
-//     char edge = ' ';
-//     while (true) {
-//         if (edge == '\n')
-//             line_num++;
-//         edge = getchar();
-//         if (edge == EOF) {
-//             if (now == START) {
-//                 return (lexeme){.lex = LEOF};
-//             }
-//             printf("hit\n");
-//             return create_lex(now, lex_start);
-//         }
-//         States next = FSM(now, edge);
-//         if (next == TOKEN_END) {
-//             ungetc(edge, stdin);
-//             *(string_start++) = '\0';
-//             if (!err_flag) {
-//                 return create_lex(now, lex_start);
-//             } else {
-//                 warning_msg("line: %d token: %s", line_num, lex_start);
-//                 err_flag = 0;
-//                 next = START;
-//             }
-//         }
-//         *(string_start++) = edge;
-// if (next == START) {
-//     string_start = lex_start;
-// }
-//         now = next;
-//     }
-// }
 
-lexeme get_token_data(scanner_t scan) {
+token_t get_token_data(scanner_t scan) {
     // tmp, move to main and pass as argument
     States now = START;
     scan.tokenmem = 100;
@@ -504,7 +454,7 @@ lexeme get_token_data(scanner_t scan) {
         edge = getchar();
         if (edge == EOF) {
             if (now == START) {
-                return (lexeme){.lex = LEOF};
+                return (token_t){.token_type = LEOF};
             }
             return create_lex(now, scan.token);
         }
@@ -513,12 +463,10 @@ lexeme get_token_data(scanner_t scan) {
             ungetc(edge, stdin);
             scan.token[idx++] = '\0';
             if (!err_flag) {
-                // printf("token %s\n", token);
-                // printf("createlex param: %s\n", scan.token);
                 return create_lex(now, scan.token);
 
             } else {
-                error_exit("line: %d token: %s", scan.line_num, scan.token);
+                exit_program(1, "wrong token");
                 err_flag = 0;
                 next = START;
             }
@@ -527,7 +475,6 @@ lexeme get_token_data(scanner_t scan) {
         idx++;
         scan.usedmem++;
         if (scan.usedmem >= (scan.tokenmem * 0.9)) {
-            printf("hit\n");
             scan.tokenmem = scan.tokenmem * 2;
             scan.token = (char*)realloc(scan.token, scan.tokenmem);
             scan.usedmem = 0;
@@ -540,18 +487,14 @@ lexeme get_token_data(scanner_t scan) {
     }
 }
 
-void token_free(lexeme* token) {
+void token_free(token_t* token) {
     free(token);
 }
 
-lexeme get_lex_value(scanner_t scan) {
-    lexeme* token = malloc(sizeof(lexeme));
+token_t get_lex_value(scanner_t scan) {
+    token_t* token = malloc(sizeof(token_t));
 
     *token = get_token_data(scan);
-
-    // if(token->lex != L_STRING || token->lex != L_VARID){
-    //     free(scan.token);
-    // }
 
     return *token;
 }

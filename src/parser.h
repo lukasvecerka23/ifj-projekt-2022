@@ -2,11 +2,11 @@
 #define IFJ_PARSER_H
 
 #include <stdbool.h>
-#include "lexeme.h"
+#include "scanner.h"
 #include "symtable.h"
 
 typedef struct {
-    lexeme token;
+    token_t token;
     htab_t* global_symtable;
     htab_t* local_symtable;
     htab_item_data_t* global_symtable_data;
@@ -18,12 +18,12 @@ typedef struct {
 } Parser;
 
 void get_next_token();
-void get_token_consume_token(lex token_type, char* err_msg);
-void consume_token(lex token_type, char* err_msg);
+void get_token_consume_token(token_type token_type, char* err_msg);
+void consume_token(token_type token_type, char* err_msg);
 
 bool check_param_types();
 bool check_return_type();
-bool check_data_type(lex token_type);
+bool check_data_type(token_type token_type);
 
 // funtions for rule checking
 bool type();

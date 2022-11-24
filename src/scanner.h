@@ -57,7 +57,6 @@ typedef enum {
     MULT_L_COMMENT,
     STAR_END
 } States;
-// TODO: add all states
 
 typedef enum {
     L_PHPEND,
@@ -102,10 +101,10 @@ typedef enum {
     K_DECLARE,
     K_STRICTTYPES,
     K_FLOAT
-} lex;
+} token_type;
 
 typedef struct {
-    lex lex;
+    token_type token_type;
     unsigned long long line_index;
     union {
         char* string;
@@ -114,7 +113,7 @@ typedef struct {
         int index;
     };
 
-} lexeme;
+} token_t;
 
 typedef struct {
     unsigned long long line_num;
@@ -127,8 +126,7 @@ typedef struct {
 } scanner_t;
 
 States FSM(States curr_state, char edge);
-lexeme create_lex(States final, char* token);
-lexeme get_lex_value();
-void print_lex(lexeme lex);
-lexeme isKeyword(char* keywd);
+token_t create_lex(States final, char* token);
+token_t get_lex_value();
+token_t isKeyword(char* keywd);
 #endif

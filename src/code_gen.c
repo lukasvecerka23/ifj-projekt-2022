@@ -492,7 +492,7 @@ void generate_ast(ast_node_t* current) {
     generate_ast(current->left);
     generate_ast(current->right);
 
-    switch (current->token.lex) {
+    switch (current->token.token_type) {
         case L_DOT:
             printf("POPS GF@exp_tmp1\n");
             printf("POPS GF@exp_tmp2\n");
