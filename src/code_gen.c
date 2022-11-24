@@ -259,11 +259,11 @@ void generate_builtin_func() {
     printf("LABEL $$floatval\n");
     printf("PUSHFRAME\n");
 
-    printf("DEFVAR LF@$1\n");
-    printf("POPS LF@$1\n");
+    printf("DEFVAR LF@param1\n");
+    printf("MOVE LF@param1 LF@$1\n");
     printf("DEFVAR LF@retval$1\n");
     printf("DEFVAR LF@type$var\n");
-    printf("TYPE LF@type$var LF@$1\n");
+    printf("TYPE LF@type$var LF@param1\n");
     printf("JUMPIFEQ $floatval$int LF@type$var string@int\n");
 
     printf("MOVE LF@retval$1 float@0x0.0p+0\n");
@@ -271,7 +271,7 @@ void generate_builtin_func() {
     printf("RETURN\n");
 
     printf("LABEL $floatval$int\n");
-    printf("INT2FLOAT LF@retval$1 LF@$1\n");
+    printf("INT2FLOAT LF@retval$1 LF@param1\n");
     printf("POPFRAME\n");
     printf("RETURN\n");
 
@@ -279,11 +279,11 @@ void generate_builtin_func() {
     printf("LABEL $$intval\n");
     printf("PUSHFRAME\n");
 
-    printf("DEFVAR LF@$1\n");
-    printf("POPS LF@$1\n");
+    printf("DEFVAR LF@param1\n");
+    printf("MOVE LF@param1 LF@$1\n");
     printf("DEFVAR LF@retval$1\n");
     printf("DEFVAR LF@type$var\n");
-    printf("TYPE LF@type$var LF@$1\n");
+    printf("TYPE LF@type$var LF@param1\n");
     printf("JUMPIFEQ $intval$float LF@type$var string@float\n");
 
     printf("MOVE LF@retval$1 int@0\n");
@@ -291,7 +291,7 @@ void generate_builtin_func() {
     printf("RETURN\n");
 
     printf("LABEL $intval$float\n");
-    printf("FLOAT2INT LF@retval$1 LF@$1\n");
+    printf("FLOAT2INT LF@retval$1 LF@param1\n");
     printf("POPFRAME\n");
     printf("RETURN\n");
 
@@ -299,14 +299,14 @@ void generate_builtin_func() {
     printf("LABEL $$strval\n");
     printf("PUSHFRAME\n");
 
-    printf("DEFVAR LF@$1\n");
-    printf("POPS LF@$1\n");
+    printf("DEFVAR LF@param1\n");
+    printf("MOVE LF@param1 LF@$1\n");
     printf("DEFVAR LF@retval$1\n");
     printf("DEFVAR LF@type$var\n");
-    printf("TYPE LF@type$var LF@$1\n");
+    printf("TYPE LF@type$var LF@param11\n");
     printf("JUMPIFEQ $strval$null LF@type$var nil@nil\n");
 
-    printf("MOVE LF@retval$1 LF@$1\n");
+    printf("MOVE LF@retval$1 LF@param1\n");
     printf("POPFRAME\n");
     printf("RETURN\n");
 
@@ -321,18 +321,18 @@ void generate_builtin_func() {
     printf("LABEL $$strlen\n");
     printf("PUSHFRAME\n");
 
-    printf("DEFVAR LF@$1\n");
-    printf("POPS LF@$1\n");
+    printf("DEFVAR LF@param1\n");
+    printf("MOVE LF@param1 LF@$1\n");
     printf("DEFVAR LF@$type\n");
-    printf("TYPE LF@$type LF@$1\n");
+    printf("TYPE LF@$type LF@param1\n");
     printf("JUMPIFNEQ $ERROR_SEM_TYPE_CHECK LF@$type string@string\n");
 
     printf("DEFVAR LF@retval$1\n");
     printf("DEFVAR LF@type$var\n");
-    printf("TYPE LF@type$var LF@$1\n");
+    printf("TYPE LF@type$var LF@param1\n");
     printf("JUMPIFEQ $strlen$null LF@type$var nil@nil\n");
 
-    printf("STRLEN LF@retval$1 LF@$1\n");
+    printf("STRLEN LF@retval$1 LF@param1\n");
     printf("POPFRAME\n");
     printf("RETURN\n");
 
@@ -345,44 +345,44 @@ void generate_builtin_func() {
     printf("LABEL $$substring\n");
     printf("PUSHFRAME\n");
 
-    printf("DEFVAR LF@$s\n");
-    printf("POPS LF@$s\n");
-    printf("DEFVAR LF@$i\n");
-    printf("POPS LF@$i\n");
-    printf("DEFVAR LF@$j\n");
-    printf("POPS LF@$j\n");
+    printf("DEFVAR LF@param_s\n");
+    printf("MOVE LF@param_s LF@$s\n");
+    printf("DEFVAR LF@param_i\n");
+    printf("MOVE LF@param_i LF@$i\n");
+    printf("DEFVAR LF@param_j\n");
+    printf("MOVE LF@param_j LF@$j\n");
     printf("DEFVAR LF@retval$1\n");
-    printf("JUMPIFEQ $givenstring$null LF@$s nil@nil\n");
+    printf("JUMPIFEQ $givenstring$null LF@param_s nil@nil\n");
 
     printf("DEFVAR LF@$type\n");
-    printf("TYPE LF@$type LF@$s\n");
+    printf("TYPE LF@$type LF@param_s\n");
     printf("JUMPIFNEQ $ERROR_SEM_TYPE_CHECK LF@$type string@string\n");
-    printf("TYPE LF@$type LF@$i\n");
+    printf("TYPE LF@$type LF@param_i\n");
     printf("JUMPIFNEQ $ERROR_SEM_TYPE_CHECK LF@$type string@int\n");
-    printf("TYPE LF@$type LF@$j\n");
+    printf("TYPE LF@$type LF@param_j\n");
     printf("JUMPIFNEQ $ERROR_SEM_TYPE_CHECK LF@$type string@int\n");
 
     printf("DEFVAR LF@$tmp\n");
     printf("DEFVAR LF@$stringlen\n");
-    printf("STRLEN LF@stringlen LF@$s\n");
-    printf("LT LF@$tmp LF@$i int@0\n");
+    printf("STRLEN LF@stringlen LF@param_s\n");
+    printf("LT LF@$tmp LF@param_i int@0\n");
     printf("JUMPIFEQ $substring$null LF@$tmp bool@true\n");
-    printf("LT LF@$tmp LF@$j int@0\n");
+    printf("LT LF@$tmp LF@param_j int@0\n");
     printf("JUMPIFEQ $substring$null LF@$tmp bool@true\n");
-    printf("GT LF@$tmp LF@$i LF@$j\n");
+    printf("GT LF@$tmp LF@param_i LF@param_j\n");
     printf("JUMPIFEQ $substring$null LF@$tmp bool@true\n");
-    printf("LT LF@$tmp LF@$i LF@stringlen\n");
+    printf("LT LF@$tmp LF@param_i LF@stringlen\n");
     printf("JUMPIFNEQ $substring$null LF@$tmp bool@true\n");
-    printf("GT LF@$tmp LF@$j LF@stringlen\n");
+    printf("GT LF@$tmp LF@param_j LF@stringlen\n");
     printf("JUMPIFEQ $substring$null LF@$tmp bool@true\n");
 
     printf("DEFVAR LF@$var1\n");
     printf("DEFVAR LF@$var2\n");
     printf("LABEL $substring$notnull\n");
-    printf("GETCHAR LF@$var1 LF@$s LF@$i\n");
+    printf("GETCHAR LF@$var1 LF@param_s LF@param_i\n");
     printf("CONCAT LF@retval$1 LF@retval$1 LF@$var1\n");
-    printf("ADD LF@$i LF@$i int@1\n");
-    printf("LT LF@$var2 LF@$i LF@$j\n");
+    printf("ADD LF@param_i LF@param_i int@1\n");
+    printf("LT LF@$var2 LF@param_i LF@param_j\n");
     printf("JUMPIFEQ $substring$notnull LF@$var2 bool@true\n");
     printf("POPFRAME\n");
     printf("RETURN\n");
@@ -403,15 +403,15 @@ void generate_builtin_func() {
     printf("LABEL $$ord\n");
     printf("PUSHFRAME\n");
 
-    printf("DEFVAR LF@$c\n");
-    printf("POPS LF@$c\n");
+    printf("DEFVAR LF@param_c\n");
+    printf("MOVE LF@param_c LF@$c\n");
     printf("DEFVAR LF@$type\n");
-    printf("TYPE LF@$type LF@$c\n");
+    printf("TYPE LF@$type LF@param_c\n");
     printf("JUMPIFNEQ $ERROR_SEM_TYPE_CHECK LF@$type string@string\n");
-    printf("JUMPIFEQ $ord$null LF@$c nil@nil\n");
+    printf("JUMPIFEQ $ord$null LF@param_c nil@nil\n");
 
     printf("DEFVAR LF@retval$1\n");
-    printf("STRI2INT LF@retval$1 LF@$c int@0\n");
+    printf("STRI2INT LF@retval$1 LF@param_c int@0\n");
     printf("POPFRAME\n");
     printf("RETURN\n");
 
