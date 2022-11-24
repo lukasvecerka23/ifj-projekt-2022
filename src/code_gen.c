@@ -2,8 +2,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "ast.h"
-#include "symtable.h"
 
 /** TODO
  * Generating expression
@@ -478,6 +476,5 @@ void generate_while_end(int scope) {
 void generate_ast(ast_node_t* current) {
     // left
     // right
-
     switch (current->token.lex) {}
 }

@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include "ast.h"
 
 typedef struct dynamic_string {
     int usedmem;
@@ -40,3 +41,4 @@ void generate_if_else(int scope);
 void generate_if_end(int scope);
 void generate_while_start(int scope);
 void generate_while_end(int scope);
+void generate_ast(ast_node_t* current);
