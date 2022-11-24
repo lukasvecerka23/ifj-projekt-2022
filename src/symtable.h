@@ -31,13 +31,15 @@ typedef struct htab_func_data {
 
 } htab_func_data_t;
 
+typedef union {
+    htab_func_data_t func_data;
+    htab_var_data_t var_data;
+} data_union;
+
 typedef struct htab_item_data {
     ID_TYPE type;
     char* name;
-    union {
-        htab_func_data_t func_data;
-        htab_var_data_t var_data;
-    };
+    data_union data;
 } htab_item_data_t;
 
 struct htab_item {

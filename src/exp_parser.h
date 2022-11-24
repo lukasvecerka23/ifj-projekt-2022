@@ -1,11 +1,10 @@
 #ifndef EXP_PARSER_H
 #define EXP_PARSER_H
 
-// #include "lexeme.c"
 #include <stdlib.h>
 #include "ast.h"
 #include "lexeme.h"
-#define TABLE_SIZE 8
+#define TABLE_SIZE 15
 
 // typedef struct {
 //     lexeme token;
@@ -26,15 +25,14 @@ typedef enum precedence_symbols {
     T_MINUS,
     T_DIV,
     T_CONCAT,
-    T_FLOAT,
-    T_STRING,
     T_LESS,
     T_GREATER,
     T_LESSEQ,
     T_GREATEREQ,
     T_EQ,
-    T_DOT,
     T_NEQ,
+    T_FLOAT,
+    T_STRING,
     EMPTY,
     W,   // = wait
     R,   // > reduce
@@ -71,20 +69,40 @@ Stack_exp stack_pop(Stack* stack);
 int stack_empty(Stack* stack);
 
 precedence_symbols prec_table[TABLE_SIZE][TABLE_SIZE] = {
-    {R, S, S, R, S, R, R, S},   {R, R, S, R, S, R, R, R},
-    {S, S, S, W, S, Er, S, S},  {R, R, Er, R, Er, R, R, R},
-    {R, R, Er, R, Er, R, R, R}, {S, S, S, Er, S, Er, S, S},
-    {R, S, S, R, S, R, R, S},   {R, R, S, R, S, R, R, R}};
+    {R, S, S, R, S, R, R, S, Er, R, R, R, R, R, R},
+    {R, R, S, R, S, R, R, R, Er, R, R, R, R, R, R},
+    {S, S, S, W, S, Er, S, S, S, S, S, S, S, S, S},
+    {R, R, Er, R, Er, R, R, R, R, R, R, R, R, R, R},
+    {R, R, Er, R, Er, R, R, R, R, R, R, R, R, R, R},
+    {S, S, S, Er, S, Er, S, S, S, S, S, S, S, S, S},
+    {R, S, S, R, S, R, R, S, Er, R, R, R, R, R, R},
+    {R, R, S, R, S, R, R, R, Er, R, R, R, R, R, R},
+    {Er, E, S, R, S, R, Er, E, R, R, R, R, R, R, R},
+    {S, S, S, R, S, R, S, S, S, Er, Er, Er, Er, Er, Er},
+    {S, S, S, R, S, R, S, S, S, Er, Er, Er, Er, Er, Er},
+    {S, S, S, R, S, R, S, S, S, Er, Er, Er, Er, Er, Er},
+    {S, S, S, R, S, R, S, S, S, Er, Er, Er, Er, Er, Er},
+    {S, S, S, R, S, R, S, S, S, Er, Er, Er, Er, Er, Er},
+    {S, S, S, R, S, R, S, S, S, Er, Er, Er, Er, Er, Er}
+
+};
 /*
- +  *  (  )  i  $  -  /
-{R, S, S, R, S, R, R, S} +
-{R, R, S, R, S, R, R, R} *
-{S, S, S, W, S, E, S, S} (
-{R, R, E, R, E, R, R, R} )
-{R, R, E, R, E, R, R, R} i
-{R, R, R, E, S, E, S, S} $
-{R, S, S, R, S, R, R, S} -
-{R, R, S, R, S, R, R, R} /
+ +  *  (  )  i  $  -  /  .  <  >  <= >= === !==
+{R, S, S, R, S, R, R, S, E, R, R, R, R, R, R} +
+{R, R, S, R, S, R, R, R, E, R, R, R, R, R, R} *
+{S, S, S, W, S, E, S, S, S, S, S, S, S, S, S} (
+{R, R, E, R, E, R, R, R, R, R, R, R, R, R, R} )
+{R, R, E, R, E, R, R, R, R, R, R, R, R, R, R} i
+{R, R, R, E, S, E, S, S, S, S, S, S, S, S, S} $
+{R, S, S, R, S, R, R, S, E, R, R, R, R, R, R} -
+{R, R, S, R, S, R, R, R, E, R, R, R, R, R, R} /
+{E, E, S, R, S, R, E, E, R, R, R, R, R, R, R} .
+{S, S, S, R, S, R, S, S, S, E, E, E, E, E, E} <
+{S, S, S, R, S, R, S, S, S, E, E, E, E, E, E} >
+{S, S, S, R, S, R, S, S, S, E, E, E, E, E, E} <=
+{S, S, S, R, S, R, S, S, S, E, E, E, E, E, E} >=
+{S, S, S, R, S, R, S, S, S, E, E, E, E, E, E} ===
+{S, S, S, R, S, R, S, S, S, E, E, E, E, E, E} !==
 */
 
 /*
@@ -97,8 +115,8 @@ precedence_symbols prec_table[TABLE_SIZE][TABLE_SIZE] = {
 {R, R, R, E, S, E} $
 */
 
-void rule_reduction();
+int rule_reduction(Stack* stack);
 
-void expression();
+int parse_expression(lexeme* used_token, bool is_expression, ast_node_t** tree);
 
 #endif

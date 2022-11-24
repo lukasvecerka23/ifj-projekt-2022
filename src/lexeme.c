@@ -10,8 +10,8 @@
 */
 
 // TODO: dynamically allocated
-char string[2000] = {0};
-char* string_start = &string[0];
+// char string[2000] = {0};
+// char* string_start = &string[0];
 int err_flag = 0;
 /*
 // TODO:
@@ -354,8 +354,15 @@ States FSM(States curr_state, char edge) {
         case PHPSTART:
             if (edge == '?') {
                 return PHPSTART2;
-            } else
-                return LESS;
+            }
+            if (edge == '=') {
+                return LESSEQ;
+            }
+            return LESS;
+        // case LESS:
+        //     return TOKEN_END;
+        // case LESSEQ:
+        //     return TOKEN_END;
         case PHPSTART2:
             if (edge == 'p') {
                 return PHPSTART3;
@@ -499,9 +506,6 @@ States FSM(States curr_state, char edge) {
                 return NEQ3;
             err_flag = 1;
             return TOKEN_END;
-        case LESS:
-            if (edge == '=')
-                return LESSEQ;
         case ID1:
             if (isalpha(edge) || edge == '_')
                 return ID2;

@@ -25,13 +25,12 @@ ast_node_t* make_tree(lexeme o, ast_node_t* a, ast_node_t* b) {
     if (new == NULL) {
         exit_program(99, "memory allocation failed");
         // nevim presne jak toto osetrit
-    } else {
-        new->token = o;
-        new->left = a;
-        new->right = b;
-
-        return new;
     }
+    new->token = o;
+    new->left = a;
+    new->right = b;
+
+    return new;
 }
 
 /*
@@ -47,14 +46,13 @@ ast_node_t* make_leaf(lexeme ia, htab_item_t hia) {
     if (new == NULL) {
         exit_program(99, "memory allocation failed");
         // nevim presne jak toto osetrit
-    } else {
-        new->token = ia;
-        new->h_item = hia;
-        new->left = NULL;
-        new->right = NULL;
-
-        return new;
     }
+    new->token = ia;
+    new->h_item = hia;
+    new->left = NULL;
+    new->right = NULL;
+
+    return new;
 }
 
 /*
