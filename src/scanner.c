@@ -344,7 +344,7 @@ States FSM(States curr_state, char edge) {
             if (edge == '=') {
                 return LESSEQ;
             }
-            return LESS;
+            return TOKEN_END;
         // case LESS:
         //     return TOKEN_END;
         // case LESSEQ:
@@ -569,7 +569,7 @@ token_t create_lex(States final, char* token) {
             return (token_t){.token_type = L_LESSEQ};
         case GREATEREQ:
             return (token_t){.token_type = L_GREATEREQ};
-        case LESS:
+        case PHPSTART:
             return (token_t){.token_type = L_LESS};
         case GREATER:
             return (token_t){.token_type = L_GREATER};

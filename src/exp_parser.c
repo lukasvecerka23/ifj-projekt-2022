@@ -137,7 +137,7 @@ void print_enum_as_str(precedence_symbols data) {
             // printf("T_GREATEREQ");
             break;
         // case K_NULL:
-        //     //printf("T_NULL");
+        //     ////printf("T_NULL");
         case T_EQ:
             // printf("T_EQ");
             break;
@@ -166,7 +166,7 @@ void print_enum_as_str(precedence_symbols data) {
             // printf("not in enum range %d", data);
             break;
     }
-    // printf("hit\n");
+    // //printf("hit\n");
 }
 
 precedence_symbols stack_top_nonterminal(Stack* stack) {
@@ -251,7 +251,7 @@ void stack_print_stack(Stack* stack) {
     Stack_exp tmp = stack->top;
     // printf("top->");
     while (tmp != NULL) {
-        // printf("in if\n");
+        // //printf("in if\n");
         print_enum_as_str(tmp->data);
         // printf("->");
         tmp = tmp->next_element;
@@ -462,7 +462,7 @@ void stack_test() {
     stack_print_stack(&stack);
     // printf("Stack non terminal %d\n", stack_top_nonterminal(&stack));
     // printf("stack empty:%d\n", stack_empty(&stack));
-    //  //printf("hit\n");
+    //  ////printf("hit\n");
     // printf("stack top: %d\n", stack_top(&stack));
     // printf("Stack non terminal %d\n", stack_top_nonterminal(&stack));
     // printf("popped element %d\n", stack_pop(&stack));
@@ -480,7 +480,7 @@ void stack_test() {
 int parse_expression(token_t* used_token,
                      bool is_expression,
                      ast_node_t** tree) {
-    // print_lex(*used_token);
+    // //print_lex(*used_token);
     //   stack init
     Stack stack;
     stack_init(&stack);
@@ -490,7 +490,7 @@ int parse_expression(token_t* used_token,
     token_t current_token;
     precedence_symbols current_token_enum;
     if (used_token != NULL) {
-        // print_lex(*used_token);
+        // //print_lex(*used_token);
         current_token_enum = map_token_to_enum(*used_token);
         if (current_token_enum == T_INVALID) {
             return 2;
@@ -498,7 +498,9 @@ int parse_expression(token_t* used_token,
         current_token = *used_token;
     } else {
         current_token = get_lex_value();
+        // printf("current lexeme");
         // print_lex(current_token);
+        // //print_lex(current_token);
         current_token_enum = map_token_to_enum(current_token);
         if (current_token_enum == T_INVALID) {
             return 2;
@@ -525,11 +527,13 @@ int parse_expression(token_t* used_token,
                 stack_push(&stack, current_token_enum);
                 stack.top->token = current_token;
                 current_token = get_lex_value();
+                // printf("current lexeme");
+                // print_lex(current_token);
                 current_token_enum = map_token_to_enum(current_token);
                 if (current_token_enum == T_INVALID) {
                     return 2;
                 }
-                print_enum_as_str(current_token_enum);
+                // print_enum_as_str(current_token_enum);
 
                 break;
             case S:  // shift
@@ -538,11 +542,13 @@ int parse_expression(token_t* used_token,
                 stack_push(&stack, current_token_enum);
                 stack.top->token = current_token;
                 current_token = get_lex_value();
+                // printf("current lexeme");
+                // print_lex(current_token);
                 current_token_enum = map_token_to_enum(current_token);
                 if (current_token_enum == T_INVALID) {
                     return 2;
                 }
-                // //printf(get_lex_value());
+                // ////printf(get_lex_value());
                 break;
             case R:  // reduce
                 if (!rule_reduction(&stack)) {
@@ -569,7 +575,7 @@ int parse_expression(token_t* used_token,
 
     } while ((current_token_enum != $) || (exp_correct_syntax(&stack) == 0));
     stack_print_stack(&stack);
-    // print_lex(current_token);
+    // //print_lex(current_token);
     if (exp_correct_syntax(&stack)) {
         if (is_expression) {
             if (current_token.token_type != L_SEMICOL) {
@@ -601,10 +607,10 @@ int parse_expression(token_t* used_token,
 //     // test_incoming_token.val = 0;
 //     // test_incoming_token = get_lex_value();
 //     if (!parse_expression(NULL, true, &tree)) {
-//         //printf("everything \n");
+//         ////printf("everything \n");
 //         ast_print_tree(tree);
 //     } else {
-//         //printf("syntax error\n");
+//         ////printf("syntax error\n");
 //     }
 
 //     return 1;
