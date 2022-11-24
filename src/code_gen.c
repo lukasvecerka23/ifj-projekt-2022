@@ -37,6 +37,27 @@ void string_add_string(dynamic_string_t* string, char* string2) {
     string->string[string->usedmem] = '\0';
 }
 
+char* formate_string(char* string) {
+    dynamic_string_t* tmp_string =
+        (dynamic_string_t*)malloc(sizeof(dynamic_string_t));
+    tmp_string->stringmem = 100;
+    tmp_string->usedmem = 0;
+    tmp_string->string = (char*)calloc(tmp_string->stringmem, sizeof(char*));
+    char c;
+    char escape_seq[10];
+
+    for (int i = 0; (c = string[i]) != '\0'; i++) {
+        if (c == '#' || c == '\\' || c <= 32) {
+            string_add_char(tmp_string, '\\');
+            sprintf(escape_seq, "%03d", c);
+            string_add_string(tmp_string, escape_seq);
+        } else {
+            string_add_char(tmp_string, c);
+        }
+    }
+    return tmp_string->string;
+}
+
 void generate_exit_label() {
     printf("# EXIT CODE LABELS\n");
     printf("LABEL $ERROR_SEM_TYPE_CHECK\n");
@@ -65,6 +86,15 @@ void generate_exit_label() {
 void generate_header() {
     printf(".IFJcode22\n");
     printf("DEFVAR GF@tmp_var\n");
+
+    // ast exp tmp vars
+    printf("DEFVAR GF@exp_tmp1\n");
+    printf("DEFVAR GF@exp_tmp2\n");
+    printf("DEFVAR GF@exp_result1\n");
+    printf("DEFVAR GF@exp_result2\n");
+    printf("DEFVAR GF@exp_type1\n");
+    printf("DEFVAR GF@exp_type2\n");
+
     printf("JUMP $$main\n");
     generate_exit_label();
     generate_builtin_func();
@@ -192,28 +222,12 @@ void generate_float_func_param(unsigned long long index,
 void generate_string_func_param(unsigned long long index,
                                 char* string,
                                 bool is_write) {
-    dynamic_string_t* tmp_string =
-        (dynamic_string_t*)malloc(sizeof(dynamic_string_t));
-    tmp_string->stringmem = 100;
-    tmp_string->usedmem = 0;
-    tmp_string->string = (char*)calloc(tmp_string->stringmem, sizeof(char*));
-    char c;
-    char escape_seq[10];
-
-    for (int i = 0; (c = string[i]) != '\0'; i++) {
-        if (c == '#' || c == '\\' || c <= 32) {
-            string_add_char(tmp_string, '\\');
-            sprintf(escape_seq, "%03d", c);
-            string_add_string(tmp_string, escape_seq);
-        } else {
-            string_add_char(tmp_string, c);
-        }
-    }
+    char* tmp_string = formate_string(string);
     if (!is_write) {
         printf("DEFVAR TF@$%llu\n", index);
-        printf("MOVE TF@$%llu string@%s\n", index, tmp_string->string);
+        printf("MOVE TF@$%llu string@%s\n", index, tmp_string);
     } else
-        printf("WRITE string@%s\n", tmp_string->string);
+        printf("WRITE string@%s\n", tmp_string);
     free(tmp_string);
 }
 
@@ -475,9 +489,94 @@ void generate_while_end(int scope) {
     printf("LABEL $$while%dend\n", scope);
 }
 
-void generate_ast(ast_node_t* current) {
-    // left
-    // right
+void generate_ast(ast_node_t* current, int* cnt) {
+    generate_ast(current->left, cnt);
+    generate_ast(current->right, cnt);
 
-    switch (current->token.lex) {}
+    switch (current->token.lex) {
+        case L_DOT:
+            printf("POPS GF@exp_tmp1\n");
+            printf("POPS GF@exp_tmp2\n");
+            printf("TYPE GF@exp_type1 GF@exp_tmp1\n");
+            printf("TYPE GF@exp_type2 GF@exp_tmp2\n");
+            printf(
+                "JUMPIFNEQ $ERROR_SEM_OP_TYPES GF@exp_type1 string@string\n");
+            printf(
+                "JUMPIFNEQ $ERROR_SEM_OP_TYPES GF@exp_type2 string@string\n");
+
+            printf("CONCAT GF@exp_result1 GF@exp_tmp1 GF@exp_tmp2\n");
+            printf("PUSHS GF@exp_result1\n");
+        case L_MUL:
+            printf("POPS GF@exp_tmp1\n");
+            printf("POPS GF@exp_tmp2\n");
+            printf("MUL GF@exp_result1 GF@exp_tmp1 GF@exp_tmp2\n");
+            printf("PUSHS GF@exp_result1\n");
+        case L_SLASH:
+            printf("POPS GF@exp_tmp1\n");
+            printf("POPS GF@exp_tmp2\n");
+            // printf("TYPE GF@exp_type1 GF@exp_tmp1\n");
+            // printf("TYPE GF@exp_type2 GF@exp_tmp2\n");
+            // printf("JUMPIFEQ $type1_to_float%d GF@exp_type1 string@int\n",
+            // *cnt); printf("JUMPIFNEQ $ERROR_SEM_OP_TYPES GF@exp_type1
+            // string@float\n");
+            printf("DIV GF@exp_result1 GF@exp_tmp1 GF@exp_tmp2\n");
+            printf("PUSHS GF@exp_result1\n");
+        case L_PLUS:
+            printf("POPS GF@exp_tmp1\n");
+            printf("POPS GF@exp_tmp2\n");
+            printf("ADD GF@exp_result1 GF@exp_tmp1 GF@exp_tmp2\n");
+            printf("PUSHS GF@exp_result1\n");
+        case L_DASH:
+            printf("POPS GF@exp_tmp1\n");
+            printf("POPS GF@exp_tmp2\n");
+            printf("SUB GF@exp_result1 GF@exp_tmp1 GF@exp_tmp2\n");
+            printf("PUSHS GF@exp_result1\n");
+        case L_NUMBER:
+            // printf("");
+            printf("PUSHS int@%d\n", current->token.val);
+        case L_STRING:
+            char* tmp_string = formate_string(current->token.string);
+            printf("PUSHS string@%s\n", tmp_string);
+        case L_EQ:
+            printf("POPS GF@exp_tmp1\n");
+            printf("POPS GF@exp_tmp2\n");
+            printf("EQ GF@exp_result1 GF@exp_tmp1 GF@exp_tmp2\n");
+            printf("PUSHS GF@exp_result1\n");
+        case L_EXP:
+            printf("PUSHS float@%a\n", current->token.float_val);
+        case L_NEQ:
+            printf("POPS GF@exp_tmp1\n");
+            printf("POPS GF@exp_tmp2\n");
+            printf("EQ GF@exp_result1 GF@exp_tmp1 GF@exp_tmp2\n");
+            printf("PUSHS GF@exp_result1\n");
+            printf("NOTS\n");
+        case L_LESS:
+            printf("POPS GF@exp_tmp1\n");
+            printf("POPS GF@exp_tmp2\n");
+            printf("LT GF@exp_result1 GF@exp_tmp1 GF@exp_tmp2\n");
+            printf("PUSHS GF@exp_result1\n");
+        case L_GREATER:
+            printf("POPS GF@exp_tmp1\n");
+            printf("POPS GF@exp_tmp2\n");
+            printf("GT GF@exp_result1 GF@exp_tmp1 GF@exp_tmp2\n");
+            printf("PUSHS GF@exp_result1\n");
+        case L_LESSEQ:
+            printf("POPS GF@exp_tmp1\n");
+            printf("POPS GF@exp_tmp2\n");
+            printf("LT GF@exp_result1 GF@exp_tmp1 GF@exp_tmp2\n");
+            printf("EQ GF@exp_result2 GF@exp_tmp1 GF@exp_tmp2\n");
+            printf("PUSHS GF@exp_result1\n");
+            printf("PUSHS GF@exp_result2\n");
+            printf("ORS\n");
+        case L_GREATEREQ:
+            printf("POPS GF@exp_tmp1\n");
+            printf("POPS GF@exp_tmp2\n");
+            printf("GT GF@exp_result1 GF@exp_tmp1 GF@exp_tmp2\n");
+            printf("EQ GF@exp_result2 GF@exp_tmp1 GF@exp_tmp2\n");
+            printf("PUSHS GF@exp_result1\n");
+            printf("PUSHS GF@exp_result2\n");
+            printf("ORS\n");
+        case L_FLOAT:
+            printf("PUSHS float@%a\n", current->token.float_val);
+    }
 }
