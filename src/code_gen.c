@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "ast.h"
 #include "symtable.h"
 
 /** TODO
@@ -472,4 +473,11 @@ void generate_while_end(int scope) {
     printf("JUMP $$while%dstart\n", scope);
     printf("# WHILE END %d\n", scope);
     printf("LABEL $$while%dend\n", scope);
+}
+
+void generate_ast(ast_node_t* current) {
+    // left
+    // right
+
+    switch (current->token.lex) {}
 }
