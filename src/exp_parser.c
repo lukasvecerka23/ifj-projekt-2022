@@ -282,15 +282,15 @@ void rule_reduction(Stack* stack) {
 
     for (int i = 0; i <= 3; i++) {
         stack_data[i] = stack_pop(stack);
-        printf("popped: ");
-        print_enum_as_str(stack_data[i]->data);
-        printf("\n");
+        // printf("popped: ");
+        // print_enum_as_str(stack_data[i]->data);
+        // printf("\n");
         if ((stack_data[i])->data == S) {
-            printf("break!\n");
+            // printf("break!\n");
             break;
         }
     }
-    printf("hit\n");
+    // printf("hit\n");
 
     // printf("stack reduced: ");
     // stack_print_stack(stack);
@@ -304,6 +304,8 @@ void rule_reduction(Stack* stack) {
         // stack_pop(stack);
         stack_push(stack, E);
         // stack->top.tree_ptr = create_leaf(stack_data[0]->token);
+        htab_item_t data;
+        stack->top->tree = make_leaf(stack_data[0]->token, data);
         stack->top->token = stack_data[0]->token;
         // stack_data[0]
         // free(stack_data);
@@ -313,15 +315,16 @@ void rule_reduction(Stack* stack) {
         stack_data[2]->data == T_LPAR) {
         stack_push(stack, E);
         // stack_push(stack, E);
-        htab_item_t data;
-        stack->top->tree = make_leaf(stack_data[0]->token, data);
+
         stack->top->token = stack_data[1]->token;
+        stack->top->tree = stack_data[1]->tree;
+        printf("created tree_ptr %p\n", stack->top->tree);
         // free(stack_data);
         return;
         // E -> (E)
     }
     if (stack_data[0]->data == E && stack_data[2]->data == E) {  // E op E
-        printf("rule E -> E + E\n");
+        printf("rule E -> E op E\n");
         ast_node_t* tree_ptr;
         lexeme operator;
         // operator.value = 0;
@@ -330,11 +333,14 @@ void rule_reduction(Stack* stack) {
             case T_PLUS:
                 printf("AST create PLUS tree\n");
                 operator.lex = L_PLUS;
-                tree_ptr = make_tree(operator, stack_data[0]->tree,
-                                     stack_data[2]->tree);
+                tree_ptr = make_tree(operator, stack_data[2]->tree,
+                                     stack_data[0]->tree);
                 break;
             case T_MUL:
                 printf("AST create MUL tree\n");
+                operator.lex = L_MUL;
+                tree_ptr = make_tree(operator, stack_data[2]->tree,
+                                     stack_data[0]->tree);
                 break;
             case T_DIV:
                 break;
@@ -434,71 +440,6 @@ void stack_test() {
     printf("--------------- end stack test ---------------\n");
 }
 
-void non_token_expression() {
-    // stack init
-    Stack stack;
-    stack_init(&stack);
-    stack_push(&stack, EMPTY);
-    precedence_symbols current_token;
-    precedence_symbols top;
-
-    precedence_symbols input_expression[10] = {T_INT, T_PLUS, T_INT, $};
-    int cnt = 0;
-    stack_push(&stack, $);
-
-    do {
-        // stack_print_stack(&stack);
-        current_token = input_expression[cnt];
-        // printf("current_token: ");
-        // print_enum_as_str(current_token);
-        // printf("\ncurrent top: ");
-        top = stack_top_nonterminal(&stack);
-        // print_enum_as_str(top);
-        // printf("\n");
-        // print_enum_as_str(prec_table[top][current_token]);
-        // printf(" rule chosen \n");
-        switch (prec_table[top][current_token]) {
-            case W:  // get next token and push current
-                // next token
-                stack_push(&stack, current_token);
-                current_token = input_expression[++cnt];
-
-                break;
-            case S:  // shift
-                // stack_push(&stack, S);
-                stack_shift_push(&stack);
-                stack_push(&stack, current_token);
-                current_token = input_expression[++cnt];
-                break;
-            case R:  // reduce
-                rule_reduction(&stack);
-                // printf("stack after reduction ");
-                // stack_print_stack(&stack);
-                // return;
-                break;
-                // return;
-            case Er:
-                stack_print_stack(&stack);
-                printf("--- SYNTAX ERROR ---\n");
-                return;
-                break;
-            default:
-                printf("wrong table\n");
-                return;
-                break;
-        }
-
-    } while ((current_token != $) || (exp_correct_syntax(&stack) == 0));
-    stack_print_stack(&stack);
-    if (exp_correct_syntax(&stack)) {
-        printf("expression is correct");
-        return;
-        // return tree pointer;
-    }
-    printf("expression is not correct\n");
-    return;
-}
-
 int parse_expression(lexeme used_token) {
     // stack init
     Stack stack;
@@ -564,6 +505,8 @@ int parse_expression(lexeme used_token) {
     } while ((current_token_enum != $) || (exp_correct_syntax(&stack) == 0));
     stack_print_stack(&stack);
     if (exp_correct_syntax(&stack)) {
+        // print_tree_postorder(stack.top->tree);
+        ast_print_tree(stack.top->tree);
         printf("expression is correct");
         return 0;
         // return tree pointer;

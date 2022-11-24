@@ -131,5 +131,6 @@ lexeme create_lex(States final, char* token);
 lexeme get_lex_value();
 void print_lex(lexeme lex);
 lexeme isKeyword(char* keywd);
+void print_lex(lexeme lex);
 
 #endif
