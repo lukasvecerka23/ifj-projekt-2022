@@ -592,5 +592,7 @@ void generate_ast(ast_node_t* current) {
         case L_FLOAT:
             printf("PUSHS float@%a\n", current->token.float_val);
             break;
+        default:
+            break;
     }
 }

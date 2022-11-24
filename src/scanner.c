@@ -1,10 +1,150 @@
-
-
 #include "scanner.h"
 #include <string.h>
 #include "error.h"
 
+/*
+just for testing
+*/
 int err_flag = 0;
+
+void print_lex(token_t token) {
+    switch (token.token_type) {
+        case L_LPAR:
+            printf("( ( )\n");
+            return;
+        case L_RPAR:
+            printf("( ) )\n");
+            return;
+        case L_COMMA:
+            printf("( , )\n");
+            return;
+        case L_DOT:
+            printf("( . )\n");
+            return;
+        case L_LCURL:
+            printf("( { )\n");
+            return;
+        case L_RCURL:
+            printf("( } )\n");
+            return;
+        case L_SEMICOL:
+            printf("( ; )\n");
+            return;
+        case L_COLON:
+            printf("( : )\n");
+            return;
+        case LEOF:
+            printf("( EOF )\n");
+            return;
+        case L_PLUS:
+            printf("( + )");
+            return;
+        case L_MUL:
+            printf("( * )\n");
+            return;
+        case L_SLASH:
+            printf("( / )\n");
+            return;
+        case L_EXP:
+            printf("( exp, %f)\n", token.float_val);
+            // printf("( exp, %s)\n", lex.string);
+            return;
+        case L_NUMBER:
+            printf("(integer, %lld)\n", token.val);
+            return;
+        case L_VARID:
+            printf("(varid, %s)\n", token.string);
+            return;
+        case L_VARPREF:
+            printf("( ? )\n");
+            return;
+        case L_ID:
+            printf("(identifier, %s)\n", token.string);
+            return;
+        case L_STRING:
+            printf("(string, %s)\n", token.string);
+            return;
+        case L_DASH:
+            printf("( - )\n");
+            return;
+        case L_ASSIGN:
+            printf("( = )\n");
+            return;
+        case L_EQ:
+            printf("( === )\n");
+            return;
+        case L_NEQ:
+            printf("( !== )\n");
+            return;
+        case L_LESS:
+            printf("( < )\n");
+            return;
+        case L_GREATER:
+            printf("( > )\n");
+            return;
+        case L_LESSEQ:
+            printf("( <= )\n");
+            return;
+        case L_GREATEREQ:
+            printf("( >= )\n");
+            return;
+        case L_FLOAT:
+            printf("(float, %f)\n", token.float_val);
+            return;
+        case K_ELSE:
+            printf("( else )\n");
+            return;
+        case K_FUNCTION:
+            printf("( function )\n");
+            return;
+        case K_IF:
+            printf("( if )\n");
+            return;
+        case K_INT:
+            printf("( int )");
+            return;
+        case K_NULL:
+            printf("( null )\n");
+            return;
+        case K_RETURN:
+            printf("( return )\n");
+            return;
+        case K_STRING:
+            printf("( string )\n");
+            return;
+        case K_VOID:
+            printf("( void )\n");
+            return;
+        case K_WHILE:
+            printf("( while )\n");
+            return;
+        case K_FLOAT:
+            printf("( float )\n");
+            return;
+        case L_FUNCID:
+            printf("( funcid, %s )\n", token.string);
+            return;
+        case L_PHPEND:
+            printf("( php end )\n");
+            return;
+        case L_PHPSTART:
+            printf("( php start )\n");
+            return;
+        case K_STRICTTYPES:
+            printf("( strict_types )\n");
+            return;
+        case K_DECLARE:
+            printf("( declare )\n");
+            return;
+        default:
+            warning_msg("did not match any token \n");
+            return;
+    }
+    warning_msg(
+        "token should have been printed (didnt you forget to add it print "
+        "func)");
+    return;
+}
 
 int return_digit(char* token) {
     return atoi(token);
@@ -148,6 +288,7 @@ States FSM(States curr_state, char edge) {
     switch (curr_state) {
         case TOKEN_END:
             fprintf(stderr, "token should have been created.");
+            break;
         case START:
             if (edge == ')')
                 return RPAR;
@@ -199,8 +340,15 @@ States FSM(States curr_state, char edge) {
         case PHPSTART:
             if (edge == '?') {
                 return PHPSTART2;
-            } else
-                return LESS;
+            }
+            if (edge == '=') {
+                return LESSEQ;
+            }
+            return LESS;
+        // case LESS:
+        //     return TOKEN_END;
+        // case LESSEQ:
+        //     return TOKEN_END;
         case PHPSTART2:
             if (edge == 'p') {
                 return PHPSTART3;
@@ -344,9 +492,6 @@ States FSM(States curr_state, char edge) {
                 return NEQ3;
             err_flag = 1;
             return TOKEN_END;
-        case LESS:
-            if (edge == '=')
-                return LESSEQ;
         case ID1:
             if (isalpha(edge) || edge == '_')
                 return ID2;
@@ -435,8 +580,13 @@ token_t create_lex(States final, char* token) {
             return (token_t){.token_type = L_VARPREF};
         case TOKEN_END:
             exit_program(1, "wrong token");
+            break;
+            // error_exit("reached end of token");
+        default:
+            exit_program(99, "No state implemented for this input");
+            break;
     }
-    warning_msg("No state implemented for this input");
+    return (token_t){0};
 }
 
 token_t get_token_data(scanner_t scan) {

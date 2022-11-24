@@ -13,15 +13,15 @@ void ht_print_table(htab_t* table, char* table_type) {
     int sum_count = 0;
 
     printf("------------%s HASH TABLE--------------\n", table_type);
-    for (int i = 0; i < table->arr_size; i++) {
-        printf("%i: ", i);
+    for (size_t i = 0; i < table->arr_size; i++) {
+        printf("%li: ", i);
         int count = 0;
         htab_item_t* item = table->arr_ptr[i];
         while (item != NULL) {
             if (item->data->type == ID_FUNC)
                 printf(
                     "(%s, RETURN_TYPE: %d, DEFINED: %d, OPTIONAL_RET: %d, "
-                    "PARAM_COUNT: %d)",
+                    "PARAM_COUNT: %ld)",
                     item->key, item->data->func_data.ret_type,
                     item->data->func_data.defined,
                     item->data->func_data.optional_ret_type,

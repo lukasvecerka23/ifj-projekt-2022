@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-typedef enum {
+typedef enum States {
     START,
     LPAR,
     RPAR,
@@ -58,7 +58,7 @@ typedef enum {
     STAR_END
 } States;
 
-typedef enum {
+typedef enum lex {
     L_PHPEND,
     L_LPAR,
     L_RPAR,
@@ -129,4 +129,6 @@ States FSM(States curr_state, char edge);
 token_t create_lex(States final, char* token);
 token_t get_lex_value();
 token_t isKeyword(char* keywd);
+
+void print_lex(token_t token);
 #endif

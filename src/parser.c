@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include "code_gen.h"
 #include "error.h"
+// #include "lexeme.h"
 
 /** TODO
  * Expression parser - parsovani a vyhodnocovani vyrazu

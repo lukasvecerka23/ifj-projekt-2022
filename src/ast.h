@@ -2,6 +2,7 @@
 #define IFJ_AST_H
 
 #include <stdbool.h>
+#include <stdio.h>
 #include "scanner.h"
 #include "symtable.h"
 
@@ -18,4 +19,12 @@ void dispose(ast_node_t* tree);
 
 ast_node_t* make_tree(token_t o, ast_node_t* a, ast_node_t* b);
 ast_node_t* make_leaf(token_t ia, htab_item_t hia);
+
+void print_tree_postorder(ast_node_t* tree);
+
+typedef enum direction { left, right, none } direction_t;
+
+void ast_print_subtree(ast_node_t* tree, char* prefix, direction_t from);
+void ast_print_tree(ast_node_t* tree);
+
 #endif
