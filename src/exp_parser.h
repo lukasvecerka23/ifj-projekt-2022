@@ -1,5 +1,9 @@
+#ifndef EXP_PARSER_H
+#define EXP_PARSER_H
+
 // #include "lexeme.c"
 #include <stdlib.h>
+#include "ast.h"
 #include "lexeme.h"
 #define TABLE_SIZE 6
 
@@ -44,7 +48,7 @@ typedef enum precedence_symbols {
 typedef struct stack_el {
     precedence_symbols data;
     lexeme token;
-    // ast_node_t* tree;
+    ast_node_t* tree;
     struct stack_el* next_element;
 
 } * Stack_exp;
@@ -82,3 +86,5 @@ precedence_symbols prec_table[TABLE_SIZE][TABLE_SIZE] = {
 void rule_reduction();
 
 void expression();
+
+#endif

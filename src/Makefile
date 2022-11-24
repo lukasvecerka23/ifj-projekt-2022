@@ -3,7 +3,7 @@ CC=gcc
 PROG=$(PROJECT)-test
 CFLAGS=-std=c99 -Wall -Wextra -pedantic -lm -fcommon
 EXEC = main_prg
-OBJ = main_prg.o lexeme.o error.o parser.o hashtable.o
+OBJ = main_prg.o lexeme.o error.o hashtable.o
 TESTOBJ = exp_parser.o lexeme.o error.o
 
 .PHONY: main_prg

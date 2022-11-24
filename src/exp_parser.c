@@ -313,7 +313,8 @@ void rule_reduction(Stack* stack) {
         stack_data[2]->data == T_LPAR) {
         stack_push(stack, E);
         // stack_push(stack, E);
-        // stack->top.tree_ptr = create_leaf(stack_data[0]->token);
+        htab_item_t data;
+        stack->top->tree = make_leaf(stack_data[0]->token, data);
         stack->top->token = stack_data[1]->token;
         // free(stack_data);
         return;
@@ -321,15 +322,16 @@ void rule_reduction(Stack* stack) {
     }
     if (stack_data[0]->data == E && stack_data[2]->data == E) {  // E op E
         printf("rule E -> E + E\n");
-        // ast tree_ptr;
-        // lexeme operator;
+        ast_node_t* tree_ptr;
+        lexeme operator;
         // operator.value = 0;
         //
         switch (stack_data[1]->data) {
             case T_PLUS:
                 printf("AST create PLUS tree\n");
-                // operator.lex = L_PLUS;
-                // tree_ptr = create_tree(plus,stack[0]->token,stack[2]->token);
+                operator.lex = L_PLUS;
+                tree_ptr = make_tree(operator, stack_data[0]->tree,
+                                     stack_data[2]->tree);
                 break;
             case T_MUL:
                 printf("AST create MUL tree\n");
@@ -355,7 +357,7 @@ void rule_reduction(Stack* stack) {
                 break;
         }
         stack_push(stack, E);
-        // stack->top->tree_ptr = tree_ptr;
+        stack->top->tree = tree_ptr;
     } else {
         // error
         printf("no rule matched \n");

@@ -1,5 +1,5 @@
 #include <stdbool.h>
-#include "lexeme.h"
+// #include "lexeme.h"
 #include "symtable.h"
 
 typedef struct {
