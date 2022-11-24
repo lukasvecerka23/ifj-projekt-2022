@@ -1,3 +1,4 @@
+
 #include "symtable.h"
 #include <stdbool.h>
 #include <stdio.h>
