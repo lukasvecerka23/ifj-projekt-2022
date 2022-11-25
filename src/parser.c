@@ -446,10 +446,6 @@ bool statement() {
         token_t tmp_var = parser.token;
         get_next_token();
         if (parser.token.token_type == L_ASSIGN) {
-            if (parser.global_symtable_data->var_data.init == false &&
-                parser.in_while != true) {
-                generate_global_var(tmp_var.string);
-            }
             var_init();
             get_next_token();
             if (parser.token.token_type == L_FUNCID) {
@@ -732,6 +728,8 @@ bool program() {
     if (parser.token.token_type == LEOF ||
         parser.token.token_type == L_PHPEND) {
         // check if all functions are defined
+        // ht_print_table(parser.global_symtable, "TEST");
+        generate_func_declaration(parser.global_symtable, "main", false);
         generate_end();
         htab_free(parser.local_symtable);
         return true;
@@ -777,7 +775,7 @@ bool program() {
         check_func_return();
         // ht_print_table(parser.local_symtable, "LOCAL");
         generate_func_declaration(parser.local_symtable,
-                                  parser.declared_function->name);
+                                  parser.declared_function->name, true);
         generate_func_end(function_scope, parser.declared_function);
         parser.scope++;
 

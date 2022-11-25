@@ -105,9 +105,12 @@ void generate_header() {
     generate_builtin_func();
     printf("# START OF MAIN BODY\n");
     printf("LABEL $$main\n");
+    printf("JUMP $$main_declare\n");
+    printf("LABEL $$main_do\n");
 }
 
 void generate_end() {
+    printf("LABEL $$main_return\n");
     printf("# end of main\n");
 }
 
@@ -169,18 +172,22 @@ void generate_func_end(int scope, htab_item_data_t* func_data) {
     printf("LABEL $$main%d\n", scope);
 }
 
-void generate_var_definition(char* var) {
-    printf("DEFVAR LF@%s\n", var);
+void generate_var_definition(char* var, bool local) {
+    if (local)
+        printf("DEFVAR LF@%s\n", var);
+    else
+        printf("DEFVAR GF@%s\n", var);
 }
 
-void generate_func_declaration(htab_t* table, char* func_id) {
+void generate_func_declaration(htab_t* table, char* func_id, bool local) {
     printf("JUMP $$%s_return\n");
     printf("LABEL $$%s_declare\n", func_id);
     for (size_t i = 0; i < table->arr_size; i++) {
         htab_item_t* item = table->arr_ptr[i];
         while (item != NULL) {
+            // printf("name: %s\n", item->key);
             if (item->data->type == ID_VAR) {
-                generate_var_definition(item->data->name);
+                generate_var_definition(item->data->name, local);
             }
             item = item->next;
         }
