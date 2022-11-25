@@ -416,7 +416,7 @@ void generate_builtin_func() {
 
     printf("DEFVAR LF@$tmp\n");
     printf("DEFVAR LF@$stringlen\n");
-    printf("STRLEN LF@stringlen LF@param_s\n");
+    printf("STRLEN LF@$stringlen LF@param_s\n");
     printf("LT LF@$tmp LF@param_i int@0\n");
     printf("JUMPIFEQ $substring$null LF@$tmp bool@true\n");
     printf("LT LF@$tmp LF@param_j int@0\n");
