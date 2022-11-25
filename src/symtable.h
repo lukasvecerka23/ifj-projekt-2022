@@ -1,3 +1,12 @@
+/*
+Name: IFJ PROJEKT 2022
+Authors: xdolez0c, xvecer30, xnespo10, xtomko06
+Description: --
+*/
+
+#ifndef IFJ_SYMTABLE_H
+#define IFJ_SYMTABLE_H
+
 #include <stdbool.h>
 #include <string.h>
 
@@ -12,28 +21,38 @@ typedef enum {
     RETTYPE_VOID
 } RETURN_TYPE;
 
+typedef enum { ID_FUNC, ID_VAR } ID_TYPE;
+
 typedef const char* htab_key_t;
 typedef struct htab_item htab_item_t;
-typedef struct htab_func_data {
-    bool defined;
-    RETURN_TYPE ret_type;
-    htab_item_t** params;
-
-} htab_func_data_t;
 
 typedef struct htab_var_data {
     bool init;
+    bool optional_type;
     DTYPE data_type;
 } htab_var_data_t;
 
-typedef union {
-    htab_func_data_t* func_data;
-    htab_var_data_t* var_data;
-} htab_item_data_type_t;
+typedef struct htab_func_data {
+    bool defined;
+    bool optional_ret_type;
+    bool returned;
+    RETURN_TYPE ret_type;
+    size_t param_count;
+
+} htab_func_data_t;
+
+typedef struct htab_item_data {
+    ID_TYPE type;
+    char* name;
+    union {
+        htab_func_data_t func_data;
+        htab_var_data_t var_data;
+    };
+} htab_item_data_t;
 
 struct htab_item {
     htab_key_t key;
-    htab_item_data_type_t data;
+    htab_item_data_t* data;
     htab_item_t* next;
 };
 
@@ -51,11 +70,14 @@ size_t htab_bucket_count(htab_t* table);
 void htab_resize(htab_t* table, size_t newsize);
 
 htab_item_t* htab_search(htab_t* table, htab_key_t key);
-htab_item_t* htab_search_insert(htab_t* table,
+htab_item_t* htab_insert_update(htab_t* table,
                                 htab_key_t key,
-                                htab_item_data_type_t data);
+                                htab_item_data_t* data);
 
 bool htab_delete(htab_t* table, htab_key_t key);
 
 void htab_clear(htab_t* table);
 void htab_free(htab_t* table);
+
+void ht_print_table(htab_t* table, char* table_type);
+#endif

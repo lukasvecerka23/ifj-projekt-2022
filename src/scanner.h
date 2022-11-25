@@ -1,9 +1,18 @@
+/*
+Name: IFJ PROJEKT 2022
+Authors: xdolez0c, xvecer30, xnespo10, xtomko06
+Description: --
+*/
+
+#ifndef IFJ_SCANNER_H
+#define IFJ_SCANNER_H
+
 #include <ctype.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-typedef enum {
+typedef enum States {
     START,
     LPAR,
     RPAR,
@@ -54,9 +63,8 @@ typedef enum {
     MULT_L_COMMENT,
     STAR_END
 } States;
-// TODO: add all states
 
-typedef enum {
+typedef enum lex {
     L_PHPEND,
     L_LPAR,
     L_RPAR,
@@ -99,20 +107,19 @@ typedef enum {
     K_DECLARE,
     K_STRICTTYPES,
     K_FLOAT
-} lex;
+} token_type;
 
 typedef struct {
-    lex lex;
-
+    token_type token_type;
+    unsigned long long line_index;
     union {
-        unsigned long long line_index;
         char* string;
         unsigned long long val;
         double float_val;
         int index;
     };
 
-} lexeme;
+} token_t;
 
 typedef struct {
     unsigned long long line_num;
@@ -125,7 +132,9 @@ typedef struct {
 } scanner_t;
 
 States FSM(States curr_state, char edge);
-lexeme create_lex(States final, char* token);
-lexeme get_lex_value();
-void print_lex(lexeme lex);
-lexeme isKeyword(char* keywd);
+token_t create_lex(States final, char* token);
+token_t get_lex_value();
+token_t isKeyword(char* keywd);
+
+void print_lex(token_t token);
+#endif

@@ -1,0 +1,39 @@
+<prolog> -> phpstart declare(strict_type=1) <program>
+
+<program> -> <statement> <program>
+<program> -> function funcid (<list_params>): <return_type> {<statement>} <program>
+<program> -> eof
+<program> -> phpend
+
+<list_params> -> <type> var_id <next_parameter>
+<list_params> -> epsilon
+
+<next_parameter> -> , <type> var_id <next_parameter>
+<next_parameter> -> epsilon
+
+<list_input_params> -> <term> <next_input_parameter>
+<list_input_params> -> epsilon
+
+<next_input_parameter> -> , <term> <next_input_parameter>
+<next_input_parameter> -> epsilon
+
+<term> -> var_id
+<term> -> string
+<term> -> int
+<term> -> float
+<term> -> null
+
+<return_type> -> type_id
+<return_type> -> ? type_id
+
+<type> -> type_id
+<type> -> ? type_id
+
+<statement> -> var_id = <expression>; <statement>
+<statement> -> var_id = funcid(<list_input_params>); <statement>
+<statement> -> <expression>; <statement>
+<statement> -> funcid(<list_input_params>); <statement>
+<statement> -> if (<expression>){<statement>} else {<statement>} <statement>
+<statement> -> while (<expression>){<statement>} <statement>
+<statement> -> return <expression>;
+<statement> -> epsilon
