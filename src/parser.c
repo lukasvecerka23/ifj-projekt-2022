@@ -575,7 +575,7 @@ bool statement() {
                     exit_program(6,
                                  "return in void function contain expression");
                 }
-                generate_return(parser.declared_function->name);
+                generate_return(parser.declared_function->name, true);
             } else {
                 get_next_token();
                 if (check_token_type(L_SEMICOL)) {
@@ -584,7 +584,7 @@ bool statement() {
                 }
                 parser.declared_function->func_data.returned = true;
                 expression_parser(&parser.token, true);
-                generate_return(parser.declared_function->name);
+                generate_return(parser.declared_function->name, false);
             }
         } else {
             get_next_token();

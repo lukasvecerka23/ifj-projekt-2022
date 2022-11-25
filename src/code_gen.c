@@ -585,8 +585,10 @@ void generate_while_end(int scope) {
     printf("LABEL $$while%dend\n", scope);
 }
 
-void generate_return(char* func_id) {
-    printf("POPS LF@retval$1\n");
+void generate_return(char* func_id, bool is_void) {
+    if (!is_void) {
+        printf("POPS LF@retval$1\n");
+    }
     printf("JUMP $$%s_return\n", func_id);
 }
 
