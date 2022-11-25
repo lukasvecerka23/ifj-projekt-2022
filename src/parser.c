@@ -5,6 +5,7 @@ Description: --
 */
 
 #include "parser.h"
+#include <stdio.h>
 #include "error.h"
 /** TODO
  * Expression parser - parsovani a vyhodnocovani vyrazu
@@ -90,7 +91,7 @@ void load_builtin_funcs() {
                               .type = ID_FUNC,
                               .func_data = {.defined = true,
                                             .optional_ret_type = false,
-                                            .param_count = 0,
+                                            .param_count = 1,
                                             .ret_type = RETTYPE_FLOAT}};
     add_builtin_func(data, "floatval");
 
@@ -275,7 +276,10 @@ void expression_parser(token_t* token, bool is_cond) {
     switch (err_code) {
         case 0:
             // ast_print_tree(new_tree);
-            generate_ast(new_tree, parser.in_function);
+            if (is_cond == false && ast_height(new_tree) == 1)
+                generate_one_operand(new_tree->token, parser.in_function);
+            else
+                generate_ast(new_tree, parser.in_function);
             break;
         case 2:
             exit_program(2, "syntax error in expression parser");
@@ -293,7 +297,7 @@ void check_func_return() {
                 parser.declared_function->func_data.optional_ret_type ==
                     false) {
                 exit_program(
-                    6, "missing return in function with required return type");
+                    4, "missing return in function with required return type");
             }
             break;
         case RETTYPE_FLOAT:
@@ -301,7 +305,7 @@ void check_func_return() {
                 parser.declared_function->func_data.optional_ret_type ==
                     false) {
                 exit_program(
-                    6, "missing return in function with required return type");
+                    4, "missing return in function with required return type");
             }
             break;
         case RETTYPE_INT:
@@ -309,7 +313,7 @@ void check_func_return() {
                 parser.declared_function->func_data.optional_ret_type ==
                     false) {
                 exit_program(
-                    6, "missing return in function with required return type");
+                    4, "missing return in function with required return type");
             }
             break;
     }
@@ -440,25 +444,13 @@ bool list_input_params() {
 
 // <statement> rule
 bool statement() {
-    // <expression>
-    // $a = $a + $a  5;
     if (parser.token.token_type == L_VARID) {
         // add var to hashtable
         symtable_var_check();
         token_t tmp_var = parser.token;
         get_next_token();
         if (parser.token.token_type == L_ASSIGN) {
-            if (parser.in_function && parser.in_while != true) {
-                generate_local_var(tmp_var.string);
-
-            } else if (parser.global_symtable_data->var_data.init == false &&
-                       parser.in_while != true) {
-                generate_global_var(tmp_var.string);
-            }
             var_init();
-            // printf("%s, init: %d", parser.global_symtable_data->name,
-            //       parser.global_symtable_data->var_data.init);
-
             get_next_token();
             if (parser.token.token_type == L_FUNCID) {
                 check_func_id(false);
@@ -583,7 +575,7 @@ bool statement() {
                     exit_program(6,
                                  "return in void function contain expression");
                 }
-                generate_return(parser.declared_function->name);
+                generate_return(parser.declared_function->name, true);
             } else {
                 get_next_token();
                 if (check_token_type(L_SEMICOL)) {
@@ -592,7 +584,7 @@ bool statement() {
                 }
                 parser.declared_function->func_data.returned = true;
                 expression_parser(&parser.token, true);
-                generate_return(parser.declared_function->name);
+                generate_return(parser.declared_function->name, false);
             }
         } else {
             get_next_token();
@@ -740,6 +732,8 @@ bool program() {
     if (parser.token.token_type == LEOF ||
         parser.token.token_type == L_PHPEND) {
         // check if all functions are defined
+        // ht_print_table(parser.global_symtable, "TEST");
+        generate_func_declaration(parser.global_symtable, "main", false);
         generate_end();
         htab_free(parser.local_symtable);
         return true;
@@ -783,9 +777,12 @@ bool program() {
         consume_token(L_RCURL,
                       "missing right curl bracket in function declaration");
         check_func_return();
+        // ht_print_table(parser.local_symtable, "LOCAL");
+        generate_func_declaration(parser.local_symtable,
+                                  parser.declared_function->name, true);
         generate_func_end(function_scope, parser.declared_function);
         parser.scope++;
-        // ht_print_table(parser.local_symtable, "LOCAL");
+
         htab_free(parser.local_symtable);
 
         get_next_token();

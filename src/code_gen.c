@@ -105,9 +105,12 @@ void generate_header() {
     generate_builtin_func();
     printf("# START OF MAIN BODY\n");
     printf("LABEL $$main\n");
+    printf("JUMP $$main_declare\n");
+    printf("LABEL $$main_do\n");
 }
 
 void generate_end() {
+    printf("LABEL $$main_return\n");
     printf("# end of main\n");
 }
 
@@ -115,6 +118,8 @@ void generate_func_header(char* func_id, int scope) {
     printf("JUMP $$main%d\n", scope);
     printf("LABEL $$%s\n", func_id);
     printf("PUSHFRAME\n");
+    printf("JUMP $$%s_declare\n", func_id);
+    printf("LABEL $$%s_do\n", func_id);
     printf("DEFVAR LF@retval$1\n");
     printf("MOVE LF@retval$1 nil@nil\n");
 }
@@ -167,10 +172,32 @@ void generate_func_end(int scope, htab_item_data_t* func_data) {
     printf("LABEL $$main%d\n", scope);
 }
 
+void generate_var_definition(char* var, bool local) {
+    if (local)
+        printf("DEFVAR LF@%s\n", var);
+    else
+        printf("DEFVAR GF@%s\n", var);
+}
+
+void generate_func_declaration(htab_t* table, char* func_id, bool local) {
+    printf("JUMP $$%s_return\n");
+    printf("LABEL $$%s_declare\n", func_id);
+    for (size_t i = 0; i < table->arr_size; i++) {
+        htab_item_t* item = table->arr_ptr[i];
+        while (item != NULL) {
+            // printf("name: %s\n", item->key);
+            if (item->data->type == ID_VAR) {
+                generate_var_definition(item->data->name, local);
+            }
+            item = item->next;
+        }
+    }
+    printf("JUMP $$%s_do\n", func_id);
+}
+
 void generate_func_param(htab_item_t* param_data,
                          unsigned long long param_number,
                          int scope) {
-    printf("DEFVAR LF@%s\n", param_data->key);
     printf("MOVE LF@%s LF@$%llu\n", param_data->key, param_number);
     printf("DEFVAR LF@%s_type\n", param_data->key);
     printf("TYPE LF@%s_type LF@%s\n", param_data->key, param_data->key);
@@ -314,31 +341,31 @@ void generate_null_assignment() {
 }
 
 void generate_builtin_func() {
-    // printf("#FLOATVAL\n");
-    // printf("LABEL $$floatval\n");
-    // printf("PUSHFRAME\n");
+    printf("#FLOATVAL\n");
+    printf("LABEL $$floatval\n");
+    printf("PUSHFRAME\n");
 
-    // printf("DEFVAR LF@param1\n");
-    // printf("MOVE LF@param1 LF@$1\n");
-    // printf("DEFVAR LF@retval$1\n");
-    // printf("DEFVAR LF@type$var\n");
-    // printf("TYPE LF@type$var LF@param1\n");
-    // printf("JUMPIFEQ $floatval$int LF@type$var string@int\n");
-    // printf("JUMPIFEQ $floatval$null LF@type$var string@nil\n");
+    printf("DEFVAR LF@param1\n");
+    printf("MOVE LF@param1 LF@$1\n");
+    printf("DEFVAR LF@retval$1\n");
+    printf("DEFVAR LF@type$var\n");
+    printf("TYPE LF@type$var LF@param1\n");
+    printf("JUMPIFEQ $floatval$int LF@type$var string@int\n");
+    printf("JUMPIFEQ $floatval$null LF@type$var string@nil\n");
 
-    // printf("MOVE LF@retval$1 LF@param1\n");
-    // printf("POPFRAME\n");
-    // printf("RETURN\n");
+    printf("MOVE LF@retval$1 LF@param1\n");
+    printf("POPFRAME\n");
+    printf("RETURN\n");
 
-    // printf("LABEL $floatval$null \n");
-    // printf("INT2FLOAT LF@retval$1 float@0x0.0p+0\n");
-    // printf("POPFRAME\n");
-    // printf("RETURN\n");
+    printf("LABEL $floatval$null \n");
+    printf("MOVE LF@retval$1 float@0x0.0p+0\n");
+    printf("POPFRAME\n");
+    printf("RETURN\n");
 
-    // printf("LABEL $floatval$int\n");
-    // printf("INT2FLOAT LF@retval$1 LF@param1\n");
-    // printf("POPFRAME\n");
-    // printf("RETURN\n");
+    printf("LABEL $floatval$int\n");
+    printf("INT2FLOAT LF@retval$1 LF@param1\n");
+    printf("POPFRAME\n");
+    printf("RETURN\n");
 
     // INTVAL
 
@@ -376,7 +403,7 @@ void generate_builtin_func() {
     printf("MOVE LF@param1 LF@$1\n");
     printf("DEFVAR LF@retval$1\n");
     printf("DEFVAR LF@type$var\n");
-    printf("TYPE LF@type$var LF@param11\n");
+    printf("TYPE LF@type$var LF@param1\n");
     printf("JUMPIFEQ $strval$null LF@type$var string@nil\n");
 
     printf("MOVE LF@retval$1 LF@param1\n");
@@ -500,6 +527,7 @@ void generate_builtin_func() {
     printf("PUSHFRAME\n");
 
     printf("DEFVAR LF@chr$int\n");
+    printf("MOVE LF@chr$int LF@$1\n");
     printf("DEFVAR LF@retval$1\n");
 
     printf("INT2CHAR LF@retval$1 LF@chr$int\n");
@@ -536,7 +564,30 @@ void generate_builtin_func() {
 
 void generate_if_then(int scope) {
     printf("# IF THEN %d\n", scope);
+    printf("TYPE GF@exp_type1 GF@tmp_var\n");
+    printf("JUMPIFEQ $$if%dfloat GF@exp_type1 string@float\n", scope);
+    printf("JUMPIFEQ $$if%dstring GF@exp_type1 string@string\n", scope);
+    printf("JUMPIFEQ $$if%dint GF@exp_type1 string@int\n", scope);
+    printf("JUMPIFEQ $$if%dnil GF@exp_type1 string@nil\n", scope);
+    printf("JUMP $$if%dcond\n", scope);
+    printf("LABEL $$if%dfloat\n", scope);
+    printf("JUMPIFEQ $$if%delse GF@tmp_var float@0x0p+0\n", scope);
+    printf("JUMP $$if%dtrue\n", scope);
+    printf("LABEL $$if%dint\n", scope);
+    printf("JUMPIFEQ $$if%delse GF@tmp_var int@0\n", scope);
+    printf("JUMP $$if%dtrue\n", scope);
+    printf("LABEL $$if%dstring\n", scope);
+    printf("JUMPIFEQ $$if%delse GF@tmp_var string@\n", scope);
+    printf("JUMPIFEQ $$if%delse GF@tmp_var string@0\n", scope);
+    printf("JUMP $$if%dtrue\n", scope);
+    printf("LABEL $$if%dnil\n", scope);
+    printf("JUMPIFEQ $$if%delse GF@tmp_var nil@nil\n", scope);
+    printf("JUMP $$if%dtrue\n", scope);
+    printf("LABEL $$if%dtrue\n", scope);
+    printf("MOVE GF@tmp_var bool@true\n");
+    printf("LABEL $$if%dcond\n", scope);
     printf("JUMPIFEQ $$if%delse GF@tmp_var bool@false\n", scope);
+    printf("LABEL $$if%dthen\n", scope);
 }
 
 void generate_if_else(int scope) {
@@ -556,6 +607,28 @@ void generate_while_start(int scope) {
 }
 
 void generate_while_condition(int scope) {
+    printf("TYPE GF@exp_type1 GF@tmp_var\n");
+    printf("JUMPIFEQ $$while%dfloat GF@exp_type1 string@float\n", scope);
+    printf("JUMPIFEQ $$while%dstring GF@exp_type1 string@string\n", scope);
+    printf("JUMPIFEQ $$while%dint GF@exp_type1 string@int\n", scope);
+    printf("JUMPIFEQ $$while%dnil GF@exp_type1 string@nil\n", scope);
+    printf("JUMP $$while%dcond\n", scope);
+    printf("LABEL $$while%dfloat\n", scope);
+    printf("JUMPIFEQ $$while%dend GF@tmp_var float@0x0p+0\n", scope);
+    printf("JUMP $$while%dtrue\n", scope);
+    printf("LABEL $$while%dint\n", scope);
+    printf("JUMPIFEQ $$while%dend GF@tmp_var int@0\n", scope);
+    printf("JUMP $$while%dtrue\n", scope);
+    printf("LABEL $$while%dstring\n", scope);
+    printf("JUMPIFEQ $$while%dend GF@tmp_var string@\n", scope);
+    printf("JUMPIFEQ $$while%dend GF@tmp_var string@0\n", scope);
+    printf("JUMP $$while%dtrue\n", scope);
+    printf("LABEL $$while%dnil\n", scope);
+    printf("JUMPIFEQ $$while%dend GF@tmp_var nil@nil\n", scope);
+    printf("JUMP $$while%dtrue\n", scope);
+    printf("LABEL $$while%dtrue\n", scope);
+    printf("MOVE GF@tmp_var bool@true\n");
+    printf("LABEL $$while%dcond\n", scope);
     printf("JUMPIFEQ $$while%dend GF@tmp_var bool@false\n", scope);
 }
 
@@ -565,13 +638,40 @@ void generate_while_end(int scope) {
     printf("LABEL $$while%dend\n", scope);
 }
 
-void generate_return(char* func_id) {
-    printf("POPS LF@retval$1\n");
+void generate_return(char* func_id, bool is_void) {
+    if (!is_void) {
+        printf("POPS LF@retval$1\n");
+    }
     printf("JUMP $$%s_return\n", func_id);
 }
 
 void generate_exit_program() {
     printf("JUMP $PROGRAM_GOOD\n");
+}
+
+void generate_one_operand(token_t token, bool in_func) {
+    char* tmp_string;
+    switch (token.token_type) {
+        case L_NUMBER:
+            printf("MOVE GF@tmp_var int@%d\n", token.val);
+            break;
+        case L_STRING:
+            tmp_string = formate_string(token.string);
+            printf("MOVE GF@tmp_var string@%s\n", tmp_string);
+            break;
+        case L_VARID:
+            if (in_func)
+                printf("MOVE GF@tmp_var LF@%s\n", token.string);
+            else
+                printf("MOVE GF@tmp_var GF@%s\n", token.string);
+            break;
+        case L_FLOAT:
+            printf("MOVE GF@tmp_var float@%a\n", token.float_val);
+            break;
+        case K_NULL:
+            printf("MOVE GF@tmp_var nil@nil\n");
+            break;
+    }
 }
 
 void generate_ast(ast_node_t* current, bool in_function) {
