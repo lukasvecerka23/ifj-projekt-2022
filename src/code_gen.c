@@ -419,7 +419,7 @@ void generate_builtin_func() {
     printf("DEFVAR LF@param_j\n");
     printf("MOVE LF@param_j LF@$3\n");
     printf("DEFVAR LF@retval$1\n");
-    printf("MOVE LF@retval$1 string@\"\n");
+    printf("MOVE LF@retval$1 string@\n");
     printf("JUMPIFEQ $givenstring$null LF@param_s nil@nil\n");
 
     printf("DEFVAR LF@$type\n");
@@ -452,7 +452,6 @@ void generate_builtin_func() {
     printf("ADD LF@param_i LF@param_i int@1\n");
     printf("LT LF@$var2 LF@param_i LF@param_j\n");
     printf("JUMPIFEQ $substring$notnull LF@$var2 bool@true\n");
-    printf("CONCAT LF@retval$1 string@\"\n");
     printf("POPFRAME\n");
     printf("RETURN\n");
 
@@ -477,7 +476,7 @@ void generate_builtin_func() {
     printf("DEFVAR LF@$type\n");
     printf("TYPE LF@$type LF@param_c\n");
     printf("JUMPIFNEQ $ERROR_SEM_TYPE_CHECK LF@$type string@string\n");
-    printf("JUMPIFEQ $ord$null LF@param_c nil@nil\n");
+    printf("JUMPIFEQ $ord$null LF@$type string@nil\n");
 
     printf("DEFVAR LF@retval$1\n");
     printf("STRI2INT LF@retval$1 LF@param_c int@0\n");
