@@ -398,11 +398,11 @@ void generate_builtin_func() {
     printf("PUSHFRAME\n");
 
     printf("DEFVAR LF@param_s\n");
-    printf("MOVE LF@param_s LF@$s\n");
+    printf("MOVE LF@param_s LF@$1\n");
     printf("DEFVAR LF@param_i\n");
-    printf("MOVE LF@param_i LF@$i\n");
+    printf("MOVE LF@param_i LF@$2\n");
     printf("DEFVAR LF@param_j\n");
-    printf("MOVE LF@param_j LF@$j\n");
+    printf("MOVE LF@param_j LF@$3\n");
     printf("DEFVAR LF@retval$1\n");
     printf("JUMPIFEQ $givenstring$null LF@param_s nil@nil\n");
 
@@ -456,7 +456,7 @@ void generate_builtin_func() {
     printf("PUSHFRAME\n");
 
     printf("DEFVAR LF@param_c\n");
-    printf("MOVE LF@param_c LF@$c\n");
+    printf("MOVE LF@param_c LF@$1\n");
     printf("DEFVAR LF@$type\n");
     printf("TYPE LF@$type LF@param_c\n");
     printf("JUMPIFNEQ $ERROR_SEM_TYPE_CHECK LF@$type string@string\n");
