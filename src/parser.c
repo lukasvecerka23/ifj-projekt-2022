@@ -440,25 +440,17 @@ bool list_input_params() {
 
 // <statement> rule
 bool statement() {
-    // <expression>
-    // $a = $a + $a  5;
     if (parser.token.token_type == L_VARID) {
         // add var to hashtable
         symtable_var_check();
         token_t tmp_var = parser.token;
         get_next_token();
         if (parser.token.token_type == L_ASSIGN) {
-            if (parser.in_function && parser.in_while != true) {
-                generate_local_var(tmp_var.string);
-
-            } else if (parser.global_symtable_data->var_data.init == false &&
-                       parser.in_while != true) {
+            if (parser.global_symtable_data->var_data.init == false &&
+                parser.in_while != true) {
                 generate_global_var(tmp_var.string);
             }
             var_init();
-            // printf("%s, init: %d", parser.global_symtable_data->name,
-            //       parser.global_symtable_data->var_data.init);
-
             get_next_token();
             if (parser.token.token_type == L_FUNCID) {
                 check_func_id(false);
@@ -783,9 +775,12 @@ bool program() {
         consume_token(L_RCURL,
                       "missing right curl bracket in function declaration");
         check_func_return();
+        // ht_print_table(parser.local_symtable, "LOCAL");
+        generate_func_declaration(parser.local_symtable,
+                                  parser.declared_function->name);
         generate_func_end(function_scope, parser.declared_function);
         parser.scope++;
-        // ht_print_table(parser.local_symtable, "LOCAL");
+
         htab_free(parser.local_symtable);
 
         get_next_token();

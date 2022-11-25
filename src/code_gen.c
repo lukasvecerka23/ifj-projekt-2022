@@ -115,6 +115,8 @@ void generate_func_header(char* func_id, int scope) {
     printf("JUMP $$main%d\n", scope);
     printf("LABEL $$%s\n", func_id);
     printf("PUSHFRAME\n");
+    printf("JUMP $$%s_declare\n", func_id);
+    printf("LABEL $$%s_do\n", func_id);
     printf("DEFVAR LF@retval$1\n");
     printf("MOVE LF@retval$1 nil@nil\n");
 }
@@ -167,10 +169,27 @@ void generate_func_end(int scope, htab_item_data_t* func_data) {
     printf("LABEL $$main%d\n", scope);
 }
 
+void generate_var_definition(char* var) {
+    printf("DEFVAR LF@%s\n", var);
+}
+
+void generate_func_declaration(htab_t* table, char* func_id) {
+    printf("LABEL $$%s_declare\n", func_id);
+    for (size_t i = 0; i < table->arr_size; i++) {
+        htab_item_t* item = table->arr_ptr[i];
+        while (item != NULL) {
+            if (item->data->type == ID_VAR) {
+                generate_var_definition(item->data->name);
+            }
+            item = item->next;
+        }
+    }
+    printf("JUMP $$%s_do\n", func_id);
+}
+
 void generate_func_param(htab_item_t* param_data,
                          unsigned long long param_number,
                          int scope) {
-    printf("DEFVAR LF@%s\n", param_data->key);
     printf("MOVE LF@%s LF@$%llu\n", param_data->key, param_number);
     printf("DEFVAR LF@%s_type\n", param_data->key);
     printf("TYPE LF@%s_type LF@%s\n", param_data->key, param_data->key);
