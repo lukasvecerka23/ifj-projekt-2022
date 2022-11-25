@@ -342,30 +342,30 @@ void generate_null_assignment() {
 
 void generate_builtin_func() {
     // printf("#FLOATVAL\n");
-    // printf("LABEL $$floatval\n");
-    // printf("PUSHFRAME\n");
+    printf("LABEL $$floatval\n");
+    printf("PUSHFRAME\n");
 
-    // printf("DEFVAR LF@param1\n");
-    // printf("MOVE LF@param1 LF@$1\n");
-    // printf("DEFVAR LF@retval$1\n");
-    // printf("DEFVAR LF@type$var\n");
-    // printf("TYPE LF@type$var LF@param1\n");
-    // printf("JUMPIFEQ $floatval$int LF@type$var string@int\n");
-    // printf("JUMPIFEQ $floatval$null LF@type$var string@nil\n");
+    printf("DEFVAR LF@param1\n");
+    printf("MOVE LF@param1 LF@$1\n");
+    printf("DEFVAR LF@retval$1\n");
+    printf("DEFVAR LF@type$var\n");
+    printf("TYPE LF@type$var LF@param1\n");
+    printf("JUMPIFEQ $floatval$int LF@type$var string@int\n");
+    printf("JUMPIFEQ $floatval$null LF@type$var string@nil\n");
 
-    // printf("MOVE LF@retval$1 LF@param1\n");
-    // printf("POPFRAME\n");
-    // printf("RETURN\n");
+    printf("MOVE LF@retval$1 LF@param1\n");
+    printf("POPFRAME\n");
+    printf("RETURN\n");
 
-    // printf("LABEL $floatval$null \n");
-    // printf("INT2FLOAT LF@retval$1 float@0x0.0p+0\n");
-    // printf("POPFRAME\n");
-    // printf("RETURN\n");
+    printf("LABEL $floatval$null \n");
+    printf("INT2FLOAT LF@retval$1 float@0x0.0p+0\n");
+    printf("POPFRAME\n");
+    printf("RETURN\n");
 
-    // printf("LABEL $floatval$int\n");
-    // printf("INT2FLOAT LF@retval$1 LF@param1\n");
-    // printf("POPFRAME\n");
-    // printf("RETURN\n");
+    printf("LABEL $floatval$int\n");
+    printf("INT2FLOAT LF@retval$1 LF@param1\n");
+    printf("POPFRAME\n");
+    printf("RETURN\n");
 
     // INTVAL
 
