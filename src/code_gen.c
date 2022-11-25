@@ -419,6 +419,7 @@ void generate_builtin_func() {
     printf("DEFVAR LF@param_j\n");
     printf("MOVE LF@param_j LF@$3\n");
     printf("DEFVAR LF@retval$1\n");
+    printf("MOVE LF@retval$1 string@\n");
     printf("JUMPIFEQ $givenstring$null LF@param_s nil@nil\n");
 
     printf("DEFVAR LF@$type\n");
