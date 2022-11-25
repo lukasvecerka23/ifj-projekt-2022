@@ -16,6 +16,7 @@ typedef struct {
     htab_item_data_t* declared_function;
     bool in_function;
     bool func_check;
+    bool in_while;
     size_t scope;
     size_t param_counter;
 } Parser;

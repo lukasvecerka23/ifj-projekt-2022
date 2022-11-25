@@ -1,14 +1,14 @@
 <?php
 declare(strict_types=1);
 
-function print(int $num): void{
-    write($num);
-    // return
+function print(int $num): string{
+    while($num > 1){
+        write($num);
+        $num = $num - 1;
+    }
+    return $num+1;
 }
-if (5<=3){
-    write("true");
-} else {
-    write("false");
-}
-//$a = 5 + 3; 
-// print($a);
+return 9;
+write("Zadejte cislo: ");
+$a = readi(); 
+print($a);

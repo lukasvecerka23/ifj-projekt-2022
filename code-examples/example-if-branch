@@ -1,0 +1,18 @@
+<?php
+declare(strict_types=1);
+
+function test(): void {
+if(){
+    write("true");
+    if(){
+        write("true2");
+    } else {
+        write("false2");
+    }
+}else{
+    write("false");
+}
+}
+function print(): void{
+    write("ahoj");
+}

@@ -78,6 +78,8 @@ void generate_exit_label() {
     printf("LABEL $ERROR_SEM_OTHER\n");
     printf("DPRINT string@semantic\\032error\n");
     printf("EXIT int@8\n");
+    printf("LABEL $PROGRAM_GOOD\n");
+    printf("EXIT int@0\n");
 }
 
 void generate_header() {
@@ -111,8 +113,49 @@ void generate_func_header(char* func_id, int scope) {
     printf("MOVE LF@retval$1 nil@nil\n");
 }
 
-void generate_func_end(int scope) {
-    // printf("LABEL $%s_return\n", func_id);
+void check_optional_type(char* type) {
+    printf("EQ GF@exp_result1 GF@exp_type1 string@%s\n", type);
+    printf("EQ GF@exp_result2 GF@exp_type1 string@nil\n");
+    printf("PUSHS GF@exp_result1\n");
+    printf("PUSHS GF@exp_result2\n");
+    printf("ORS\n");
+    printf("POPS GF@exp_result1\n");
+    printf(
+        "JUMPIFEQ $ERROR_SEM_TYPE_CHECK GF@exp_result1 "
+        "bool@false\n");
+}
+
+void generate_func_end(int scope, htab_item_data_t* func_data) {
+    printf("LABEL $$%s_return\n", func_data->name);
+    switch (func_data->func_data.ret_type) {
+        case RETTYPE_FLOAT:
+            printf("TYPE GF@exp_type1 LF@retval$1\n");
+            if (func_data->func_data.optional_ret_type)
+                check_optional_type("float");
+            else
+                printf(
+                    "JUMPIFNEQ $ERROR_SEM_TYPE_CHECK GF@exp_type1 "
+                    "string@float\n");
+            break;
+        case RETTYPE_INT:
+            printf("TYPE GF@exp_type1 LF@retval$1\n");
+            if (func_data->func_data.optional_ret_type)
+                check_optional_type("int");
+            else
+                printf(
+                    "JUMPIFNEQ $ERROR_SEM_TYPE_CHECK GF@exp_type1 "
+                    "string@int\n");
+            break;
+        case RETTYPE_STRING:
+            printf("TYPE GF@exp_type1 LF@retval$1\n");
+            if (func_data->func_data.optional_ret_type)
+                check_optional_type("string");
+            else
+                printf(
+                    "JUMPIFNEQ $ERROR_SEM_TYPE_CHECK GF@exp_type1 "
+                    "string@string\n");
+            break;
+    }
     printf("POPFRAME\n");
     printf("RETURN\n");
     printf("LABEL $$main%d\n", scope);
@@ -184,7 +227,7 @@ void generate_global_var_func_param(unsigned long long index,
         printf("DEFVAR TF@$%llu\n", index);
         printf("MOVE TF@$%llu GF@%s\n", index, var_id);
     } else
-        printf("WRITE GF@%s", var_id);
+        printf("WRITE GF@%s\n", var_id);
 }
 
 void generate_local_var_func_param(unsigned long long index,
@@ -249,6 +292,14 @@ void generate_global_assignment(char* var_id) {
 
 void generate_local_assignment(char* var_id) {
     printf("MOVE LF@%s GF@tmp_var\n", var_id);
+}
+
+void generate_exp_local_assignment(char* var_id) {
+    printf("POPS LF@%s\n", var_id);
+}
+
+void generate_exp_global_assignment(char* var_id) {
+    printf("POPS GF@%s\n", var_id);
 }
 
 void generate_null_assignment() {
@@ -479,6 +530,9 @@ void generate_if_end(int scope) {
 void generate_while_start(int scope) {
     printf("# WHILE START %d\n", scope);
     printf("LABEL $$while%dstart\n", scope);
+}
+
+void generate_while_condition(int scope) {
     printf("JUMPIFEQ $$while%dend GF@tmp_var bool@false\n", scope);
 }
 
@@ -488,13 +542,22 @@ void generate_while_end(int scope) {
     printf("LABEL $$while%dend\n", scope);
 }
 
-void generate_ast(ast_node_t* current) {
+void generate_return(char* func_id) {
+    printf("POPS LF@retval$1\n");
+    printf("JUMP $$%s_return\n", func_id);
+}
+
+void generate_exit_program() {
+    printf("JUMP $PROGRAM_GOOD\n");
+}
+
+void generate_ast(ast_node_t* current, bool in_function) {
     char* tmp_string;
     if (current == NULL) {
         return;
     }
-    generate_ast(current->left);
-    generate_ast(current->right);
+    generate_ast(current->left, in_function);
+    generate_ast(current->right, in_function);
 
     switch (current->token.token_type) {
         case L_DOT:
@@ -562,6 +625,8 @@ void generate_ast(ast_node_t* current) {
             printf("EQ GF@tmp_var GF@exp_tmp1 GF@exp_tmp2\n");
             printf("PUSHS GF@tmp_var\n");
             printf("NOTS\n");
+            printf("POPS GF@tmp_var\n");
+            printf("PUSHS GF@tmp_var\n");
             break;
         case L_LESS:
             printf("POPS GF@exp_tmp1\n");
@@ -599,6 +664,15 @@ void generate_ast(ast_node_t* current) {
             break;
         case L_FLOAT:
             printf("PUSHS float@%a\n", current->token.float_val);
+            break;
+        case L_VARID:
+            if (in_function)
+                printf("PUSHS LF@%s\n", current->token.string);
+            else
+                printf("PUSHS GF@%s\n", current->token.string);
+            break;
+        case K_NULL:
+            printf("PUSHS nil@nil\n");
             break;
     }
 }

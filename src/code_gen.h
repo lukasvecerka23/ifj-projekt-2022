@@ -14,7 +14,7 @@ typedef struct dynamic_string {
 void generate_header();
 void generate_end();
 void generate_func_header(char* func_id, int scope);
-void generate_func_end(int scope);
+void generate_func_end(int scope, htab_item_data_t* func_data);
 void generate_func_param();
 void generate_global_var(char* var_id);
 void generate_local_var(char* var_id);
@@ -38,12 +38,17 @@ void generate_null_func_param(unsigned long long index, bool is_write);
 void generate_func_call(char* func_id);
 void generate_local_assignment(char* var_id);
 void generate_global_assignment(char* var_id);
+void generate_exp_local_assignment(char* var_id);
+void generate_exp_global_assignment(char* var_id);
 void generate_builtin_func();
 void generate_null_assignment();
 void generate_if_then(int scope);
 void generate_if_else(int scope);
 void generate_if_end(int scope);
 void generate_while_start(int scope);
+void generate_while_condition(int scope);
 void generate_while_end(int scope);
-void generate_ast(ast_node_t* current);
+void generate_ast(ast_node_t* current, bool in_function);
+void generate_return(char* func_id);
+void generate_exit_program();
 #endif

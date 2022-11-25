@@ -16,8 +16,6 @@ while(){
     write("ahoj");
 }
 
-$a = ahoj();
-
 function blalba(?float $test, float $bar2): int{
     write("ahoj");
 }

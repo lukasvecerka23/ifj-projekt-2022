@@ -29,6 +29,7 @@ typedef struct htab_var_data {
 typedef struct htab_func_data {
     bool defined;
     bool optional_ret_type;
+    bool returned;
     RETURN_TYPE ret_type;
     size_t param_count;
 
