@@ -661,9 +661,9 @@ void generate_one_operand(token_t token, bool in_func) {
             break;
         case L_VARID:
             if (in_func)
-                printf("MOVE LF@tmp_var int@%d\n", token.val);
+                printf("MOVE GF@tmp_var LF@%s\n", token.string);
             else
-                printf("MOVE GF@tmp_var int@%d\n", token.val);
+                printf("MOVE GF@tmp_var GF@%s\n", token.string);
             break;
         case L_FLOAT:
             printf("MOVE GF@tmp_var float@%a\n", token.float_val);
