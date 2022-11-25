@@ -527,6 +527,7 @@ void generate_builtin_func() {
     printf("PUSHFRAME\n");
 
     printf("DEFVAR LF@chr$int\n");
+    printf("MOVE LF@chr$int LF@$1\n");
     printf("DEFVAR LF@retval$1\n");
 
     printf("INT2CHAR LF@retval$1 LF@chr$int\n");
