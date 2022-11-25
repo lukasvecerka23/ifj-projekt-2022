@@ -338,7 +338,7 @@ void generate_builtin_func() {
     printf("TYPE LF@type$var LF@param1\n");
     printf("JUMPIFEQ $intval$float LF@type$var string@float\n");
 
-    printf("MOVE LF@retval$1 int@0\n");
+    printf("MOVE LF@retval$1 LF@param1\n");
     printf("POPFRAME\n");
     printf("RETURN\n");
 
