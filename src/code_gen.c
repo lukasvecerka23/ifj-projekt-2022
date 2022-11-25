@@ -403,7 +403,7 @@ void generate_builtin_func() {
     printf("MOVE LF@param1 LF@$1\n");
     printf("DEFVAR LF@retval$1\n");
     printf("DEFVAR LF@type$var\n");
-    printf("TYPE LF@type$var LF@param11\n");
+    printf("TYPE LF@type$var LF@param1\n");
     printf("JUMPIFEQ $strval$null LF@type$var string@nil\n");
 
     printf("MOVE LF@retval$1 LF@param1\n");
