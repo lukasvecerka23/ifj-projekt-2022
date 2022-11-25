@@ -423,9 +423,9 @@ void generate_builtin_func() {
     printf("JUMPIFEQ $substring$null LF@$tmp bool@true\n");
     printf("GT LF@$tmp LF@param_i LF@param_j\n");
     printf("JUMPIFEQ $substring$null LF@$tmp bool@true\n");
-    printf("LT LF@$tmp LF@param_i LF@stringlen\n");
+    printf("LT LF@$tmp LF@param_i LF@$stringlen\n");
     printf("JUMPIFNEQ $substring$null LF@$tmp bool@true\n");
-    printf("GT LF@$tmp LF@param_j LF@stringlen\n");
+    printf("GT LF@$tmp LF@param_j LF@$stringlen\n");
     printf("JUMPIFEQ $substring$null LF@$tmp bool@true\n");
 
     printf("DEFVAR LF@$var1\n");
