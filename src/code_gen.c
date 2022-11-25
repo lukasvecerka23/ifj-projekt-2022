@@ -564,7 +564,28 @@ void generate_builtin_func() {
 
 void generate_if_then(int scope) {
     printf("# IF THEN %d\n", scope);
-    printf("EQ GF@tmp_var GF@tmp_var nil@nil\n");
+    printf("TYPE GF@exp_type1 GF@tmp_var\n");
+    printf("JUMPIFEQ $$if%dfloat GF@exp_type1 string@float\n", scope);
+    printf("JUMPIFEQ $$if%dstring GF@exp_type1 string@string\n", scope);
+    printf("JUMPIFEQ $$if%dint GF@exp_type1 string@int\n", scope);
+    printf("JUMPIFEQ $$if%dnil GF@exp_type1 string@nil\n", scope);
+    printf("JUMP $$if%dtrue\n", scope);
+    printf("LABEL $$if%dfloat\n", scope);
+    printf("JUMPIFEQ $$if%delse GF@tmp_var float@0x0p+0\n", scope);
+    printf("JUMP $$if%dtrue\n", scope);
+    printf("LABEL $$if%dint\n", scope);
+    printf("JUMPIFEQ $$if%delse GF@tmp_var int@0\n", scope);
+    printf("JUMP $$if%dtrue\n", scope);
+    printf("LABEL $$if%dstring\n", scope);
+    printf("JUMPIFEQ $$if%delse GF@tmp_var string@\n", scope);
+    printf("JUMPIFEQ $$if%delse GF@tmp_var string@\"0\"\n", scope);
+    printf("JUMP $$if%dtrue\n", scope);
+    printf("LABEL $$if%dnil\n", scope);
+    printf("JUMPIFEQ $$if%delse GF@tmp_var nil@nil\n", scope);
+    printf("JUMP $$if%dtrue\n", scope);
+    printf("LABEL $$if%dtrue\n", scope);
+    printf("MOVE GF@tmp_var bool@true\n");
+    printf("LABEL $$if%dcond\n", scope);
     printf("JUMPIFEQ $$if%delse GF@tmp_var bool@false\n", scope);
     printf("LABEL $$if%dthen\n", scope);
 }
