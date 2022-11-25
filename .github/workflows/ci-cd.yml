@@ -18,6 +18,9 @@ jobs:
       - name: configure
         run: git clone https://github.com/galloj/IFJ22_Tester.git tests
 
+      - name: Install dependencies
+        run: sudo apt-get -y install valgrind
+
       - name: make
         run: |
          cd src
