@@ -470,6 +470,8 @@ void generate_builtin_func() {
     printf("#ORD\n");
     printf("LABEL $$ord\n");
     printf("PUSHFRAME\n");
+    printf("DEFVAR LF@retval$1\n");
+    printf("MOVE LF@retval$1 int@0\n");
 
     printf("DEFVAR LF@param_c\n");
     printf("MOVE LF@param_c LF@$1\n");
@@ -480,7 +482,6 @@ void generate_builtin_func() {
         "JUMPIFEQ $ord$null LF@param_c string@"
         "\n");
 
-    printf("DEFVAR LF@retval$1\n");
     printf("STRI2INT LF@retval$1 LF@param_c int@0\n");
     printf("POPFRAME\n");
     printf("RETURN\n");
