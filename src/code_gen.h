@@ -15,7 +15,9 @@ void generate_header();
 void generate_end();
 void generate_func_header(char* func_id, int scope);
 void generate_func_end(int scope, htab_item_data_t* func_data);
-void generate_func_param();
+void generate_func_param(htab_item_t* param_data,
+                         unsigned long long param_number,
+                         int scope);
 void generate_global_var(char* var_id);
 void generate_local_var(char* var_id);
 void generate_tmp_frame();
