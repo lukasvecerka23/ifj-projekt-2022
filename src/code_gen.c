@@ -604,6 +604,31 @@ void generate_exit_program() {
     printf("JUMP $PROGRAM_GOOD\n");
 }
 
+void generate_one_operand(token_t token, bool in_func) {
+    char* tmp_string;
+    switch (token.token_type) {
+        case L_NUMBER:
+            printf("MOVE GF@tmp_var int@%d\n", token.val);
+            break;
+        case L_STRING:
+            tmp_string = formate_string(token.string);
+            printf("MOVE GF@tmp_var string@%s\n", tmp_string);
+            break;
+        case L_VARID:
+            if (in_func)
+                printf("MOVE LF@tmp_var int@%d\n", token.val);
+            else
+                printf("MOVE GF@tmp_var int@%d\n", token.val);
+            break;
+        case L_FLOAT:
+            printf("MOVE GF@tmp_var float@%a\n", token.float_val);
+            break;
+        case K_NULL:
+            printf("MOVE GF@tmp_var nil@nil\n");
+            break;
+    }
+}
+
 void generate_ast(ast_node_t* current, bool in_function) {
     char* tmp_string;
     if (current == NULL) {

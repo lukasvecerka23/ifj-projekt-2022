@@ -61,4 +61,5 @@ void generate_return(char* func_id, bool is_void);
 void generate_exit_program();
 void generate_func_declaration(htab_t* table, char* func_id, bool);
 void generate_var_definition(char* var, bool);
+void generate_one_operand(token_t token, bool in_func);
 #endif

@@ -32,5 +32,6 @@ typedef enum direction { left, right, none } direction_t;
 
 void ast_print_subtree(ast_node_t* tree, char* prefix, direction_t from);
 void ast_print_tree(ast_node_t* tree);
+int ast_height(ast_node_t* tree);
 
 #endif

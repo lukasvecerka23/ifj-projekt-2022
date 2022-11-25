@@ -5,6 +5,7 @@ Description: --
 */
 
 #include "parser.h"
+#include <stdio.h>
 #include "error.h"
 /** TODO
  * Expression parser - parsovani a vyhodnocovani vyrazu
@@ -275,7 +276,10 @@ void expression_parser(token_t* token, bool is_cond) {
     switch (err_code) {
         case 0:
             // ast_print_tree(new_tree);
-            generate_ast(new_tree, parser.in_function);
+            if (ast_height(new_tree) > 1)
+                generate_ast(new_tree, parser.in_function);
+            else
+                generate_one_operand(new_tree->token, parser.in_function);
             break;
         case 2:
             exit_program(2, "syntax error in expression parser");

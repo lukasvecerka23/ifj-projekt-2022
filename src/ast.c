@@ -5,6 +5,7 @@ Description: --
 */
 
 #include "ast.h"
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -130,4 +131,16 @@ void ast_print_tree(ast_node_t* tree) {
         printf("Tree is empty\n");
     }
     printf("\n");
+}
+
+int max(int num1, int num2) {
+    return (num1 > num2) ? num1 : num2;
+}
+
+int ast_height(ast_node_t* tree) {
+    if (tree != NULL) {
+        return max(ast_height(tree->left), ast_height(tree->right)) + 1;
+    } else {
+        return 0;
+    }
 }
