@@ -607,6 +607,28 @@ void generate_while_start(int scope) {
 }
 
 void generate_while_condition(int scope) {
+    printf("TYPE GF@exp_type1 GF@tmp_var\n");
+    printf("JUMPIFEQ $$while%dfloat GF@exp_type1 string@float\n", scope);
+    printf("JUMPIFEQ $$while%dstring GF@exp_type1 string@string\n", scope);
+    printf("JUMPIFEQ $$while%dint GF@exp_type1 string@int\n", scope);
+    printf("JUMPIFEQ $$while%dnil GF@exp_type1 string@nil\n", scope);
+    printf("JUMP $$while%dcond\n", scope);
+    printf("LABEL $$while%dfloat\n", scope);
+    printf("JUMPIFEQ $$while%dend GF@tmp_var float@0x0p+0\n", scope);
+    printf("JUMP $$while%dtrue\n", scope);
+    printf("LABEL $$while%dint\n", scope);
+    printf("JUMPIFEQ $$while%dend GF@tmp_var int@0\n", scope);
+    printf("JUMP $$while%dtrue\n", scope);
+    printf("LABEL $$while%dstring\n", scope);
+    printf("JUMPIFEQ $$while%dend GF@tmp_var string@\n", scope);
+    printf("JUMPIFEQ $$while%dend GF@tmp_var string@\"0\"\n", scope);
+    printf("JUMP $$while%dtrue\n", scope);
+    printf("LABEL $$while%dnil\n", scope);
+    printf("JUMPIFEQ $$while%dend GF@tmp_var nil@nil\n", scope);
+    printf("JUMP $$while%dtrue\n", scope);
+    printf("LABEL $$while%dtrue\n", scope);
+    printf("MOVE GF@tmp_var bool@true\n");
+    printf("LABEL $$while%dcond\n", scope);
     printf("JUMPIFEQ $$while%dend GF@tmp_var bool@false\n", scope);
 }
 
