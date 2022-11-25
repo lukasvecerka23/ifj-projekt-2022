@@ -494,12 +494,12 @@ States FSM(States curr_state, char edge) {
             return TOKEN_END;
         case ID1:
             if (isalpha(edge) || edge == '_')
-                return ID2;
+                return ID1;
             return TOKEN_END;
-        case ID2:
-            if (isalnum(edge) || edge == '_')
-                return ID2;
-            return TOKEN_END;
+        // case ID2:
+        //     if (isalnum(edge) || edge == '_')
+        //         return ID2;
+        //     return TOKEN_END;
         case GREATER:
             if (edge == '=')
                 return GREATEREQ;
@@ -551,7 +551,7 @@ token_t create_lex(States final, char* token) {
         case EXP_2:
             return (token_t){.token_type = L_EXP,
                              .float_val = return_float(token)};
-        case ID2:
+        case ID1:
             // call function for decision between funcid, keyword or type id
             return isKeyword(token);
         case VARID:
