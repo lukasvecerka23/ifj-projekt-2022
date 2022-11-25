@@ -90,7 +90,7 @@ void load_builtin_funcs() {
                               .type = ID_FUNC,
                               .func_data = {.defined = true,
                                             .optional_ret_type = false,
-                                            .param_count = 0,
+                                            .param_count = 1,
                                             .ret_type = RETTYPE_FLOAT}};
     add_builtin_func(data, "floatval");
 
