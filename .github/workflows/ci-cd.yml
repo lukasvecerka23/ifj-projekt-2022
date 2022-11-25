@@ -25,9 +25,9 @@ jobs:
         run: |
          cd src
          make
-         ../tests/./test.py ifj22_compiler ic22int
+         ../tests/./test.py ./ifj22_compiler ./ic22int
 
       - name: valgrind
         run: |
           cd src
-          valgrind --leak-check=yes ./ifj22_compiler ../code-examples/factorial-recursive
+          valgrind --leak-check=yes ./ifj22_compiler < ../code-examples/factorial-recursive
