@@ -477,7 +477,7 @@ void generate_builtin_func() {
     printf("DEFVAR LF@$type\n");
     printf("TYPE LF@$type LF@param_c\n");
     printf("JUMPIFNEQ $ERROR_SEM_TYPE_CHECK LF@$type string@string\n");
-    printf("JUMPIFEQ $ord$null LF@$type string@nil\n");
+    printf("JUMPIFEQ $ord$null LF@param_c nil@nil\n");
 
     printf("DEFVAR LF@retval$1\n");
     printf("STRI2INT LF@retval$1 LF@param_c int@0\n");
