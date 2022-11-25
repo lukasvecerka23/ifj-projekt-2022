@@ -578,7 +578,7 @@ void generate_if_then(int scope) {
     printf("JUMP $$if%dtrue\n", scope);
     printf("LABEL $$if%dstring\n", scope);
     printf("JUMPIFEQ $$if%delse GF@tmp_var string@\n", scope);
-    printf("JUMPIFEQ $$if%delse GF@tmp_var string@\"0\"\n", scope);
+    printf("JUMPIFEQ $$if%delse GF@tmp_var string@0\n", scope);
     printf("JUMP $$if%dtrue\n", scope);
     printf("LABEL $$if%dnil\n", scope);
     printf("JUMPIFEQ $$if%delse GF@tmp_var nil@nil\n", scope);
@@ -621,7 +621,7 @@ void generate_while_condition(int scope) {
     printf("JUMP $$while%dtrue\n", scope);
     printf("LABEL $$while%dstring\n", scope);
     printf("JUMPIFEQ $$while%dend GF@tmp_var string@\n", scope);
-    printf("JUMPIFEQ $$while%dend GF@tmp_var string@\"0\"\n", scope);
+    printf("JUMPIFEQ $$while%dend GF@tmp_var string@0\n", scope);
     printf("JUMP $$while%dtrue\n", scope);
     printf("LABEL $$while%dnil\n", scope);
     printf("JUMPIFEQ $$while%dend GF@tmp_var nil@nil\n", scope);
