@@ -16,7 +16,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: configure
-        run: git clone https://github.com/galloj/IFJ22_Tester.git tests
+        run: git clone https://github.com/galloj/IFJ22_Tester.git src/tests
 
       - name: Install dependencies
         run: sudo apt-get -y install valgrind
@@ -25,7 +25,7 @@ jobs:
         run: |
          cd src
          make
-         ../tests/test.py ./ifj22_compiler ./ic22int
+         ./tests/test.py ./ifj22_compiler ./ic22int
 
       - name: valgrind
         run: |
