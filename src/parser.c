@@ -646,6 +646,7 @@ bool return_type() {
 
 // <next_parameter> rule
 bool next_parameter() {
+    int param_scope = parser.scope;
     if (!check_token_type(L_RPAR)) {
         create_new_local_data();
         consume_token(L_COMMA, "missing comma between arguments");
@@ -665,12 +666,13 @@ bool next_parameter() {
             parser.global_symtable_data->func_data.param_count++;
             generate_func_param(
                 htab_search(parser.local_symtable, parser.token.string),
-                parser.global_symtable_data->func_data.param_count);
+                parser.global_symtable_data->func_data.param_count,
+                param_scope);
         } else {
             parser.param_counter++;
             generate_func_param(
                 htab_search(parser.local_symtable, parser.token.string),
-                parser.param_counter);
+                parser.param_counter, param_scope);
         }
 
         get_next_token();
@@ -685,6 +687,7 @@ bool next_parameter() {
 // <list_params> rule
 bool list_params() {
     parser.param_counter = 0;
+    int param_scope = parser.scope;
     if (!check_token_type(L_RPAR)) {
         create_new_local_data();
         if (type()) {
@@ -703,12 +706,13 @@ bool list_params() {
                 parser.global_symtable_data->func_data.param_count++;
                 generate_func_param(
                     htab_search(parser.local_symtable, parser.token.string),
-                    parser.global_symtable_data->func_data.param_count);
+                    parser.global_symtable_data->func_data.param_count,
+                    param_scope);
             } else {
                 parser.param_counter++;
                 generate_func_param(
                     htab_search(parser.local_symtable, parser.token.string),
-                    parser.param_counter);
+                    parser.param_counter, param_scope);
             }
 
             get_next_token();
@@ -826,6 +830,7 @@ bool syntax_analyse() {
     get_next_token();
 
     parser.global_symtable = htab_init(10);
+    parser.scope = 0;
 
     // load builtin funcs to symtable
     load_builtin_funcs();
