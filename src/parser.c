@@ -293,7 +293,7 @@ void check_func_return() {
                 parser.declared_function->func_data.optional_ret_type ==
                     false) {
                 exit_program(
-                    6, "missing return in function with required return type");
+                    4, "missing return in function with required return type");
             }
             break;
         case RETTYPE_FLOAT:
@@ -301,7 +301,7 @@ void check_func_return() {
                 parser.declared_function->func_data.optional_ret_type ==
                     false) {
                 exit_program(
-                    6, "missing return in function with required return type");
+                    4, "missing return in function with required return type");
             }
             break;
         case RETTYPE_INT:
@@ -309,7 +309,7 @@ void check_func_return() {
                 parser.declared_function->func_data.optional_ret_type ==
                     false) {
                 exit_program(
-                    6, "missing return in function with required return type");
+                    4, "missing return in function with required return type");
             }
             break;
     }
