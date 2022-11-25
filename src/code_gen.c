@@ -170,39 +170,39 @@ void generate_func_param(htab_item_t* param_data,
     switch (param_data->data->var_data.data_type) {
         case DTYPE_FLOAT:
             if (param_data->data->var_data.optional_type) {
-                printf("JUMPIFNEQ $%s_notnil LF@%s_type string@nil\n",
-                       param_data->key, param_data->key);
+                printf("JUMPIFNEQ $%d%s_notnil LF@%s_type string@nil\n",
+                       param_number, param_data->key, param_data->key);
                 printf("MOVE LF@%s float@0x0p+0\n", param_data->key);
-                printf("JUMP $%s_continue\n", param_data->key);
-                printf("LABEL $%s_notnil\n", param_data->key);
+                printf("JUMP $%d%s_continue\n", param_number, param_data->key);
+                printf("LABEL $%d%s_notnil\n", param_number, param_data->key);
             }
             printf("JUMPIFNEQ $ERROR_SEM_TYPE_CHECK LF@%s_type string@float\n",
                    param_data->key);
-            printf("LABEL $%s_continue\n", param_data->key);
+            printf("LABEL $%d%s_continue\n", param_number, param_data->key);
             break;
         case DTYPE_INT:
             if (param_data->data->var_data.optional_type) {
-                printf("JUMPIFNEQ $%s_notnil LF@%s_type string@nil\n",
-                       param_data->key, param_data->key);
+                printf("JUMPIFNEQ $%d%s_notnil LF@%s_type string@nil\n",
+                       param_number, param_data->key, param_data->key);
                 printf("MOVE LF@%s int@0\n", param_data->key);
-                printf("JUMP $%s_continue\n", param_data->key);
-                printf("LABEL $%s_notnil\n", param_data->key);
+                printf("JUMP $%d%s_continue\n", param_number, param_data->key);
+                printf("LABEL $%d%s_notnil\n", param_number, param_data->key);
             }
             printf("JUMPIFNEQ $ERROR_SEM_TYPE_CHECK LF@%s_type string@int\n",
                    param_data->key);
-            printf("LABEL $%s_continue\n", param_data->key);
+            printf("LABEL $%d%s_continue\n", param_number, param_data->key);
             break;
         case DTYPE_STRING:
             if (param_data->data->var_data.optional_type) {
-                printf("JUMPIFNEQ $%s_notnil LF@%s_type string@nil\n",
-                       param_data->key, param_data->key);
+                printf("JUMPIFNEQ $%d%s_notnil LF@%s_type string@nil\n",
+                       param_number, param_data->key, param_data->key);
                 printf("MOVE LF@%s string@\32\n", param_data->key);
-                printf("JUMP $%s_continue\n", param_data->key);
-                printf("LABEL $%s_notnil\n", param_data->key);
+                printf("JUMP $%d%s_continue\n", param_number, param_data->key);
+                printf("LABEL $%d%s_notnil\n", param_number, param_data->key);
             }
             printf("JUMPIFNEQ $ERROR_SEM_TYPE_CHECK LF@%s_type string@string\n",
                    param_data->key);
-            printf("LABEL $%s_continue\n", param_data->key);
+            printf("LABEL $%d%s_continue\n", param_number, param_data->key);
             break;
         default:
             break;
