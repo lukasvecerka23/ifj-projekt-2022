@@ -25,7 +25,7 @@ jobs:
         run: |
          cd src
          make
-         ../tests/./test.py ./ifj22_compiler ./ic22int
+         ../tests/test.py ./ifj22_compiler ./ic22int
 
       - name: valgrind
         run: |
