@@ -277,10 +277,10 @@ void expression_parser(token_t* token, bool is_cond) {
         case 0:
             // ast_print_tree(new_tree);
             // printf("tree height: %d", ast_height(new_tree));
-            if (ast_height(new_tree) > 1)
-                generate_ast(new_tree, parser.in_function);
-            else if (is_cond == false)
+            if (is_cond == false && ast_height == 1)
                 generate_one_operand(new_tree->token, parser.in_function);
+            else
+                generate_ast(new_tree, parser.in_function);
             break;
         case 2:
             exit_program(2, "syntax error in expression parser");
