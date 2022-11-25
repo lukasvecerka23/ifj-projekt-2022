@@ -569,7 +569,7 @@ void generate_if_then(int scope) {
     printf("JUMPIFEQ $$if%dstring GF@exp_type1 string@string\n", scope);
     printf("JUMPIFEQ $$if%dint GF@exp_type1 string@int\n", scope);
     printf("JUMPIFEQ $$if%dnil GF@exp_type1 string@nil\n", scope);
-    printf("JUMP $$if%dtrue\n", scope);
+    printf("JUMP $$if%dcond\n", scope);
     printf("LABEL $$if%dfloat\n", scope);
     printf("JUMPIFEQ $$if%delse GF@tmp_var float@0x0p+0\n", scope);
     printf("JUMP $$if%dtrue\n", scope);
