@@ -276,9 +276,10 @@ void expression_parser(token_t* token, bool is_cond) {
     switch (err_code) {
         case 0:
             // ast_print_tree(new_tree);
-            if (ast_height(new_tree) > 0)
+            // printf("tree height: %d", ast_height(new_tree));
+            if (ast_height(new_tree) > 1)
                 generate_ast(new_tree, parser.in_function);
-            else
+            else if (is_cond == false)
                 generate_one_operand(new_tree->token, parser.in_function);
             break;
         case 2:
