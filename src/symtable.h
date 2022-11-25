@@ -1,3 +1,9 @@
+/*
+Name: IFJ PROJEKT 2022
+Authors: xdolez0c, xvecer30, xnespo10, xtomko06
+Description: --
+*/
+
 #ifndef IFJ_SYMTABLE_H
 #define IFJ_SYMTABLE_H
 

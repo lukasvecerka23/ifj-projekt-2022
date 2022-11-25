@@ -1,3 +1,9 @@
+/*
+Name: IFJ PROJEKT 2022
+Authors: xdolez0c, xvecer30, xnespo10, xtomko06
+Description: --
+*/
+
 #ifndef IFJ_CODE_GEN_H
 #define IFJ_CODE_GEN_H
 

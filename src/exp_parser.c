@@ -1,3 +1,9 @@
+/*
+Name: IFJ PROJEKT 2022
+Authors: xdolez0c, xvecer30, xnespo10, xtomko06
+Description: --
+*/
+
 #include "exp_parser.h"
 
 void stack_init(Stack* stack) {

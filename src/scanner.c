@@ -1,3 +1,9 @@
+/*
+Name: IFJ PROJEKT 2022
+Authors: xdolez0c, xvecer30, xnespo10, xtomko06
+Description: --
+*/
+
 #include "scanner.h"
 #include <string.h>
 #include "error.h"

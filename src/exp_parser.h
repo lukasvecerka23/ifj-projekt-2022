@@ -1,3 +1,9 @@
+/*
+Name: IFJ PROJEKT 2022
+Authors: xdolez0c, xvecer30, xnespo10, xtomko06
+Description: --
+*/
+
 #ifndef EXP_PARSER_H
 #define EXP_PARSER_H
 
@@ -49,7 +55,7 @@ typedef struct stack_el {
     ast_node_t* tree;
     struct stack_el* next_element;
 
-}* Stack_exp;
+} * Stack_exp;
 
 typedef struct {
     Stack_exp top;
