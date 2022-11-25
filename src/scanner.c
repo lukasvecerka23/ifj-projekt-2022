@@ -583,7 +583,7 @@ token_t create_lex(States final, char* token) {
             break;
             // error_exit("reached end of token");
         default:
-            exit_program(99, "No state implemented for this input");
+            exit_program(1, "undefined lexeme");
             break;
     }
     return (token_t){0};
