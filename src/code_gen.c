@@ -564,7 +564,7 @@ void generate_builtin_func() {
 
 void generate_if_then(int scope) {
     printf("# IF THEN %d\n", scope);
-    printf("JUMPIFEQ $$if%dthen GF@tmp_var nil@nil\n", scope);
+    printf("EQ GF@tmp_var GF@tmp_var nil@nil\n");
     printf("JUMPIFEQ $$if%delse GF@tmp_var bool@false\n", scope);
     printf("LABEL $$if%dthen\n", scope);
 }
