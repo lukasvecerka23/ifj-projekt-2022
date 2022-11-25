@@ -341,7 +341,7 @@ void generate_null_assignment() {
 }
 
 void generate_builtin_func() {
-    // printf("#FLOATVAL\n");
+    printf("#FLOATVAL\n");
     printf("LABEL $$floatval\n");
     printf("PUSHFRAME\n");
 
@@ -358,7 +358,7 @@ void generate_builtin_func() {
     printf("RETURN\n");
 
     printf("LABEL $floatval$null \n");
-    printf("INT2FLOAT LF@retval$1 float@0x0.0p+0\n");
+    printf("MOVE LF@retval$1 float@0x0.0p+0\n");
     printf("POPFRAME\n");
     printf("RETURN\n");
 
