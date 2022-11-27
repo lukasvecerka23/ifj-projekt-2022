@@ -9,6 +9,7 @@ Description: --
 
 #include <stdbool.h>
 #include "ast.h"
+#include "error.h"
 #include "symtable.h"
 
 typedef struct dynamic_string {
@@ -56,7 +57,7 @@ void generate_if_end(int scope);
 void generate_while_start(int scope);
 void generate_while_condition(int scope);
 void generate_while_end(int scope);
-void generate_ast(ast_node_t* current, bool in_function);
+void generate_ast(ast_node_t* current, bool in_function, htab_t* table);
 void generate_return(char* func_id, bool is_void);
 void generate_exit_program();
 void generate_func_declaration(htab_t* table, char* func_id, bool);

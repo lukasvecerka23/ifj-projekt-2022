@@ -69,6 +69,12 @@ void generate_exit_label() {
         "string@semantic\\032error:"
         "\\032wrong\\032number\\032or\\032type\\032in\\032function\\032call\n");
     printf("EXIT int@4\n");
+    printf("LABEL $ERROR_SEM_UNDEF_VAR\n");
+    printf(
+        "DPRINT "
+        "string@semantic\\032error:"
+        "\\032using\\032undefined\\032variable\n");
+    printf("EXIT int@5\n");
     printf("LABEL $ERROR_SEM_RET_EXP\n");
     printf(
         "DPRINT "
@@ -674,13 +680,13 @@ void generate_one_operand(token_t token, bool in_func) {
     }
 }
 
-void generate_ast(ast_node_t* current, bool in_function) {
+void generate_ast(ast_node_t* current, bool in_function, htab_t* table) {
     char* tmp_string;
     if (current == NULL) {
         return;
     }
-    generate_ast(current->left, in_function);
-    generate_ast(current->right, in_function);
+    generate_ast(current->left, in_function, table);
+    generate_ast(current->right, in_function, table);
 
     switch (current->token.token_type) {
         case L_DOT:
@@ -789,10 +795,18 @@ void generate_ast(ast_node_t* current, bool in_function) {
             printf("PUSHS float@%a\n", current->token.float_val);
             break;
         case L_VARID:
-            if (in_function)
+            if (htab_search(table, current->token.string) == NULL) {
+                exit_program(5, "undefined variable in expression");
+            }
+            if (in_function) {
+                printf("TYPE GF@exp_type1 LF@%s\n", current->token.string);
+                printf("JUMPIFEQ $ERROR_SEM_UNDEF_VAR GF@exp_type1 string@\n");
                 printf("PUSHS LF@%s\n", current->token.string);
-            else
+            } else {
+                printf("TYPE GF@exp_type1 GF@%s\n", current->token.string);
+                printf("JUMPIFEQ $ERROR_SEM_UNDEF_VAR GF@exp_type1 string@\n");
                 printf("PUSHS GF@%s\n", current->token.string);
+            }
             break;
         case K_NULL:
             printf("PUSHS nil@nil\n");
