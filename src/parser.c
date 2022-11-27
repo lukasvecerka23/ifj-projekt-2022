@@ -614,8 +614,14 @@ bool statement() {
         statement();
         return true;
     }
-    if (!check_token_type(L_SEMICOL)) {
+    printf("%s", parser.token.string);
+    if (!check_token_type(L_SEMICOL) && !check_token_type(LEOF) &&
+        !check_token_type(L_PHPEND)) {
         expression_parser(&parser.token, true);
+        get_next_token();
+        printf("%d", parser.token.token_type);
+        statement();
+        return true;
     }
     // epsilon
     return true;
@@ -812,7 +818,7 @@ bool program() {
         return true;
     }
     if (statement()) {
-        get_next_token();
+        // get_next_token();
         program();
         return true;
     }
