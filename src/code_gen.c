@@ -266,8 +266,11 @@ void generate_global_var_func_param(unsigned long long index,
     if (!is_write) {
         printf("DEFVAR TF@$%llu\n", index);
         printf("MOVE TF@$%llu GF@%s\n", index, var_id);
-    } else
+    } else {
+        printf("TYPE GF@exp_type1 GF@%s\n", var_id);
+        printf("JUMPIFEQ $ERROR_SEM_UNDEF_VAR GF@exp_type1 string@\n");
         printf("WRITE GF@%s\n", var_id);
+    }
 }
 
 void generate_local_var_func_param(unsigned long long index,
@@ -276,8 +279,11 @@ void generate_local_var_func_param(unsigned long long index,
     if (!is_write) {
         printf("DEFVAR TF@$%llu\n", index);
         printf("MOVE TF@$%llu LF@%s\n", index, var_id);
-    } else
+    } else {
+        printf("TYPE GF@exp_type1 LF@%s\n", var_id);
+        printf("JUMPIFEQ $ERROR_SEM_UNDEF_VAR GF@exp_type1 string@\n");
         printf("WRITE LF@%s\n", var_id);
+    }
 }
 
 void generate_int_func_param(unsigned long long index,
