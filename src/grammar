@@ -35,5 +35,5 @@
 <statement> -> funcid(<list_input_params>); <statement>
 <statement> -> if (<expression>){<statement>} else {<statement>} <statement>
 <statement> -> while (<expression>){<statement>} <statement>
-<statement> -> return <expression>;
+<statement> -> return <expression>; <statement>
 <statement> -> epsilon

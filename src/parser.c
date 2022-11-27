@@ -612,6 +612,10 @@ bool statement() {
         }
         get_next_token();
         statement();
+        return true;
+    }
+    if (!check_token_type(L_SEMICOL)) {
+        expression_parser(&parser.token, true);
     }
     // epsilon
     return true;
@@ -808,7 +812,7 @@ bool program() {
         return true;
     }
     if (statement()) {
-        // get_next_token();
+        get_next_token();
         program();
         return true;
     }
