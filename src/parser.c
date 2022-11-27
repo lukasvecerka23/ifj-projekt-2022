@@ -500,12 +500,19 @@ bool statement() {
                     generate_exp_global_assignment(tmp_var.string);
                 }
             }
-            // expression call
-            get_next_token();
-            statement();
-            return true;
+        } else {
+            if (!check_token_type(L_SEMICOL))
+                expression_parser(&tmp_var, true);
+            else if (parser.in_function)
+                generate_one_operand(tmp_var, parser.in_function,
+                                     parser.local_symtable);
+            else
+                generate_one_operand(tmp_var, parser.in_function,
+                                     parser.global_symtable);
         }
-        // <expression>
+        get_next_token();
+        statement();
+        return true;
     }
     if (parser.token.token_type == L_FUNCID) {
         check_func_id(false);
@@ -604,6 +611,7 @@ bool statement() {
             generate_exit_program();
         }
         get_next_token();
+        statement();
     }
     // epsilon
     return true;
