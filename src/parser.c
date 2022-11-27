@@ -614,8 +614,9 @@ bool statement() {
         statement();
         return true;
     }
-    if (!check_token_type(L_SEMICOL) && !check_token_type(LEOF) &&
-        !check_token_type(L_PHPEND)) {
+    if (!check_token_type(L_SEMICOL) &&
+        (check_token_type(L_NUMBER) || check_token_type(L_STRING) ||
+         check_token_type(L_FLOAT))) {
         expression_parser(&parser.token, true);
         get_next_token();
         statement();
