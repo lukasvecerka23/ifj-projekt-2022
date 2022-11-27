@@ -655,7 +655,7 @@ void generate_exit_program() {
     printf("JUMP $PROGRAM_GOOD\n");
 }
 
-void generate_one_operand(token_t token, bool in_func) {
+void generate_one_operand(token_t token, bool in_func, htab_t* table) {
     char* tmp_string;
     switch (token.token_type) {
         case L_NUMBER:
@@ -666,10 +666,18 @@ void generate_one_operand(token_t token, bool in_func) {
             printf("MOVE GF@tmp_var string@%s\n", tmp_string);
             break;
         case L_VARID:
-            if (in_func)
-                printf("MOVE GF@tmp_var LF@%s\n", token.string);
-            else
-                printf("MOVE GF@tmp_var GF@%s\n", token.string);
+            if (htab_search(table, token.string) == NULL) {
+                exit_program(5, "undefined variable in expression");
+            }
+            if (in_func) {
+                printf("TYPE GF@exp_type1 LF@%s\n", token.string);
+                printf("JUMPIFEQ $ERROR_SEM_UNDEF_VAR GF@exp_type1 string@\n");
+                printf("PUSHS LF@%s\n", token.string);
+            } else {
+                printf("TYPE GF@exp_type1 GF@%s\n", token.string);
+                printf("JUMPIFEQ $ERROR_SEM_UNDEF_VAR GF@exp_type1 string@\n");
+                printf("PUSHS GF@%s\n", token.string);
+            }
             break;
         case L_FLOAT:
             printf("MOVE GF@tmp_var float@%a\n", token.float_val);

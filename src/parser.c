@@ -277,7 +277,12 @@ void expression_parser(token_t* token, bool is_cond) {
         case 0:
             // ast_print_tree(new_tree);
             if (is_cond == false && ast_height(new_tree) == 1)
-                generate_one_operand(new_tree->token, parser.in_function);
+                if (parser.in_function)
+                    generate_one_operand(new_tree->token, parser.in_function,
+                                         parser.local_symtable);
+                else
+                    generate_one_operand(new_tree->token, parser.in_function,
+                                         parser.global_symtable);
             else if (parser.in_function) {
                 generate_ast(new_tree, parser.in_function,
                              parser.local_symtable);
