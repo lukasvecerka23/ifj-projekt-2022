@@ -660,9 +660,8 @@ token_t get_lex_value() {
 
     *token = get_token_data(scan);
 
-    if (scan.token != NULL) {
-        free(scan.token);
-    }
-
-    return *token;
+    token_t tmp_token = *token;
+    free(token);
+    free(token->string);
+    return tmp_token;
 }
