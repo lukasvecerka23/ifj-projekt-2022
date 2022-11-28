@@ -152,7 +152,6 @@ void load_builtin_funcs() {
                                             .param_count = 1,
                                             .ret_type = RETTYPE_STRING}};
     add_builtin_func(data, "chr");
-    ht_print_table(parser.global_symtable, "GLOBAL");
 }
 
 void create_new_local_data() {
