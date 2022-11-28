@@ -626,7 +626,11 @@ bool statement() {
         return true;
     }
     // epsilon
-    return true;
+    if (check_token_type(L_RCURL) || check_token_type(LEOF) ||
+        check_token_type(L_SEMICOL))
+        return true;
+    else
+        exit_program(2, "wrong statement syntax");
 }
 
 // <type> rule
