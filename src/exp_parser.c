@@ -364,7 +364,7 @@ int rule_reduction(Stack* stack) {
     if (stack_data[0]->data == E && stack_data[2]->data == E) {  // E op E
         // printf("rule E -> E op E\n");
         ast_node_t* tree_ptr;
-        token_t* operator;
+        token_t* operator=(token_t*) malloc(sizeof(token_t));
         // operator.value = 0;
         //
         switch (stack_data[1]->data) {
@@ -440,6 +440,7 @@ int rule_reduction(Stack* stack) {
                 // printf("no operator matched \n");
                 break;
         }
+        free(operator);
         stack_push(stack, E);
         stack->top->tree = tree_ptr;
         return 1;
