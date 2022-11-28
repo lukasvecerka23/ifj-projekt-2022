@@ -13,6 +13,14 @@ just for testing
 */
 int err_flag = 0;
 
+void token_free(char* token) {
+    printf("string: %d\n", token);
+    if (token != NULL) {
+        free(token);
+    }
+    // free(token);
+}
+
 void print_lex(token_t token) {
     switch (token.token_type) {
         case L_LPAR:
@@ -585,10 +593,12 @@ token_t create_lex(States final, char* token) {
         case PHPEND:
             return (token_t){.token_type = L_VARPREF};
         case TOKEN_END:
+            free(token);
             exit_program(1, "wrong token");
             break;
             // error_exit("reached end of token");
         default:
+            free(token);
             exit_program(1, "undefined lexeme");
             break;
     }
@@ -622,6 +632,7 @@ token_t get_token_data(scanner_t scan) {
                 return create_lex(now, scan.token);
 
             } else {
+                token_free(scan.token);
                 exit_program(1, "wrong token");
                 err_flag = 0;
                 next = START;
@@ -643,14 +654,15 @@ token_t get_token_data(scanner_t scan) {
     }
 }
 
-void token_free(token_t* token) {
-    free(token);
-}
-
-token_t get_lex_value(scanner_t scan) {
+token_t get_lex_value() {
+    scanner_t scan = {0};
     token_t* token = malloc(sizeof(token_t));
 
     *token = get_token_data(scan);
+
+    if (scan.token != NULL) {
+        free(scan.token);
+    }
 
     return *token;
 }
