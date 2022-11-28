@@ -8,11 +8,7 @@ Description: --
 #include <stdio.h>
 #include "error.h"
 /** TODO
- * Expression parser - parsovani a vyhodnocovani vyrazu
- * AST - vytvoreni struktury a propojeni s expresion parserem, generovani AST
  * Dodelat semanticke kontroly
- * Generovani kodu
- * Prepinani mezi top/down bottom/up parsingem, predavani tokenu atd.
  **/
 
 Parser parser;
@@ -506,12 +502,12 @@ bool statement() {
             }
         } else {
             if (!check_token_type(L_SEMICOL))
-                expression_parser(&tmp_var, true);
+                expression_parser(tmp_var, true);
             else if (parser.in_function)
-                generate_one_operand(&tmp_var, parser.in_function,
+                generate_one_operand(tmp_var, parser.in_function,
                                      parser.local_symtable);
             else
-                generate_one_operand(&tmp_var, parser.in_function,
+                generate_one_operand(tmp_var, parser.in_function,
                                      parser.global_symtable);
         }
         get_next_token();
