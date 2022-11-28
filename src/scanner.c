@@ -661,7 +661,7 @@ token_t get_lex_value() {
     *token = get_token_data(scan);
 
     token_t tmp_token = *token;
-    free(token);
     free(token->string);
+    free(token);
     return tmp_token;
 }
