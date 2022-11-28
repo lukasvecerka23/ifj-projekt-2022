@@ -188,7 +188,7 @@ void generate_var_definition(char* var, bool local) {
 }
 
 void generate_func_declaration(htab_t* table, char* func_id, bool local) {
-    printf("JUMP $$%s_return\n");
+    printf("JUMP $$%s_return\n", func_id);
     printf("LABEL $$%s_declare\n", func_id);
     for (size_t i = 0; i < table->arr_size; i++) {
         htab_item_t* item = table->arr_ptr[i];

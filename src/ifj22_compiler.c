@@ -10,8 +10,8 @@ Description: --
 #include "scanner.h"
 
 int main() {
-    // token_t l = {0};
-    // while (l.token_type != LEOF) {
+    // token_t* l;
+    // while (l->token_type != LEOF) {
     //     l = get_lex_value();
     //     print_lex(l);
     // }

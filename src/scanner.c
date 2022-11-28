@@ -21,8 +21,8 @@ void token_free(char* token) {
     // free(token);
 }
 
-void print_lex(token_t token) {
-    switch (token.token_type) {
+void print_lex(token_t* token) {
+    switch (token->token_type) {
         case L_LPAR:
             printf("( ( )\n");
             return;
@@ -60,23 +60,23 @@ void print_lex(token_t token) {
             printf("( / )\n");
             return;
         case L_EXP:
-            printf("( exp, %f)\n", token.float_val);
+            printf("( exp, %f)\n", token->float_val);
             // printf("( exp, %s)\n", lex.string);
             return;
         case L_NUMBER:
-            printf("(integer, %lld)\n", token.val);
+            printf("(integer, %lld)\n", token->val);
             return;
         case L_VARID:
-            printf("(varid, %s)\n", token.string);
+            printf("(varid, %s)\n", token->string);
             return;
         case L_VARPREF:
             printf("( ? )\n");
             return;
         case L_ID:
-            printf("(identifier, %s)\n", token.string);
+            printf("(identifier, %s)\n", token->string);
             return;
         case L_STRING:
-            printf("(string, %s)\n", token.string);
+            printf("(string, %s)\n", token->string);
             return;
         case L_DASH:
             printf("( - )\n");
@@ -103,7 +103,7 @@ void print_lex(token_t token) {
             printf("( >= )\n");
             return;
         case L_FLOAT:
-            printf("(float, %f)\n", token.float_val);
+            printf("(float, %f)\n", token->float_val);
             return;
         case K_ELSE:
             printf("( else )\n");
@@ -136,7 +136,7 @@ void print_lex(token_t token) {
             printf("( float )\n");
             return;
         case L_FUNCID:
-            printf("( funcid, %s )\n", token.string);
+            printf("( funcid, %s )\n", token->string);
             return;
         case L_PHPEND:
             printf("( php end )\n");

@@ -461,7 +461,8 @@ bool statement() {
     if (parser.token->token_type == L_VARID) {
         // add var to hashtable
         symtable_var_check();
-        token_t tmp_var = *parser.token;
+        token_t* tmp_var = (token_t*)malloc(sizeof(token_t));
+        *tmp_var = *parser.token;
         get_next_token();
         if (parser.token->token_type == L_ASSIGN) {
             var_init();
@@ -489,9 +490,9 @@ bool statement() {
                     generate_func_call(parser.global_symtable_data->name);
                 }
                 if (parser.in_function) {
-                    generate_local_assignment(&tmp_var.string);
+                    generate_local_assignment(tmp_var->string);
                 } else {
-                    generate_global_assignment(&tmp_var.string);
+                    generate_global_assignment(tmp_var->string);
                 }
                 get_next_token();
                 statement();
@@ -499,9 +500,9 @@ bool statement() {
             } else {
                 expression_parser(parser.token, true);
                 if (parser.in_function) {
-                    generate_exp_local_assignment(&tmp_var.string);
+                    generate_exp_local_assignment(tmp_var->string);
                 } else {
-                    generate_exp_global_assignment(&tmp_var.string);
+                    generate_exp_global_assignment(tmp_var->string);
                 }
             }
         } else {
