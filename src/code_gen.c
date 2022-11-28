@@ -665,7 +665,6 @@ void generate_exit_program() {
 
 void generate_one_operand(token_t* token, bool in_func, htab_t* table) {
     char* tmp_string;
-    printf("token_type: %d\n", token->token_type);
     switch (token->token_type) {
         case L_NUMBER:
             printf("MOVE GF@tmp_var int@%d\n", token->val);
@@ -702,6 +701,7 @@ void generate_ast(ast_node_t* current, bool in_function, htab_t* table) {
     if (current == NULL) {
         return;
     }
+    // printf("token_type: %d\n", current->token->token_type);
     generate_ast(current->left, in_function, table);
     generate_ast(current->right, in_function, table);
 
