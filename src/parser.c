@@ -20,8 +20,6 @@ Parser parser;
 void get_next_token() {
     token_t* tmp_token = parser.token;
     parser.token = get_lex_value();
-    if (parser.token != NULL && parser.token->string != NULL)
-        free(tmp_token->string);
     free(tmp_token);
 }
 
