@@ -21,11 +21,11 @@ jobs:
       - name: Install dependencies
         run: sudo apt-get -y install valgrind
 
-      - name: valgrind
-        run: |
-          cd src
-          make
-          valgrind --leak-check=yes ./ifj22_compiler < ../code-examples/factorial-recursive
+      # - name: valgrind
+      #   run: |
+      #     cd src
+      #     make
+      #     valgrind --leak-check=yes ./ifj22_compiler < ../code-examples/factorial-recursive
 
       - name: make
         run: |
