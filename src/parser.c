@@ -759,10 +759,16 @@ bool program() {
     parser.in_while = false;
     parser.in_function = false;
     parser.local_symtable = htab_init(10);
-    if (parser.token->token_type == LEOF ||
-        parser.token->token_type == L_PHPEND) {
-        // check if all functions are defined
-        // ht_print_table(parser.global_symtable, "TEST");
+    if (parser.token->token_type == LEOF) {
+        // check if all function call are defined
+        generate_func_declaration(parser.global_symtable, "main", false);
+        generate_end();
+        htab_free(parser.local_symtable);
+        return true;
+    }
+    if (parser.token->token_type == L_PHPEND) {
+        // check if all function call are defined
+        get_token_consume_token(LEOF, "missing eof after php epilogue");
         generate_func_declaration(parser.global_symtable, "main", false);
         generate_end();
         htab_free(parser.local_symtable);
