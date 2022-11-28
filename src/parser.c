@@ -617,7 +617,7 @@ bool statement() {
         statement();
         return true;
     }
-    if (!check_token_type(L_SEMICOL) &&
+    if (/*!check_token_type(L_SEMICOL) &&*/
         (check_token_type(L_NUMBER) || check_token_type(L_STRING) ||
          check_token_type(L_FLOAT))) {
         expression_parser(parser.token, true);
@@ -626,11 +626,7 @@ bool statement() {
         return true;
     }
     // epsilon
-    if (check_token_type(L_RCURL) || check_token_type(LEOF) ||
-        check_token_type(L_SEMICOL))
-        return true;
-    else
-        exit_program(2, "wrong statement syntax");
+    return true;
 }
 
 // <type> rule
