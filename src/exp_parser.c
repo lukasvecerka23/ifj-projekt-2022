@@ -440,7 +440,6 @@ int rule_reduction(Stack* stack) {
                 // printf("no operator matched \n");
                 break;
         }
-        free(operator);
         stack_push(stack, E);
         stack->top->tree = tree_ptr;
         return 1;

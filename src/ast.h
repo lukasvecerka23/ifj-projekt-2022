@@ -21,7 +21,7 @@ typedef struct ast_node {
 } ast_node_t;
 
 // void init(ast_node_t *tree);
-void dispose(ast_node_t* tree);
+void ast_dispose(ast_node_t* tree);
 
 ast_node_t* make_tree(token_t* o, ast_node_t* a, ast_node_t* b);
 ast_node_t* make_leaf(token_t* ia, htab_item_t hia);

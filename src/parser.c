@@ -267,9 +267,9 @@ void var_init() {
 }
 
 void expression_parser(token_t* token, bool is_cond) {
-    ast_node_t* new_tree = NULL;
+    ast_node_t* new_tree = (ast_node_t*)malloc(sizeof(ast_node_t));
     int err_code;
-    err_code = parse_expression(token, is_cond, &new_tree);
+    err_code = parse_expression(token, is_cond, new_tree);
 
     switch (err_code) {
         case 0:
@@ -288,11 +288,14 @@ void expression_parser(token_t* token, bool is_cond) {
                 generate_ast(new_tree, parser.in_function,
                              parser.global_symtable);
             }
+            ast_dispose(new_tree);
             break;
         case 2:
+            ast_dispose(new_tree);
             exit_program(2, "syntax error in expression parser");
             break;
         case 5:
+            ast_dispose(new_tree);
             exit_program(5, "undefinded variable in expression");
             break;
     }

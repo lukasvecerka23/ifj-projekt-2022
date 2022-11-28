@@ -11,10 +11,10 @@ Description: --
 #include <string.h>
 #include "error.h"
 
-void dispose(ast_node_t* tree) {
+void ast_dispose(ast_node_t* tree) {
     if (tree != NULL) {
-        dispose(tree->left);
-        dispose(tree->right);
+        ast_dispose(tree->left);
+        ast_dispose(tree->right);
         free(tree);
 
         tree = NULL;
