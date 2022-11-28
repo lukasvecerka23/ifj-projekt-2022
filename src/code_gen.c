@@ -665,6 +665,7 @@ void generate_exit_program() {
 
 void generate_one_operand(token_t* token, bool in_func, htab_t* table) {
     char* tmp_string;
+    printf("token_type: %d\n", token->token_type);
     switch (token->token_type) {
         case L_NUMBER:
             printf("MOVE GF@tmp_var int@%d\n", token->val);

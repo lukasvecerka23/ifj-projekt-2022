@@ -364,74 +364,74 @@ int rule_reduction(Stack* stack) {
     if (stack_data[0]->data == E && stack_data[2]->data == E) {  // E op E
         // printf("rule E -> E op E\n");
         ast_node_t* tree_ptr;
-        token_t operator;
+        token_t* operator;
         // operator.value = 0;
         //
         switch (stack_data[1]->data) {
             case T_PLUS:
                 // printf("AST create PLUS tree\n");
-                operator.token_type = L_PLUS;
-                tree_ptr = make_tree(&operator, stack_data[2]->tree,
+                operator->token_type = L_PLUS;
+                tree_ptr = make_tree(operator, stack_data[2]->tree,
                                      stack_data[0]->tree);
                 break;
             case T_MUL:
                 // printf("AST create MUL tree\n");
-                operator.token_type = L_MUL;
-                tree_ptr = make_tree(&operator, stack_data[2]->tree,
+                operator->token_type = L_MUL;
+                tree_ptr = make_tree(operator, stack_data[2]->tree,
                                      stack_data[0]->tree);
                 break;
             case T_DIV:
                 // printf("AST create DIV tree\n");
-                operator.token_type = L_SLASH;
-                tree_ptr = make_tree(&operator, stack_data[2]->tree,
+                operator->token_type = L_SLASH;
+                tree_ptr = make_tree(operator, stack_data[2]->tree,
                                      stack_data[0]->tree);
                 break;
             case T_GREATER:
                 // printf("AST create GREATER tree\n");
-                operator.token_type = L_GREATER;
-                tree_ptr = make_tree(&operator, stack_data[2]->tree,
+                operator->token_type = L_GREATER;
+                tree_ptr = make_tree(operator, stack_data[2]->tree,
                                      stack_data[0]->tree);
                 break;
             case T_GREATEREQ:
                 // printf("AST create GREATEREQ tree\n");
-                operator.token_type = L_GREATEREQ;
-                tree_ptr = make_tree(&operator, stack_data[2]->tree,
+                operator->token_type = L_GREATEREQ;
+                tree_ptr = make_tree(operator, stack_data[2]->tree,
                                      stack_data[0]->tree);
                 break;
             case T_LESS:
                 // printf("AST create LESS tree\n");
-                operator.token_type = L_LESS;
-                tree_ptr = make_tree(&operator, stack_data[2]->tree,
+                operator->token_type = L_LESS;
+                tree_ptr = make_tree(operator, stack_data[2]->tree,
                                      stack_data[0]->tree);
                 break;
             case T_LESSEQ:
                 // printf("AST create LESEQ tree\n");
-                operator.token_type = L_LESSEQ;
-                tree_ptr = make_tree(&operator, stack_data[2]->tree,
+                operator->token_type = L_LESSEQ;
+                tree_ptr = make_tree(operator, stack_data[2]->tree,
                                      stack_data[0]->tree);
                 break;
             case T_MINUS:
                 // printf("AST create MINUS tree\n");
-                operator.token_type = L_DASH;
-                tree_ptr = make_tree(&operator, stack_data[2]->tree,
+                operator->token_type = L_DASH;
+                tree_ptr = make_tree(operator, stack_data[2]->tree,
                                      stack_data[0]->tree);
                 break;
             case T_CONCAT:
                 // printf("AST create CONCAT tree\n");
-                operator.token_type = L_DOT;
-                tree_ptr = make_tree(&operator, stack_data[2]->tree,
+                operator->token_type = L_DOT;
+                tree_ptr = make_tree(operator, stack_data[2]->tree,
                                      stack_data[0]->tree);
                 break;
             case T_EQ:
                 // printf("AST create EQ tree\n");
-                operator.token_type = L_EQ;
-                tree_ptr = make_tree(&operator, stack_data[2]->tree,
+                operator->token_type = L_EQ;
+                tree_ptr = make_tree(operator, stack_data[2]->tree,
                                      stack_data[0]->tree);
                 break;
             case T_NEQ:
                 // printf("AST create NEQ tree\n");
-                operator.token_type = L_NEQ;
-                tree_ptr = make_tree(&operator, stack_data[2]->tree,
+                operator->token_type = L_NEQ;
+                tree_ptr = make_tree(operator, stack_data[2]->tree,
                                      stack_data[0]->tree);
                 break;
 
