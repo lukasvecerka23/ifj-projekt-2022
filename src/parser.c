@@ -190,7 +190,6 @@ bool check_param_types() {
 }
 
 void check_func_id(bool def_check) {
-    printf("function: %s", parser.token->string);
     htab_item_t* tmp_item =
         htab_search(parser.global_symtable, parser.token->string);
 
