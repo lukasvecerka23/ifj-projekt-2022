@@ -58,7 +58,9 @@ char* formate_string(char* string) {
             string_add_char(tmp_string, c);
         }
     }
-    return tmp_string->string;
+    char* string_tmp2 = tmp_string->string;
+    free(tmp_string);
+    return string_tmp2;
 }
 
 void generate_exit_label() {
