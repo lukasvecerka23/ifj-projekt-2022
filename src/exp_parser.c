@@ -47,8 +47,8 @@ precedence_symbols prec_table[TABLE_SIZE][TABLE_SIZE] = {
 {S, S, S, R, S, R, S, S, S, E, E, E, E, E, E} !==
 */
 
-precedence_symbols map_token_to_enum(token_t token) {
-    switch (token.token_type) {
+precedence_symbols map_token_to_enum(token_t* token) {
+    switch (token->token_type) {
         case L_LPAR:
             return T_LPAR;
         case L_RPAR:
@@ -337,7 +337,7 @@ int rule_reduction(Stack* stack) {
         // stack_pop(stack);
         stack_push(stack, E);
         htab_item_t data;
-        if (stack_data[0]->token.token_type == L_VARID) {
+        if (stack_data[0]->token->token_type == L_VARID) {
             // data = htab_search(table,
             // stack_data[0]->token.string);
             // if (data == NULL || data->data->var_data.init == 0) {
@@ -371,67 +371,67 @@ int rule_reduction(Stack* stack) {
             case T_PLUS:
                 // printf("AST create PLUS tree\n");
                 operator.token_type = L_PLUS;
-                tree_ptr = make_tree(operator, stack_data[2]->tree,
+                tree_ptr = make_tree(&operator, stack_data[2]->tree,
                                      stack_data[0]->tree);
                 break;
             case T_MUL:
                 // printf("AST create MUL tree\n");
                 operator.token_type = L_MUL;
-                tree_ptr = make_tree(operator, stack_data[2]->tree,
+                tree_ptr = make_tree(&operator, stack_data[2]->tree,
                                      stack_data[0]->tree);
                 break;
             case T_DIV:
                 // printf("AST create DIV tree\n");
                 operator.token_type = L_SLASH;
-                tree_ptr = make_tree(operator, stack_data[2]->tree,
+                tree_ptr = make_tree(&operator, stack_data[2]->tree,
                                      stack_data[0]->tree);
                 break;
             case T_GREATER:
                 // printf("AST create GREATER tree\n");
                 operator.token_type = L_GREATER;
-                tree_ptr = make_tree(operator, stack_data[2]->tree,
+                tree_ptr = make_tree(&operator, stack_data[2]->tree,
                                      stack_data[0]->tree);
                 break;
             case T_GREATEREQ:
                 // printf("AST create GREATEREQ tree\n");
                 operator.token_type = L_GREATEREQ;
-                tree_ptr = make_tree(operator, stack_data[2]->tree,
+                tree_ptr = make_tree(&operator, stack_data[2]->tree,
                                      stack_data[0]->tree);
                 break;
             case T_LESS:
                 // printf("AST create LESS tree\n");
                 operator.token_type = L_LESS;
-                tree_ptr = make_tree(operator, stack_data[2]->tree,
+                tree_ptr = make_tree(&operator, stack_data[2]->tree,
                                      stack_data[0]->tree);
                 break;
             case T_LESSEQ:
                 // printf("AST create LESEQ tree\n");
                 operator.token_type = L_LESSEQ;
-                tree_ptr = make_tree(operator, stack_data[2]->tree,
+                tree_ptr = make_tree(&operator, stack_data[2]->tree,
                                      stack_data[0]->tree);
                 break;
             case T_MINUS:
                 // printf("AST create MINUS tree\n");
                 operator.token_type = L_DASH;
-                tree_ptr = make_tree(operator, stack_data[2]->tree,
+                tree_ptr = make_tree(&operator, stack_data[2]->tree,
                                      stack_data[0]->tree);
                 break;
             case T_CONCAT:
                 // printf("AST create CONCAT tree\n");
                 operator.token_type = L_DOT;
-                tree_ptr = make_tree(operator, stack_data[2]->tree,
+                tree_ptr = make_tree(&operator, stack_data[2]->tree,
                                      stack_data[0]->tree);
                 break;
             case T_EQ:
                 // printf("AST create EQ tree\n");
                 operator.token_type = L_EQ;
-                tree_ptr = make_tree(operator, stack_data[2]->tree,
+                tree_ptr = make_tree(&operator, stack_data[2]->tree,
                                      stack_data[0]->tree);
                 break;
             case T_NEQ:
                 // printf("AST create NEQ tree\n");
                 operator.token_type = L_NEQ;
-                tree_ptr = make_tree(operator, stack_data[2]->tree,
+                tree_ptr = make_tree(&operator, stack_data[2]->tree,
                                      stack_data[0]->tree);
                 break;
 
@@ -499,15 +499,15 @@ int parse_expression(token_t* used_token,
     stack_push(&stack, EMPTY);
     // lexeme used_token;
 
-    token_t current_token;
+    token_t* current_token;
     precedence_symbols current_token_enum;
     if (used_token != NULL) {
         // //print_lex(*used_token);
-        current_token_enum = map_token_to_enum(*used_token);
+        current_token_enum = map_token_to_enum(used_token);
         if (current_token_enum == T_INVALID) {
             return 2;
         }
-        current_token = *used_token;
+        current_token = used_token;
     } else {
         current_token = get_lex_value();
         // printf("current lexeme");
@@ -590,12 +590,12 @@ int parse_expression(token_t* used_token,
     // //print_lex(current_token);
     if (exp_correct_syntax(&stack)) {
         if (is_expression) {
-            if (current_token.token_type != L_SEMICOL) {
+            if (current_token->token_type != L_SEMICOL) {
                 // printf("syntax error expected ;\n");
                 return 2;
             }
         } else {
-            if (current_token.token_type != L_LCURL) {
+            if (current_token->token_type != L_LCURL) {
                 // printf("syntax error expected {\n");
                 return 2;
             }

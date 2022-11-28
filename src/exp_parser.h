@@ -51,11 +51,11 @@ typedef enum precedence_symbols {
 
 typedef struct stack_el {
     precedence_symbols data;
-    token_t token;
+    token_t* token;
     ast_node_t* tree;
     struct stack_el* next_element;
 
-} * Stack_exp;
+}* Stack_exp;
 
 typedef struct {
     Stack_exp top;

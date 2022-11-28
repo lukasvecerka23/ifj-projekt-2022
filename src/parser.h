@@ -14,7 +14,7 @@ Description: --
 #include "symtable.h"
 
 typedef struct {
-    token_t token;
+    token_t* token;
     htab_t* global_symtable;
     htab_t* local_symtable;
     htab_item_data_t* global_symtable_data;

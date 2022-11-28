@@ -663,32 +663,32 @@ void generate_exit_program() {
     printf("JUMP $PROGRAM_GOOD\n");
 }
 
-void generate_one_operand(token_t token, bool in_func, htab_t* table) {
+void generate_one_operand(token_t* token, bool in_func, htab_t* table) {
     char* tmp_string;
-    switch (token.token_type) {
+    switch (token->token_type) {
         case L_NUMBER:
-            printf("MOVE GF@tmp_var int@%d\n", token.val);
+            printf("MOVE GF@tmp_var int@%d\n", token->val);
             break;
         case L_STRING:
-            tmp_string = formate_string(token.string);
+            tmp_string = formate_string(token->string);
             printf("MOVE GF@tmp_var string@%s\n", tmp_string);
             break;
         case L_VARID:
-            if (htab_search(table, token.string) == NULL) {
+            if (htab_search(table, token->string) == NULL) {
                 exit_program(5, "undefined variable in expression");
             }
             if (in_func) {
-                printf("TYPE GF@exp_type1 LF@%s\n", token.string);
+                printf("TYPE GF@exp_type1 LF@%s\n", token->string);
                 printf("JUMPIFEQ $ERROR_SEM_UNDEF_VAR GF@exp_type1 string@\n");
-                printf("PUSHS LF@%s\n", token.string);
+                printf("PUSHS LF@%s\n", token->string);
             } else {
-                printf("TYPE GF@exp_type1 GF@%s\n", token.string);
+                printf("TYPE GF@exp_type1 GF@%s\n", token->string);
                 printf("JUMPIFEQ $ERROR_SEM_UNDEF_VAR GF@exp_type1 string@\n");
-                printf("PUSHS GF@%s\n", token.string);
+                printf("PUSHS GF@%s\n", token->string);
             }
             break;
         case L_FLOAT:
-            printf("MOVE GF@tmp_var float@%a\n", token.float_val);
+            printf("MOVE GF@tmp_var float@%a\n", token->float_val);
             break;
         case K_NULL:
             printf("MOVE GF@tmp_var nil@nil\n");
@@ -704,7 +704,7 @@ void generate_ast(ast_node_t* current, bool in_function, htab_t* table) {
     generate_ast(current->left, in_function, table);
     generate_ast(current->right, in_function, table);
 
-    switch (current->token.token_type) {
+    switch (current->token->token_type) {
         case L_DOT:
             printf("POPS GF@exp_tmp1\n");
             printf("POPS GF@exp_tmp2\n");
@@ -749,10 +749,10 @@ void generate_ast(ast_node_t* current, bool in_function, htab_t* table) {
             break;
         case L_NUMBER:
             // printf("");
-            printf("PUSHS int@%lld\n", current->token.val);
+            printf("PUSHS int@%lld\n", current->token->val);
             break;
         case L_STRING:
-            tmp_string = formate_string(current->token.string);
+            tmp_string = formate_string(current->token->string);
             printf("PUSHS string@%s\n", tmp_string);
             break;
         case L_EQ:
@@ -762,7 +762,7 @@ void generate_ast(ast_node_t* current, bool in_function, htab_t* table) {
             printf("PUSHS GF@tmp_var\n");
             break;
         case L_EXP:
-            printf("PUSHS float@%a\n", current->token.float_val);
+            printf("PUSHS float@%a\n", current->token->float_val);
             break;
         case L_NEQ:
             printf("POPS GF@exp_tmp1\n");
@@ -808,20 +808,20 @@ void generate_ast(ast_node_t* current, bool in_function, htab_t* table) {
             printf("PUSHS GF@tmp_var\n");
             break;
         case L_FLOAT:
-            printf("PUSHS float@%a\n", current->token.float_val);
+            printf("PUSHS float@%a\n", current->token->float_val);
             break;
         case L_VARID:
-            if (htab_search(table, current->token.string) == NULL) {
+            if (htab_search(table, current->token->string) == NULL) {
                 exit_program(5, "undefined variable in expression");
             }
             if (in_function) {
-                printf("TYPE GF@exp_type1 LF@%s\n", current->token.string);
+                printf("TYPE GF@exp_type1 LF@%s\n", current->token->string);
                 printf("JUMPIFEQ $ERROR_SEM_UNDEF_VAR GF@exp_type1 string@\n");
-                printf("PUSHS LF@%s\n", current->token.string);
+                printf("PUSHS LF@%s\n", current->token->string);
             } else {
-                printf("TYPE GF@exp_type1 GF@%s\n", current->token.string);
+                printf("TYPE GF@exp_type1 GF@%s\n", current->token->string);
                 printf("JUMPIFEQ $ERROR_SEM_UNDEF_VAR GF@exp_type1 string@\n");
-                printf("PUSHS GF@%s\n", current->token.string);
+                printf("PUSHS GF@%s\n", current->token->string);
             }
             break;
         case K_NULL:

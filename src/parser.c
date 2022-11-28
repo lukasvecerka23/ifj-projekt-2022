@@ -18,11 +18,13 @@ Description: --
 Parser parser;
 
 void get_next_token() {
+    token_t* tmp_token = parser.token;
     parser.token = get_lex_value();
+    free(tmp_token);
 }
 
 void consume_token(token_type token_type, char* err_msg) {
-    if (parser.token.token_type != token_type) {
+    if (parser.token->token_type != token_type) {
         htab_free(parser.global_symtable);
         exit_program(2, err_msg);
     }
@@ -30,14 +32,14 @@ void consume_token(token_type token_type, char* err_msg) {
 
 void get_token_consume_token(token_type token_type, char* err_msg) {
     get_next_token();
-    if (parser.token.token_type != token_type) {
+    if (parser.token->token_type != token_type) {
         htab_free(parser.global_symtable);
         exit_program(2, err_msg);
     }
 }
 
 bool check_token_type(token_type token_type) {
-    if (parser.token.token_type == token_type) {
+    if (parser.token->token_type == token_type) {
         return true;
     }
     return false;
@@ -171,7 +173,7 @@ bool check_param_types() {
         return false;
     }
     // store var type to symtable
-    switch (parser.token.token_type) {
+    switch (parser.token->token_type) {
         case K_INT:
             parser.local_symtable_data->var_data.data_type = DTYPE_INT;
             break;
@@ -189,7 +191,7 @@ bool check_param_types() {
 
 void check_func_id(bool def_check) {
     htab_item_t* tmp_item =
-        htab_search(parser.global_symtable, parser.token.string);
+        htab_search(parser.global_symtable, parser.token->string);
 
     // if record about func is not in symtable, create new record
     if (tmp_item == NULL) {
@@ -204,12 +206,12 @@ void check_func_id(bool def_check) {
                              "calling undefined function outside of function "
                              "declaration");
         }
-        parser.global_symtable_data->name = parser.token.string;
+        parser.global_symtable_data->name = parser.token->string;
         parser.global_symtable_data->type = ID_FUNC;
         parser.global_symtable_data->func_data.param_count = 0;
         parser.global_symtable_data->func_data.optional_ret_type = false;
         parser.global_symtable_data->func_data.returned = false;
-        htab_insert_update(parser.global_symtable, parser.token.string,
+        htab_insert_update(parser.global_symtable, parser.token->string,
                            parser.global_symtable_data);
         parser.func_check = false;
     } else {
@@ -234,25 +236,25 @@ void check_func_id(bool def_check) {
 void symtable_var_check() {
     htab_item_t* tmp_item;
     if (parser.in_function) {
-        tmp_item = htab_search(parser.local_symtable, parser.token.string);
+        tmp_item = htab_search(parser.local_symtable, parser.token->string);
         if (tmp_item == NULL) {
             create_new_local_data();
             parser.local_symtable_data->var_data.init = false;
-            parser.local_symtable_data->name = parser.token.string;
+            parser.local_symtable_data->name = parser.token->string;
             parser.local_symtable_data->type = ID_VAR;
-            htab_insert_update(parser.local_symtable, parser.token.string,
+            htab_insert_update(parser.local_symtable, parser.token->string,
                                parser.local_symtable_data);
         } else {
             parser.local_symtable_data = tmp_item->data;
         }
     } else {
-        tmp_item = htab_search(parser.global_symtable, parser.token.string);
+        tmp_item = htab_search(parser.global_symtable, parser.token->string);
         if (tmp_item == NULL) {
             create_new_global_data();
             parser.global_symtable_data->var_data.init = false;
-            parser.global_symtable_data->name = parser.token.string;
+            parser.global_symtable_data->name = parser.token->string;
             parser.global_symtable_data->type = ID_VAR;
-            htab_insert_update(parser.global_symtable, parser.token.string,
+            htab_insert_update(parser.global_symtable, parser.token->string,
                                parser.global_symtable_data);
         } else {
             parser.global_symtable_data = tmp_item->data;
@@ -335,7 +337,7 @@ bool check_return_type() {
         return false;
     }
     // store function return type to symtable
-    switch (parser.token.token_type) {
+    switch (parser.token->token_type) {
         case K_INT:
             parser.global_symtable_data->func_data.ret_type = RETTYPE_INT;
             break;
@@ -355,56 +357,57 @@ bool check_return_type() {
 }
 // <term> rule
 bool term() {
-    switch (parser.token.token_type) {
+    switch (parser.token->token_type) {
         case L_VARID:
             if (parser.in_function) {
-                if (!htab_search(parser.local_symtable, parser.token.string)) {
+                if (!htab_search(parser.local_symtable, parser.token->string)) {
                     exit_program(5,
                                  "undefined variable as function input param");
                 }
                 if (strcmp(parser.global_symtable_data->name, "write") == 0) {
                     generate_local_var_func_param(parser.param_counter + 1,
-                                                  parser.token.string, true);
+                                                  parser.token->string, true);
                 } else
                     generate_local_var_func_param(parser.param_counter + 1,
-                                                  parser.token.string, false);
+                                                  parser.token->string, false);
             } else {
-                if (!htab_search(parser.global_symtable, parser.token.string)) {
+                if (!htab_search(parser.global_symtable,
+                                 parser.token->string)) {
                     exit_program(5,
                                  "undefined variable as function input param");
                 }
                 if (strcmp(parser.global_symtable_data->name, "write") == 0) {
                     generate_global_var_func_param(parser.param_counter + 1,
-                                                   parser.token.string, true);
+                                                   parser.token->string, true);
                 } else
                     generate_global_var_func_param(parser.param_counter + 1,
-                                                   parser.token.string, false);
+                                                   parser.token->string, false);
             }
 
             return true;
         case L_STRING:
             if (strcmp(parser.global_symtable_data->name, "write") == 0) {
                 generate_string_func_param(parser.param_counter + 1,
-                                           parser.token.string, true);
+                                           parser.token->string, true);
             } else
                 generate_string_func_param(parser.param_counter + 1,
-                                           parser.token.string, false);
+                                           parser.token->string, false);
             return true;
         case L_FLOAT:
             if (strcmp(parser.global_symtable_data->name, "write") == 0) {
                 generate_float_func_param(parser.param_counter + 1,
-                                          parser.token.float_val, true);
+                                          parser.token->float_val, true);
             } else
                 generate_float_func_param(parser.param_counter + 1,
-                                          parser.token.float_val, false);
+                                          parser.token->float_val, false);
             return true;
         case L_NUMBER:
             if (strcmp(parser.global_symtable_data->name, "write") == 0) {
                 generate_int_func_param(parser.param_counter + 1,
-                                        parser.token.val, true);
+                                        parser.token->val, true);
             } else
                 generate_int_func_param(parser.param_counter + 1,
-                                        parser.token.val, false);
+                                        parser.token->val, false);
             return true;
         case K_NULL:
             if (strcmp(parser.global_symtable_data->name, "write") == 0) {
@@ -420,7 +423,7 @@ bool term() {
 
 // <next_input_param> rule
 bool next_input_param() {
-    if (parser.token.token_type != L_RPAR) {
+    if (parser.token->token_type != L_RPAR) {
         consume_token(L_COMMA, "missing comma before next input parameter");
         get_next_token();
         term();
@@ -439,7 +442,7 @@ bool next_input_param() {
 // <list_input_params> rule
 bool list_input_params() {
     parser.param_counter = 0;
-    if (parser.token.token_type != L_RPAR) {
+    if (parser.token->token_type != L_RPAR) {
         term();
         parser.param_counter++;
         if (parser.func_check == false)
@@ -454,15 +457,15 @@ bool list_input_params() {
 
 // <statement> rule
 bool statement() {
-    if (parser.token.token_type == L_VARID) {
+    if (parser.token->token_type == L_VARID) {
         // add var to hashtable
         symtable_var_check();
-        token_t tmp_var = parser.token;
+        token_t tmp_var = *parser.token;
         get_next_token();
-        if (parser.token.token_type == L_ASSIGN) {
+        if (parser.token->token_type == L_ASSIGN) {
             var_init();
             get_next_token();
-            if (parser.token.token_type == L_FUNCID) {
+            if (parser.token->token_type == L_FUNCID) {
                 check_func_id(false);
                 get_token_consume_token(L_LPAR,
                                         "missing left paren in function call");
@@ -485,36 +488,36 @@ bool statement() {
                     generate_func_call(parser.global_symtable_data->name);
                 }
                 if (parser.in_function) {
-                    generate_local_assignment(tmp_var.string);
+                    generate_local_assignment(&tmp_var.string);
                 } else {
-                    generate_global_assignment(tmp_var.string);
+                    generate_global_assignment(&tmp_var.string);
                 }
                 get_next_token();
                 statement();
                 return true;
             } else {
-                expression_parser(&parser.token, true);
+                expression_parser(parser.token, true);
                 if (parser.in_function) {
-                    generate_exp_local_assignment(tmp_var.string);
+                    generate_exp_local_assignment(&tmp_var.string);
                 } else {
-                    generate_exp_global_assignment(tmp_var.string);
+                    generate_exp_global_assignment(&tmp_var.string);
                 }
             }
         } else {
             if (!check_token_type(L_SEMICOL))
                 expression_parser(&tmp_var, true);
             else if (parser.in_function)
-                generate_one_operand(tmp_var, parser.in_function,
+                generate_one_operand(&tmp_var, parser.in_function,
                                      parser.local_symtable);
             else
-                generate_one_operand(tmp_var, parser.in_function,
+                generate_one_operand(&tmp_var, parser.in_function,
                                      parser.global_symtable);
         }
         get_next_token();
         statement();
         return true;
     }
-    if (parser.token.token_type == L_FUNCID) {
+    if (parser.token->token_type == L_FUNCID) {
         check_func_id(false);
         get_token_consume_token(L_LPAR, "missing left paren in function call");
         generate_tmp_frame();
@@ -536,11 +539,11 @@ bool statement() {
         statement();
         return true;
     }
-    if (parser.token.token_type == K_IF) {
+    if (parser.token->token_type == K_IF) {
         int if_scope = parser.scope + 1;
         parser.scope++;
         get_token_consume_token(L_LPAR, "missing left paren in if statement");
-        expression_parser(&parser.token, false);
+        expression_parser(parser.token, false);
         // consume_token(L_RPAR, "missing right paren in if statement");
         generate_if_then(if_scope);
         // consume_token(L_LCURL, "missing left curl bracket in if statement");
@@ -559,14 +562,14 @@ bool statement() {
         statement();
         return true;
     }
-    if (parser.token.token_type == K_WHILE) {
+    if (parser.token->token_type == K_WHILE) {
         parser.in_while = true;
         int while_scope = parser.scope + 1;
         parser.scope++;
         get_token_consume_token(L_LPAR,
                                 "missing left paren in while statement");
         generate_while_start(while_scope);
-        expression_parser(&parser.token, false);
+        expression_parser(parser.token, false);
         // get_token_consume_token(L_RPAR,
         //                         "missing right paren in while statement");
         generate_while_condition(while_scope);
@@ -584,7 +587,7 @@ bool statement() {
         statement();
         return true;
     }
-    if (parser.token.token_type == K_RETURN) {
+    if (parser.token->token_type == K_RETURN) {
         if (parser.in_function) {
             if (parser.declared_function->func_data.ret_type == RETTYPE_VOID) {
                 get_next_token();
@@ -600,13 +603,13 @@ bool statement() {
                         6, "return empty expression in non void function");
                 }
                 parser.declared_function->func_data.returned = true;
-                expression_parser(&parser.token, true);
+                expression_parser(parser.token, true);
                 generate_return(parser.declared_function->name, false);
             }
         } else {
             get_next_token();
             if (!check_token_type(L_SEMICOL)) {
-                expression_parser(&parser.token, true);
+                expression_parser(parser.token, true);
             }
             generate_exit_program();
         }
@@ -617,7 +620,7 @@ bool statement() {
     if (!check_token_type(L_SEMICOL) &&
         (check_token_type(L_NUMBER) || check_token_type(L_STRING) ||
          check_token_type(L_FLOAT))) {
-        expression_parser(&parser.token, true);
+        expression_parser(parser.token, true);
         get_next_token();
         statement();
         return true;
@@ -629,7 +632,7 @@ bool statement() {
 // <type> rule
 bool type() {
     // ?type (int, string, float)
-    if (parser.token.token_type == L_VARPREF) {
+    if (parser.token->token_type == L_VARPREF) {
         parser.local_symtable_data->var_data.optional_type = true;
         get_next_token();
         if (check_param_types()) {
@@ -651,7 +654,7 @@ bool type() {
 // <return_type> rule
 bool return_type() {
     // ?return_type (int, string, float, void)
-    if (parser.token.token_type == L_VARPREF) {
+    if (parser.token->token_type == L_VARPREF) {
         parser.global_symtable_data->func_data.optional_ret_type = true;
         get_next_token();
         if (check_return_type()) {
@@ -682,21 +685,21 @@ bool next_parameter() {
                                 "in function declaration");
         // add variable to symtable and add param to function declaration
         parser.local_symtable_data->var_data.init = true;
-        parser.local_symtable_data->name = parser.token.string;
+        parser.local_symtable_data->name = parser.token->string;
         parser.local_symtable_data->type = ID_VAR;
-        htab_insert_update(parser.local_symtable, parser.token.string,
+        htab_insert_update(parser.local_symtable, parser.token->string,
                            parser.local_symtable_data);
 
         if (parser.func_check == false) {
             parser.global_symtable_data->func_data.param_count++;
             generate_func_param(
-                htab_search(parser.local_symtable, parser.token.string),
+                htab_search(parser.local_symtable, parser.token->string),
                 parser.global_symtable_data->func_data.param_count,
                 param_scope);
         } else {
             parser.param_counter++;
             generate_func_param(
-                htab_search(parser.local_symtable, parser.token.string),
+                htab_search(parser.local_symtable, parser.token->string),
                 parser.param_counter, param_scope);
         }
 
@@ -721,22 +724,22 @@ bool list_params() {
 
             // add param variable to local symtable
             parser.local_symtable_data->var_data.init = true;
-            parser.local_symtable_data->name = parser.token.string;
+            parser.local_symtable_data->name = parser.token->string;
             parser.local_symtable_data->type = ID_VAR;
-            htab_insert_update(parser.local_symtable, parser.token.string,
+            htab_insert_update(parser.local_symtable, parser.token->string,
                                parser.local_symtable_data);
 
             // checking param count
             if (parser.func_check == false) {
                 parser.global_symtable_data->func_data.param_count++;
                 generate_func_param(
-                    htab_search(parser.local_symtable, parser.token.string),
+                    htab_search(parser.local_symtable, parser.token->string),
                     parser.global_symtable_data->func_data.param_count,
                     param_scope);
             } else {
                 parser.param_counter++;
                 generate_func_param(
-                    htab_search(parser.local_symtable, parser.token.string),
+                    htab_search(parser.local_symtable, parser.token->string),
                     parser.param_counter, param_scope);
             }
 
@@ -756,8 +759,8 @@ bool program() {
     parser.in_while = false;
     parser.in_function = false;
     parser.local_symtable = htab_init(10);
-    if (parser.token.token_type == LEOF ||
-        parser.token.token_type == L_PHPEND) {
+    if (parser.token->token_type == LEOF ||
+        parser.token->token_type == L_PHPEND) {
         // check if all functions are defined
         // ht_print_table(parser.global_symtable, "TEST");
         generate_func_declaration(parser.global_symtable, "main", false);
@@ -765,7 +768,7 @@ bool program() {
         htab_free(parser.local_symtable);
         return true;
     }
-    if (parser.token.token_type == K_FUNCTION) {
+    if (parser.token->token_type == K_FUNCTION) {
         parser.in_function = true;
         int function_scope = parser.scope;
         get_token_consume_token(L_FUNCID,
@@ -829,7 +832,7 @@ bool program() {
 
 // <prolog> rule
 bool prolog() {
-    if (parser.token.token_type == L_PHPSTART) {
+    if (parser.token->token_type == L_PHPSTART) {
         get_token_consume_token(K_DECLARE, "missing declare after php head");
         get_token_consume_token(L_LPAR,
                                 "missing left paren if strict type declare");
@@ -838,7 +841,7 @@ bool prolog() {
         get_token_consume_token(L_ASSIGN, "missing assignment to strict_types");
         get_token_consume_token(
             L_NUMBER, "value assigned to strict_types must be integer");
-        if (parser.token.val != 1) {
+        if (parser.token->val != 1) {
             exit_program(2, "strict_type muset be set to 1");
         }
         get_token_consume_token(L_RPAR,

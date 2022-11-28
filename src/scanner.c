@@ -161,11 +161,13 @@ void print_lex(token_t token) {
 }
 
 int return_digit(char* token) {
-    return atoi(token);
+    int i = atoi(token);
+    return i;
 }
 
 double return_float(char* token) {
-    return atof(token);
+    double i = atof(token);
+    return i;
 }
 
 char* escape_sequence_parser(char* str) {
@@ -530,68 +532,97 @@ TODO:
 - sending tokens to syntax analyzer
 */
 token_t create_lex(States final, char* token) {
+    token_t tmp_token = {0};
     switch (final) {
         case PHPEND2:
-            return (token_t){.token_type = L_PHPEND};
+            tmp_token = (token_t){.token_type = L_PHPEND};
+            break;
         case LPAR:
-            return (token_t){.token_type = L_LPAR};
+            tmp_token = (token_t){.token_type = L_LPAR};
+            break;
         case PHPSTART5:
-            return (token_t){.token_type = L_PHPSTART};
+            tmp_token = (token_t){.token_type = L_PHPSTART};
+            break;
         case RPAR:
-            return (token_t){.token_type = L_RPAR};
+            tmp_token = (token_t){.token_type = L_RPAR};
+            break;
         case COMMA:
-            return (token_t){.token_type = L_COMMA};
+            tmp_token = (token_t){.token_type = L_COMMA};
+            break;
         case DOT:
-            return (token_t){.token_type = L_DOT};
+            tmp_token = (token_t){.token_type = L_DOT};
+            break;
         case LCURL:
-            return (token_t){.token_type = L_LCURL};
+            tmp_token = (token_t){.token_type = L_LCURL};
+            break;
         case RCURL:
-            return (token_t){.token_type = L_RCURL};
+            tmp_token = (token_t){.token_type = L_RCURL};
+            break;
         case SEMICOLON:
-            return (token_t){.token_type = L_SEMICOL};
+            tmp_token = (token_t){.token_type = L_SEMICOL};
+            break;
         case COLON:
-            return (token_t){.token_type = L_COLON};
+            tmp_token = (token_t){.token_type = L_COLON};
+            break;
         case MUL:
-            return (token_t){.token_type = L_MUL};
+            tmp_token = (token_t){.token_type = L_MUL};
+            break;
         case SLASH:
-            return (token_t){.token_type = L_SLASH};
+            tmp_token = (token_t){.token_type = L_SLASH};
+            break;
         case PLUS:
-            return (token_t){.token_type = L_PLUS};
+            tmp_token = (token_t){.token_type = L_PLUS};
+            break;
         case DASH:
-            return (token_t){.token_type = L_DASH};
+            tmp_token = (token_t){.token_type = L_DASH};
+            break;
         case STRING_LIT_END:
-            return (token_t){.token_type = L_STRING,
-                             .string = escape_sequence_parser(token)};
+            tmp_token = (token_t){.token_type = L_STRING,
+                                  .string = escape_sequence_parser(token)};
+            break;
         case EXP_2:
-            return (token_t){.token_type = L_EXP,
-                             .float_val = return_float(token)};
+            tmp_token = (token_t){.token_type = L_EXP,
+                                  .float_val = return_float(token)};
+            break;
         case ID1:
             // call function for decision between funcid, keyword or type id
-            return isKeyword(token);
+            tmp_token = isKeyword(token);
+            break;
         case VARID:
-            return (token_t){.token_type = L_VARID, .string = token};
+            tmp_token = (token_t){.token_type = L_VARID, .string = token};
+            break;
         case NUMBER:
-            return (token_t){.token_type = L_NUMBER,
-                             .val = return_digit(token)};
+            tmp_token =
+                (token_t){.token_type = L_NUMBER, .val = return_digit(token)};
+            break;
         case EQ1:
-            return (token_t){.token_type = L_ASSIGN};
+            tmp_token = (token_t){.token_type = L_ASSIGN};
+            break;
         case EQ3:
-            return (token_t){.token_type = L_EQ};
+            tmp_token = (token_t){.token_type = L_EQ};
+            break;
         case NEQ3:
-            return (token_t){.token_type = L_NEQ};
+            tmp_token = (token_t){.token_type = L_NEQ};
+            break;
         case LESSEQ:
-            return (token_t){.token_type = L_LESSEQ};
+            tmp_token = (token_t){.token_type = L_LESSEQ};
+            break;
         case GREATEREQ:
-            return (token_t){.token_type = L_GREATEREQ};
+            tmp_token = (token_t){.token_type = L_GREATEREQ};
+            break;
         case PHPSTART:
-            return (token_t){.token_type = L_LESS};
+            tmp_token = (token_t){.token_type = L_LESS};
+            break;
         case GREATER:
-            return (token_t){.token_type = L_GREATER};
+            tmp_token = (token_t){.token_type = L_GREATER};
+            break;
         case FLOAT2:
-            return (token_t){.token_type = L_FLOAT,
-                             .float_val = return_float(token)};
+            tmp_token = (token_t){.token_type = L_FLOAT,
+                                  .float_val = return_float(token)};
+            break;
         case PHPEND:
-            return (token_t){.token_type = L_VARPREF};
+            tmp_token = (token_t){.token_type = L_VARPREF};
+            break;
         case TOKEN_END:
             free(token);
             exit_program(1, "wrong token");
@@ -602,7 +633,7 @@ token_t create_lex(States final, char* token) {
             exit_program(1, "undefined lexeme");
             break;
     }
-    return (token_t){0};
+    return tmp_token;
 }
 
 token_t get_token_data(scanner_t scan) {
@@ -654,14 +685,11 @@ token_t get_token_data(scanner_t scan) {
     }
 }
 
-token_t get_lex_value() {
+token_t* get_lex_value() {
     scanner_t scan = {0};
     token_t* token = malloc(sizeof(token_t));
 
     *token = get_token_data(scan);
 
-    token_t tmp_token = *token;
-    free(token->string);
-    free(token);
-    return tmp_token;
+    return token;
 }
