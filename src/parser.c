@@ -20,6 +20,8 @@ Parser parser;
 void get_next_token() {
     token_t* tmp_token = parser.token;
     parser.token = get_lex_value();
+    if (parser.token != NULL && parser.token->string != NULL)
+        free(tmp_token->string);
     free(tmp_token);
 }
 
@@ -152,6 +154,7 @@ void load_builtin_funcs() {
                                             .param_count = 1,
                                             .ret_type = RETTYPE_STRING}};
     add_builtin_func(data, "chr");
+    ht_print_table(parser.global_symtable, "GLOBAL");
 }
 
 void create_new_local_data() {
@@ -190,6 +193,7 @@ bool check_param_types() {
 }
 
 void check_func_id(bool def_check) {
+    printf("function: %s", parser.token->string);
     htab_item_t* tmp_item =
         htab_search(parser.global_symtable, parser.token->string);
 

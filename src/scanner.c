@@ -636,18 +636,18 @@ token_t create_lex(States final, char* token) {
     return tmp_token;
 }
 
-token_t get_token_data(scanner_t scan) {
+token_t get_token_data(scanner_t* scan) {
     // tmp, move to main and pass as argument
     States now = START;
-    scan.tokenmem = 100;
-    scan.usedmem = 0;
-    scan.token =
-        (char*)calloc(scan.tokenmem, sizeof(char*));  // tmp, create fnc
+    scan->tokenmem = 100;
+    scan->usedmem = 0;
+    scan->token =
+        (char*)calloc(scan->tokenmem, sizeof(char*));  // tmp, create fnc
     char edge = ' ';
     int idx = 0;
     while (true) {
         if (edge == '\n')
-            scan.line_num++;
+            scan->line_num++;
         edge = getchar();
         if (edge == EOF) {
             if (now == START) {
@@ -658,24 +658,24 @@ token_t get_token_data(scanner_t scan) {
         States next = FSM(now, edge);
         if (next == TOKEN_END) {
             ungetc(edge, stdin);
-            scan.token[idx++] = '\0';
+            scan->token[idx++] = '\0';
             if (!err_flag) {
-                return create_lex(now, scan.token);
+                return create_lex(now, scan->token);
 
             } else {
-                token_free(scan.token);
+                token_free(scan->token);
                 exit_program(1, "wrong token");
                 err_flag = 0;
                 next = START;
             }
         }
-        scan.token[idx] = edge;
+        scan->token[idx] = edge;
         idx++;
-        scan.usedmem++;
-        if (scan.usedmem >= (scan.tokenmem * 0.9)) {
-            scan.tokenmem = scan.tokenmem * 2;
-            scan.token = (char*)realloc(scan.token, scan.tokenmem);
-            scan.usedmem = 0;
+        scan->usedmem++;
+        if (scan->usedmem >= (scan->tokenmem * 0.9)) {
+            scan->tokenmem = scan->tokenmem * 2;
+            scan->token = (char*)realloc(scan->token, scan->tokenmem);
+            scan->usedmem = 0;
         }
 
         if (next == START) {
@@ -686,13 +686,13 @@ token_t get_token_data(scanner_t scan) {
 }
 
 token_t* get_lex_value() {
-    scanner_t scan = {0};
+    scanner_t* scan = (scanner_t*)malloc(sizeof(scanner_t));
     token_t* token = malloc(sizeof(token_t));
 
     *token = get_token_data(scan);
 
-    if (scan.token != 0) {
-        free(scan.token);
+    if (scan != NULL) {
+        free(scan);
     }
 
     return token;
