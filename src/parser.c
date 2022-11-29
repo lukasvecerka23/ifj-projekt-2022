@@ -42,10 +42,10 @@ bool check_token_type(token_type token_type) {
 }
 
 void clear_and_exit_program(int err_code, char* msg) {
-    if (parser.in_function)
+    if (parser.in_function && !parser.local_symtable)
         htab_clear(parser.local_symtable);
-    htab_clear(parser.global_symtable);
-    free(parser.token);
+    if (!parser.global_symtable)
+        htab_clear(parser.global_symtable);
     exit_program(err_code, msg);
 }
 
