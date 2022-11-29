@@ -494,6 +494,7 @@ void generate_builtin_func() {
     printf("JUMPIFNEQ $substring$null LF@$tmp bool@true\n");
     printf("GT LF@$tmp LF@param_j LF@$stringlen\n");
     printf("JUMPIFEQ $substring$null LF@$tmp bool@true\n");
+    printf("JUMPIFEQ $givenstring$null LF@param_j LF@param_i\n");
 
     printf("DEFVAR LF@$var1\n");
     printf("DEFVAR LF@$var2\n");
