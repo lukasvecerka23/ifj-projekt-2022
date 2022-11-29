@@ -168,7 +168,7 @@ double return_float(char* token) {
 
 char* escape_sequence_parser(char* str) {
     unsigned long long i = 0;
-    char* tmp = malloc(sizeof(char) * (strlen(str) + 1));
+    char* tmp = malloc(sizeof(char) * (strlen(str) * 2));
     unsigned long long j = 0;
     for (i, j = 0; str[i] != '\0'; i++, j++) {
         if (str[i] == '$') {  // error
@@ -194,7 +194,10 @@ char* escape_sequence_parser(char* str) {
                 continue;
             }
             if (str[i] == '\\') {
-                tmp[j] = '\\';
+                // tmp[j] = '\\';
+                // tmp[j++] = '0';
+                // tmp[j++] = '4';
+                // tmp[j++] = '7';
                 continue;
             }
             if (str[i] == '"') {
