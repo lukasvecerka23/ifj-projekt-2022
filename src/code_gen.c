@@ -49,7 +49,7 @@ char* formate_string(char* string) {
     bool skip = true;
     char escape_seq[10];
     for (int i = 0; (c = string[i]) != '\0'; i++) {
-        if (c == '#' || c <= 32 || c == '\\') {
+        if (c == '#' || c <= 32 || (c == '\\' && string[i + 1] != '0')) {
             string_add_char(tmp_string, '\\');
             sprintf(escape_seq, "%03d", c);
             string_add_string(tmp_string, escape_seq);
