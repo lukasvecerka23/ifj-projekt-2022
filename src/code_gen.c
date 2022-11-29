@@ -48,9 +48,8 @@ char* formate_string(char* string) {
     char c;
     bool skip = true;
     char escape_seq[10];
-
     for (int i = 0; (c = string[i]) != '\0'; i++) {
-        if (c == '#' || c == '\\' || c <= 32) {
+        if (c == '#' || c <= 32 || (c == '\\' && !isdigit(string[i + 1]))) {
             string_add_char(tmp_string, '\\');
             sprintf(escape_seq, "%03d", c);
             string_add_string(tmp_string, escape_seq);
@@ -701,14 +700,19 @@ void generate_one_operand(token_t* token, bool in_func, htab_t* table) {
     }
 }
 
-void generate_ast(ast_node_t* current, bool in_function, htab_t* table) {
+void generate_ast(ast_node_t* current,
+                  bool in_function,
+                  htab_t* table,
+                  int* scope) {
     char* tmp_string;
     if (current == NULL) {
         return;
     }
     // printf("token_type: %d\n", current->token->token_type);
-    generate_ast(current->left, in_function, table);
-    generate_ast(current->right, in_function, table);
+    generate_ast(current->left, in_function, table, scope);
+    *scope = *scope + 1;
+    generate_ast(current->right, in_function, table, scope);
+    *scope = *scope + 1;
 
     switch (current->token->token_type) {
         case L_DOT:
@@ -727,29 +731,161 @@ void generate_ast(ast_node_t* current, bool in_function, htab_t* table) {
         case L_MUL:
             printf("POPS GF@exp_tmp1\n");
             printf("POPS GF@exp_tmp2\n");
+            printf("TYPE GF@exp_type1 GF@exp_tmp1\n");
+            printf("TYPE GF@exp_type2 GF@exp_tmp2\n");
+            // tmp1 check
+            printf("JUMPIFEQ $type1_nil%d GF@exp_type1 string@nil\n", *scope);
+            printf("JUMPIFEQ $ERROR_SEM_OP_TYPES GF@exp_type1 string@bool\n");
+            printf("JUMPIFEQ $ERROR_SEM_OP_TYPES GF@exp_type1 string@string\n");
+            printf("JUMP $type1_over%d\n", *scope);
+            printf("LABEL $type1_nil%d\n", *scope);
+            printf("PUSHS int@0\n");
+            printf("POPS GF@exp_tmp1\n");
+            printf("TYPE GF@exp_type1 GF@exp_tmp1\n");
+            printf("LABEL $type1_over%d\n", *scope);
+            // tmp2 check
+            printf("JUMPIFEQ $type2_nil%d GF@exp_type2 string@nil\n", *scope);
+            printf("JUMPIFEQ $ERROR_SEM_OP_TYPES GF@exp_type2 string@bool\n");
+            printf("JUMPIFEQ $ERROR_SEM_OP_TYPES GF@exp_type2 string@string\n");
+            printf("JUMP $type2_over%d\n", *scope);
+            printf("LABEL $type2_nil%d\n", *scope);
+            printf("PUSHS int@0\n");
+            printf("POPS GF@exp_tmp2\n");
+            printf("TYPE GF@exp_type2 GF@exp_tmp2\n");
+            printf("LABEL $type2_over%d\n", *scope);
+            // both are int or float
+            printf("JUMPIFEQ $types_same%d GF@exp_type1 GF@exp_type2\n",
+                   *scope);
+            // are different
+            printf("JUMPIFEQ $type1_change%d GF@exp_type1 string@int\n",
+                   *scope);
+            printf("INT2FLOAT GF@exp_tmp2 GF@exp_tmp2\n");
+            printf("JUMP $types_same%d\n", *scope);
+            printf("LABEL $type1_change%d\n", *scope);
+            printf("INT2FLOAT GF@exp_tmp1 GF@exp_tmp1\n");
+
+            printf("LABEL $types_same%d\n", *scope);
             printf("MUL GF@tmp_var GF@exp_tmp2 GF@exp_tmp1\n");
             printf("PUSHS GF@tmp_var\n");
             break;
         case L_SLASH:
+            printf("# DIV\n");
             printf("POPS GF@exp_tmp1\n");
             printf("POPS GF@exp_tmp2\n");
-            // printf("TYPE GF@exp_type1 GF@exp_tmp1\n");
-            // printf("TYPE GF@exp_type2 GF@exp_tmp2\n");
-            // printf("JUMPIFEQ $type1_to_float%d GF@exp_type1 string@int\n",
-            // *cnt); printf("JUMPIFNEQ $ERROR_SEM_OP_TYPES GF@exp_type1
-            // string@float\n");
+            printf("TYPE GF@exp_type1 GF@exp_tmp1\n");
+            printf("TYPE GF@exp_type2 GF@exp_tmp2\n");
+            // tmp1 check
+            printf("JUMPIFEQ $type1_nil%d GF@exp_type1 string@nil\n", *scope);
+            printf("JUMPIFEQ $ERROR_SEM_OP_TYPES GF@exp_type1 string@bool\n");
+            printf("JUMPIFEQ $ERROR_SEM_OP_TYPES GF@exp_type1 string@string\n");
+            printf("JUMP $type1_over%d\n", *scope);
+            printf("LABEL $type1_nil%d\n", *scope);
+            printf("PUSHS int@0\n");
+            printf("POPS GF@exp_tmp1\n");
+            printf("TYPE GF@exp_type1 GF@exp_tmp1\n");
+            printf("LABEL $type1_over%d\n", *scope);
+            // tmp2 check
+            printf("JUMPIFEQ $type2_nil%d GF@exp_type2 string@nil\n", *scope);
+            printf("JUMPIFEQ $ERROR_SEM_OP_TYPES GF@exp_type2 string@bool\n");
+            printf("JUMPIFEQ $ERROR_SEM_OP_TYPES GF@exp_type2 string@string\n");
+            printf("JUMP $type2_over%d\n", *scope);
+            printf("LABEL $type2_nil%d\n", *scope);
+            printf("PUSHS int@0\n");
+            printf("POPS GF@exp_tmp2\n");
+            printf("TYPE GF@exp_type2 GF@exp_tmp2\n");
+            printf("LABEL $type2_over%d\n", *scope);
+            // both are int or float
+            printf("JUMPIFEQ $types_same%d GF@exp_type1 GF@exp_type2\n",
+                   *scope);
+            // are different
+            printf("JUMPIFEQ $type1_change%d GF@exp_type1 string@int\n",
+                   *scope);
+            printf("INT2FLOAT GF@exp_tmp2 GF@exp_tmp2\n");
+            printf("JUMP $types_same%d\n", *scope);
+            printf("LABEL $type1_change%d\n", *scope);
+            printf("INT2FLOAT GF@exp_tmp1 GF@exp_tmp1\n");
+
+            printf("LABEL $types_same%d\n", *scope);
             printf("DIV GF@tmp_var GF@exp_tmp2 GF@exp_tmp1\n");
             printf("PUSHS GF@tmp_var\n");
             break;
         case L_PLUS:
             printf("POPS GF@exp_tmp1\n");
             printf("POPS GF@exp_tmp2\n");
+            printf("TYPE GF@exp_type1 GF@exp_tmp1\n");
+            printf("TYPE GF@exp_type2 GF@exp_tmp2\n");
+            // tmp1 check
+            printf("JUMPIFEQ $type1_nil%d GF@exp_type1 string@nil\n", *scope);
+            printf("JUMPIFEQ $ERROR_SEM_OP_TYPES GF@exp_type1 string@bool\n");
+            printf("JUMPIFEQ $ERROR_SEM_OP_TYPES GF@exp_type1 string@string\n");
+            printf("JUMP $type1_over%d\n", *scope);
+            printf("LABEL $type1_nil%d\n", *scope);
+            printf("PUSHS int@0\n");
+            printf("POPS GF@exp_tmp1\n");
+            printf("TYPE GF@exp_type1 GF@exp_tmp1\n");
+            printf("LABEL $type1_over%d\n", *scope);
+            // tmp2 check
+            printf("JUMPIFEQ $type2_nil%d GF@exp_type2 string@nil\n", *scope);
+            printf("JUMPIFEQ $ERROR_SEM_OP_TYPES GF@exp_type2 string@bool\n");
+            printf("JUMPIFEQ $ERROR_SEM_OP_TYPES GF@exp_type2 string@string\n");
+            printf("JUMP $type2_over%d\n", *scope);
+            printf("LABEL $type2_nil%d\n", *scope);
+            printf("PUSHS int@0\n");
+            printf("POPS GF@exp_tmp2\n");
+            printf("TYPE GF@exp_type2 GF@exp_tmp2\n");
+            printf("LABEL $type2_over%d\n", *scope);
+            // both are int or float
+            printf("JUMPIFEQ $types_same%d GF@exp_type1 GF@exp_type2\n",
+                   *scope);
+            // are different
+            printf("JUMPIFEQ $type1_change%d GF@exp_type1 string@int\n",
+                   *scope);
+            printf("INT2FLOAT GF@exp_tmp2 GF@exp_tmp2\n");
+            printf("JUMP $types_same%d\n", *scope);
+            printf("LABEL $type1_change%d\n", *scope);
+            printf("INT2FLOAT GF@exp_tmp1 GF@exp_tmp1\n");
+
+            printf("LABEL $types_same%d\n", *scope);
             printf("ADD GF@tmp_var GF@exp_tmp2 GF@exp_tmp1\n");
             printf("PUSHS GF@tmp_var\n");
             break;
         case L_DASH:
             printf("POPS GF@exp_tmp1\n");
             printf("POPS GF@exp_tmp2\n");
+            printf("TYPE GF@exp_type1 GF@exp_tmp1\n");
+            printf("TYPE GF@exp_type2 GF@exp_tmp2\n");
+            // tmp1 check
+            printf("JUMPIFEQ $type1_nil%d GF@exp_type1 string@nil\n", *scope);
+            printf("JUMPIFEQ $ERROR_SEM_OP_TYPES GF@exp_type1 string@bool\n");
+            printf("JUMPIFEQ $ERROR_SEM_OP_TYPES GF@exp_type1 string@string\n");
+            printf("JUMP $type1_over%d\n", *scope);
+            printf("LABEL $type1_nil%d\n", *scope);
+            printf("PUSHS int@0\n");
+            printf("POPS GF@exp_tmp1\n");
+            printf("TYPE GF@exp_type1 GF@exp_tmp1\n");
+            printf("LABEL $type1_over%d\n", *scope);
+            // tmp2 check
+            printf("JUMPIFEQ $type2_nil%d GF@exp_type2 string@nil\n", *scope);
+            printf("JUMPIFEQ $ERROR_SEM_OP_TYPES GF@exp_type2 string@bool\n");
+            printf("JUMPIFEQ $ERROR_SEM_OP_TYPES GF@exp_type2 string@string\n");
+            printf("JUMP $type2_over%d\n", *scope);
+            printf("LABEL $type2_nil%d\n", *scope);
+            printf("PUSHS int@0\n");
+            printf("POPS GF@exp_tmp2\n");
+            printf("TYPE GF@exp_type2 GF@exp_tmp2\n");
+            printf("LABEL $type2_over%d\n", *scope);
+            // both are int or float
+            printf("JUMPIFEQ $types_same%d GF@exp_type1 GF@exp_type2\n",
+                   *scope);
+            // are different
+            printf("JUMPIFEQ $type1_change%d GF@exp_type1 string@int\n",
+                   *scope);
+            printf("INT2FLOAT GF@exp_tmp2 GF@exp_tmp2\n");
+            printf("JUMP $types_same%d\n", *scope);
+            printf("LABEL $type1_change%d\n", *scope);
+            printf("INT2FLOAT GF@exp_tmp1 GF@exp_tmp1\n");
+
+            printf("LABEL $types_same%d\n", *scope);
             printf("SUB GF@tmp_var GF@exp_tmp2 GF@exp_tmp1\n");
             printf("PUSHS GF@tmp_var\n");
             break;
