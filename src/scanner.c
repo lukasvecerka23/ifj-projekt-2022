@@ -8,9 +8,6 @@ Description: --
 #include <string.h>
 #include "error.h"
 
-/*
-just for testing
-*/
 int err_flag = 0;
 
 void token_free(char* token) {
@@ -18,7 +15,6 @@ void token_free(char* token) {
     if (token != NULL) {
         free(token);
     }
-    // free(token);
 }
 
 void print_lex(token_t* token) {
@@ -223,6 +219,8 @@ char* escape_sequence_parser(char* str) {
                 } else {
                     char buffer[3];
                     sprintf(buffer, "%d", num);  // convert dec num to str form.
+                    tmp[j++] = '\\';
+                    tmp[j++] = '0';
                     for (int l = 0; buffer[l] != '\0'; l++) {
                         tmp[j++] = buffer[l];  // load dec number to tmp
                     }
@@ -250,6 +248,8 @@ char* escape_sequence_parser(char* str) {
                 } else {
                     char buffer_dec[4];
                     sprintf(buffer_dec, "%d", num);
+                    tmp[j++] = '\\';
+                    tmp[j++] = '0';
                     for (int l = 0; buffer_dec[l] != '\0'; l++) {
                         tmp[j++] = buffer_dec[l];
                         // printf("c: %c\n", tmp[j]);
@@ -509,7 +509,7 @@ States FSM(States curr_state, char edge) {
             err_flag = 1;
             return TOKEN_END;
         case ID1:
-            if (isalpha(edge) || edge == '_')
+            if (isalnum(edge) || edge == '_')  // changes from isalpha()
                 return ID1;
             return TOKEN_END;
         // case ID2:
@@ -639,7 +639,7 @@ token_t create_lex(States final, char* token) {
 token_t get_token_data(scanner_t* scan) {
     // tmp, move to main and pass as argument
     States now = START;
-    scan->tokenmem = 100;
+    scan->tokenmem = 5;
     scan->usedmem = 0;
     scan->token =
         (char*)calloc(scan->tokenmem, sizeof(char*));  // tmp, create fnc
@@ -675,7 +675,12 @@ token_t get_token_data(scanner_t* scan) {
         if (scan->usedmem >= (scan->tokenmem * 0.9)) {
             scan->tokenmem = scan->tokenmem * 2;
             scan->token = (char*)realloc(scan->token, scan->tokenmem);
-            scan->usedmem = 0;
+            if (scan->token == NULL) {
+                fprintf(stderr,
+                        "realloc memory allocation fail (I am in scanner if "
+                        "you want to delete me\n");
+            }
+            // scan->usedmem = 0;
         }
 
         if (next == START) {
