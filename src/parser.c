@@ -299,14 +299,11 @@ void expression_parser(token_t* token, bool is_cond) {
                 generate_ast(new_tree, parser.in_function,
                              parser.global_symtable, &parser.scope);
             }
-            // ast_dispose(new_tree);
             break;
         case 2:
-            ast_dispose(new_tree);
             clear_and_exit_program(2, "syntax error in expression parser");
             break;
         case 5:
-            ast_dispose(new_tree);
             clear_and_exit_program(5, "undefinded variable in expression");
             break;
     }
@@ -629,9 +626,8 @@ bool statement() {
         statement();
         return true;
     }
-    if (/*!check_token_type(L_SEMICOL) &&*/
-        (check_token_type(L_NUMBER) || check_token_type(L_STRING) ||
-         check_token_type(L_FLOAT))) {
+    if (check_token_type(L_NUMBER) || check_token_type(L_STRING) ||
+        check_token_type(L_FLOAT) || check_token_type(L_LPAR)) {
         expression_parser(parser.token, true);
         get_next_token();
         statement();
