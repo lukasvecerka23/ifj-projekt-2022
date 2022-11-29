@@ -720,10 +720,22 @@ void generate_ast(ast_node_t* current,
             printf("POPS GF@exp_tmp2\n");
             printf("TYPE GF@exp_type1 GF@exp_tmp1\n");
             printf("TYPE GF@exp_type2 GF@exp_tmp2\n");
-            printf(
-                "JUMPIFNEQ $ERROR_SEM_OP_TYPES GF@exp_type1 string@string\n");
-            printf(
-                "JUMPIFNEQ $ERROR_SEM_OP_TYPES GF@exp_type2 string@string\n");
+            // tmp1 check
+            printf("JUMPIFEQ $ERROR_SEM_OP_TYPES GF@exp_type1 string@int\n");
+            printf("JUMPIFEQ $ERROR_SEM_OP_TYPES GF@exp_type1 string@float\n");
+            printf("JUMPIFEQ $ERROR_SEM_OP_TYPES GF@exp_type1 string@bool\n");
+            printf("JUMPIFNEQ $type1_nil%d GF@exp_type1 string@nil\n", *scope);
+            printf("PUSHS string@\n");
+            printf("POPS GF@exp_tmp1\n");
+            printf("LABEL $type1_nil%d\n", *scope);
+            // tmp2 check
+            printf("JUMPIFEQ $ERROR_SEM_OP_TYPES GF@exp_type2 string@int\n");
+            printf("JUMPIFEQ $ERROR_SEM_OP_TYPES GF@exp_type2 string@float\n");
+            printf("JUMPIFEQ $ERROR_SEM_OP_TYPES GF@exp_type2 string@bool\n");
+            printf("JUMPIFNEQ $type2_nil%d GF@exp_type2 string@nil\n", *scope);
+            printf("PUSHS string@\n");
+            printf("POPS GF@exp_tmp2\n");
+            printf("LABEL $type2_nil%d\n", *scope);
 
             printf("CONCAT GF@tmp_var GF@exp_tmp2 GF@exp_tmp1\n");
             printf("PUSHS GF@tmp_var\n");
@@ -916,6 +928,7 @@ void generate_ast(ast_node_t* current,
         case L_LESS:
             printf("POPS GF@exp_tmp1\n");
             printf("POPS GF@exp_tmp2\n");
+
             printf("LT GF@tmp_var GF@exp_tmp2 GF@exp_tmp1\n");
             printf("PUSHS GF@tmp_var\n");
             break;
