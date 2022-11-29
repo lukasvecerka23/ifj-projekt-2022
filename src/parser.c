@@ -625,6 +625,10 @@ bool statement() {
         statement();
         return true;
     }
+    if (check_token_type(L_SEMICOL)) {
+        exit_program(2, "empty semicolon");
+    }
+
     // epsilon
     return true;
 }

@@ -22,9 +22,8 @@ void string_add_char(dynamic_string_t* string, char c) {
         string->string = (char*)realloc(string->string, string->stringmem);
         string->usedmem = 0;
     }
-    if (c != '"') {
-        string->string[string->usedmem++] = c;
-    }
+
+    string->string[string->usedmem++] = c;
     string->string[string->usedmem] = '\0';
 }
 
@@ -47,6 +46,7 @@ char* formate_string(char* string) {
     tmp_string->usedmem = 0;
     tmp_string->string = (char*)calloc(tmp_string->stringmem, sizeof(char*));
     char c;
+    bool skip = true;
     char escape_seq[10];
 
     for (int i = 0; (c = string[i]) != '\0'; i++) {
@@ -55,6 +55,10 @@ char* formate_string(char* string) {
             sprintf(escape_seq, "%03d", c);
             string_add_string(tmp_string, escape_seq);
         } else {
+            if ((c == '"' && skip) || string[i + 1] == '\0') {
+                skip = false;
+                continue;
+            }
             string_add_char(tmp_string, c);
         }
     }
