@@ -22,7 +22,7 @@ void get_next_token() {
 void consume_token(token_type token_type, char* err_msg) {
     if (parser.token->token_type != token_type) {
         htab_free(parser.global_symtable);
-        exit_program(2, err_msg);
+        clear_and_exit_program(2, err_msg);
     }
 }
 
@@ -30,7 +30,7 @@ void get_token_consume_token(token_type token_type, char* err_msg) {
     get_next_token();
     if (parser.token->token_type != token_type) {
         htab_free(parser.global_symtable);
-        exit_program(2, err_msg);
+        clear_and_exit_program(2, err_msg);
     }
 }
 
@@ -39,6 +39,14 @@ bool check_token_type(token_type token_type) {
         return true;
     }
     return false;
+}
+
+void clear_and_exit_program(int err_code, char* msg) {
+    if (parser.in_function && !parser.local_symtable)
+        htab_clear(parser.local_symtable);
+    if (!parser.global_symtable)
+        htab_clear(parser.global_symtable);
+    exit_program(err_code, msg);
 }
 
 void add_builtin_func(htab_item_data_t data, char* func_name) {
@@ -198,9 +206,10 @@ void check_func_id(bool def_check) {
             if (parser.in_function)
                 parser.global_symtable_data->func_data.defined = false;
             else
-                exit_program(3,
-                             "calling undefined function outside of function "
-                             "declaration");
+                clear_and_exit_program(
+                    3,
+                    "calling undefined function outside of function "
+                    "declaration");
         }
         parser.global_symtable_data->name = parser.token->string;
         parser.global_symtable_data->type = ID_FUNC;
@@ -222,7 +231,7 @@ void check_func_id(bool def_check) {
 
         if (def_check) {
             if (tmp_item->data->func_data.defined == true) {
-                exit_program(3, "redefinition of function");
+                clear_and_exit_program(3, "redefinition of function");
             }
             parser.global_symtable_data->func_data.defined = true;
         }
@@ -292,11 +301,11 @@ void expression_parser(token_t* token, bool is_cond) {
             break;
         case 2:
             ast_dispose(new_tree);
-            exit_program(2, "syntax error in expression parser");
+            clear_and_exit_program(2, "syntax error in expression parser");
             break;
         case 5:
             ast_dispose(new_tree);
-            exit_program(5, "undefinded variable in expression");
+            clear_and_exit_program(5, "undefinded variable in expression");
             break;
     }
 }
@@ -307,7 +316,7 @@ void check_func_return() {
             if (parser.declared_function->func_data.returned == false &&
                 parser.declared_function->func_data.optional_ret_type ==
                     false) {
-                exit_program(
+                clear_and_exit_program(
                     4, "missing return in function with required return type");
             }
             break;
@@ -315,7 +324,7 @@ void check_func_return() {
             if (parser.declared_function->func_data.returned == false &&
                 parser.declared_function->func_data.optional_ret_type ==
                     false) {
-                exit_program(
+                clear_and_exit_program(
                     4, "missing return in function with required return type");
             }
             break;
@@ -323,7 +332,7 @@ void check_func_return() {
             if (parser.declared_function->func_data.returned == false &&
                 parser.declared_function->func_data.optional_ret_type ==
                     false) {
-                exit_program(
+                clear_and_exit_program(
                     4, "missing return in function with required return type");
             }
             break;
@@ -360,8 +369,8 @@ bool term() {
         case L_VARID:
             if (parser.in_function) {
                 if (!htab_search(parser.local_symtable, parser.token->string)) {
-                    exit_program(5,
-                                 "undefined variable as function input param");
+                    clear_and_exit_program(
+                        5, "undefined variable as function input param");
                 }
                 if (strcmp(parser.global_symtable_data->name, "write") == 0) {
                     generate_local_var_func_param(parser.param_counter + 1,
@@ -372,8 +381,8 @@ bool term() {
             } else {
                 if (!htab_search(parser.global_symtable,
                                  parser.token->string)) {
-                    exit_program(5,
-                                 "undefined variable as function input param");
+                    clear_and_exit_program(
+                        5, "undefined variable as function input param");
                 }
                 if (strcmp(parser.global_symtable_data->name, "write") == 0) {
                     generate_global_var_func_param(parser.param_counter + 1,
@@ -415,7 +424,7 @@ bool term() {
                 generate_null_func_param(parser.param_counter + 1, false);
             return true;
         default:
-            exit_program(2, "wrong term in function call");
+            clear_and_exit_program(2, "wrong term in function call");
     }
     return false;
 }
@@ -476,7 +485,8 @@ bool statement() {
                 if (parser.func_check &&
                     parser.param_counter !=
                         parser.global_symtable_data->func_data.param_count) {
-                    exit_program(4, "wrong param count in function call");
+                    clear_and_exit_program(
+                        4, "wrong param count in function call");
                 }
 
                 consume_token(L_RPAR, "missing right paren in function call");
@@ -527,7 +537,7 @@ bool statement() {
         if (parser.func_check &&
             parser.param_counter !=
                 parser.global_symtable_data->func_data.param_count) {
-            exit_program(4, "wrong param count in function call");
+            clear_and_exit_program(4, "wrong param count in function call");
         }
 
         consume_token(L_RPAR, "missing right paren in function call");
@@ -592,14 +602,14 @@ bool statement() {
             if (parser.declared_function->func_data.ret_type == RETTYPE_VOID) {
                 get_next_token();
                 if (!check_token_type(L_SEMICOL)) {
-                    exit_program(6,
-                                 "return in void function contain expression");
+                    clear_and_exit_program(
+                        6, "return in void function contain expression");
                 }
                 generate_return(parser.declared_function->name, true);
             } else {
                 get_next_token();
                 if (check_token_type(L_SEMICOL)) {
-                    exit_program(
+                    clear_and_exit_program(
                         6, "return empty expression in non void function");
                 }
                 parser.declared_function->func_data.returned = true;
@@ -626,7 +636,7 @@ bool statement() {
         return true;
     }
     if (check_token_type(L_SEMICOL)) {
-        exit_program(2, "empty semicolon");
+        clear_and_exit_program(2, "empty semicolon");
     }
 
     // epsilon
@@ -642,15 +652,16 @@ bool type() {
         if (check_param_types()) {
             return true;
         } else {
-            exit_program(2,
-                         "wrong data type of argument in function declaration");
+            clear_and_exit_program(
+                2, "wrong data type of argument in function declaration");
         }
     }
     // type (int, string, float)
     if (check_param_types()) {
         return true;
     } else {
-        exit_program(2, "wrong data type of argument in function declaration");
+        clear_and_exit_program(
+            2, "wrong data type of argument in function declaration");
     }
     return false;
 }
@@ -664,14 +675,15 @@ bool return_type() {
         if (check_return_type()) {
             return true;
         } else {
-            exit_program(2, "wrong return type in function declaration");
+            clear_and_exit_program(2,
+                                   "wrong return type in function declaration");
         }
     }
     // return_type (int, string, float, void)
     if (check_return_type()) {
         return true;
     } else {
-        exit_program(2, "wrong return type in function declaration");
+        clear_and_exit_program(2, "wrong return type in function declaration");
     }
     return false;
 }
@@ -799,7 +811,7 @@ bool program() {
         if (parser.func_check &&
             parser.param_counter !=
                 parser.global_symtable_data->func_data.param_count) {
-            exit_program(4, "wrong param count in function call");
+            clear_and_exit_program(4, "wrong param count in function call");
         }
 
         consume_token(L_RPAR, "missing right paren in function declaration");
@@ -835,7 +847,7 @@ bool program() {
         return true;
     }
 
-    exit_program(2, "missing eof or php epilog");
+    clear_and_exit_program(2, "missing eof or php epilog");
 
     return false;
 }
@@ -852,7 +864,7 @@ bool prolog() {
         get_token_consume_token(
             L_NUMBER, "value assigned to strict_types must be integer");
         if (parser.token->val != 1) {
-            exit_program(2, "strict_type muset be set to 1");
+            clear_and_exit_program(2, "strict_type muset be set to 1");
         }
         get_token_consume_token(L_RPAR,
                                 "missing right paren in declare strict types");
@@ -865,7 +877,7 @@ bool prolog() {
         return true;
     }
     htab_free(parser.global_symtable);
-    exit_program(2, "missing php head and strict_types declaration");
+    clear_and_exit_program(2, "missing php head and strict_types declaration");
     return false;
 }
 

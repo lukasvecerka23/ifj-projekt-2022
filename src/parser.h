@@ -46,5 +46,6 @@ bool next_input_parameter();
 bool term();
 bool return_type();
 bool statement();
+void clear_and_exit_program(int err_code, char* msg);
 // void prolog();
 #endif
