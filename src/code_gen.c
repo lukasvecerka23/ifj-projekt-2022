@@ -671,7 +671,7 @@ void generate_one_operand(token_t* token, bool in_func, htab_t* table) {
     char* tmp_string;
     switch (token->token_type) {
         case L_NUMBER:
-            printf("MOVE GF@tmp_var int@%d\n", token->val);
+            printf("MOVE GF@tmp_var int@%lld\n", token->val);
             break;
         case L_STRING:
             tmp_string = formate_string(token->string);
@@ -702,16 +702,16 @@ void generate_one_operand(token_t* token, bool in_func, htab_t* table) {
 
 void generate_ast(ast_node_t* current,
                   bool in_function,
-                  htab_t* table, int scope,
+                  htab_t* table,
                   int* scope) {
     char* tmp_string;
     if (current == NULL) {
         return;
     }
     // printf("token_type: %d\n", current->token->token_type);
-    generate_ast(current->left, in_function, table, scope);
+    generate_ast(current->left, in_function, table, *scope);
     *scope = *scope + 1;
-    generate_ast(current->right, in_function, table, scope);
+    generate_ast(current->right, in_function, table, *scope);
     *scope = *scope + 1;
 
     switch (current->token->token_type) {
