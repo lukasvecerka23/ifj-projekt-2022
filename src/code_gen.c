@@ -48,9 +48,8 @@ char* formate_string(char* string) {
     char c;
     bool skip = true;
     char escape_seq[10];
-
     for (int i = 0; (c = string[i]) != '\0'; i++) {
-        if (c == '#' || c == '\\' || c <= 32) {
+        if (c == '#' || c <= 32 || c == '\\') {
             string_add_char(tmp_string, '\\');
             sprintf(escape_seq, "%03d", c);
             string_add_string(tmp_string, escape_seq);
