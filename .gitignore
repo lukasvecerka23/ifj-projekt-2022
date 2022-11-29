@@ -5,3 +5,4 @@ ifj22_compiler
 .DS_Store
 src/tests/build
 *test*
+../launch.json

@@ -194,10 +194,7 @@ char* escape_sequence_parser(char* str) {
                 continue;
             }
             if (str[i] == '\\') {
-                // tmp[j] = '\\';
-                // tmp[j++] = '0';
-                // tmp[j++] = '4';
-                // tmp[j++] = '7';
+                tmp[j] = '\\';
                 continue;
             }
             if (str[i] == '"') {
