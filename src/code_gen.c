@@ -671,7 +671,7 @@ void generate_one_operand(token_t* token, bool in_func, htab_t* table) {
     char* tmp_string;
     switch (token->token_type) {
         case L_NUMBER:
-            printf("MOVE GF@tmp_var int@%d\n", token->val);
+            printf("MOVE GF@tmp_var int@%lld\n", token->val);
             break;
         case L_STRING:
             tmp_string = formate_string(token->string);
@@ -910,6 +910,9 @@ void generate_ast(ast_node_t* current,
         case L_EQ:
             printf("POPS GF@exp_tmp1\n");
             printf("POPS GF@exp_tmp2\n");
+            printf("TYPE GF@exp_type1 GF@exp_tmp1\n");
+            printf("TYPE GF@exp_type2 GF@exp_tmp2\n");
+
             printf("EQ GF@tmp_var GF@exp_tmp1 GF@exp_tmp2\n");
             printf("PUSHS GF@tmp_var\n");
             break;
@@ -919,6 +922,9 @@ void generate_ast(ast_node_t* current,
         case L_NEQ:
             printf("POPS GF@exp_tmp1\n");
             printf("POPS GF@exp_tmp2\n");
+            printf("TYPE GF@exp_type1 GF@exp_tmp1\n");
+            printf("TYPE GF@exp_type2 GF@exp_tmp2\n");
+
             printf("EQ GF@tmp_var GF@exp_tmp1 GF@exp_tmp2\n");
             printf("PUSHS GF@tmp_var\n");
             printf("NOTS\n");
@@ -928,19 +934,104 @@ void generate_ast(ast_node_t* current,
         case L_LESS:
             printf("POPS GF@exp_tmp1\n");
             printf("POPS GF@exp_tmp2\n");
+            printf("TYPE GF@exp_type1 GF@exp_tmp1\n");
+            printf("TYPE GF@exp_type2 GF@exp_tmp2\n");
 
+            printf("JUMPIFEQ $ERROR_SEM_OP_TYPES GF@exp_type1 string@nil\n");
+            printf("JUMPIFEQ $ERROR_SEM_OP_TYPES GF@exp_type2 string@nil\n");
+            printf("JUMPIFEQ $types_same%d GF@exp_type1 GF@exp_type2\n",
+                   *scope);
+
+            // tmp1 check bool
+            printf("JUMPIFEQ $type1_bool%d GF@exp_type1 string@bool\n", *scope);
+            printf("JUMP $type2_check%d\n", *scope);
+            printf("LABEL $type1_bool%d\n", *scope);
+            printf("JUMPIFEQ $type1_false%d GF@exp_tmp1 bool@false\n", *scope);
+            printf("PUSHS int@1\n");
+            printf("POPS GF@exp_tmp1\n");
+            printf("JUMP $type2_check%d\n", *scope);
+            printf("LABEL $type1_false%d\n", *scope);
+            printf("PUSHS int@0\n");
+            printf("POPS GF@exp_tmp1\n");
+            printf("LABEL $type2_check%d\n", *scope);
+            // tmp2 check bool
+            printf("JUMPIFEQ $type2_bool%d GF@exp_type2 string@bool\n", *scope);
+            printf("JUMP $no_bool%d\n", *scope);
+            printf("LABEL $type2_bool%d\n", *scope);
+            printf("JUMPIFEQ $type2_false%d GF@exp_tmp2 bool@false\n", *scope);
+            printf("PUSHS int@1\n");
+            printf("POPS GF@exp_tmp2\n");
+            printf("JUMP $no_bool%d\n", *scope);
+            printf("LABEL $type2_false%d\n", *scope);
+            printf("PUSHS int@0\n");
+            printf("POPS GF@exp_tmp2\n");
+            printf("LABEL $no_bool%d\n", *scope);
+            // only int or float
+            printf("JUMPIFEQ $type1_change%d GF@exp_type1 string@int\n",
+                   *scope);
+            printf("INT2FLOAT GF@exp_tmp2 GF@exp_tmp2\n");
+            printf("JUMP $types_same%d\n", *scope);
+            printf("LABEL $type1_change%d\n", *scope);
+            printf("INT2FLOAT GF@exp_tmp1 GF@exp_tmp1\n");
+
+            printf("LABEL $types_same%d\n", *scope);
             printf("LT GF@tmp_var GF@exp_tmp2 GF@exp_tmp1\n");
             printf("PUSHS GF@tmp_var\n");
             break;
         case L_GREATER:
             printf("POPS GF@exp_tmp1\n");
             printf("POPS GF@exp_tmp2\n");
+            printf("TYPE GF@exp_type1 GF@exp_tmp1\n");
+            printf("TYPE GF@exp_type2 GF@exp_tmp2\n");
+
+            printf("JUMPIFEQ $ERROR_SEM_OP_TYPES GF@exp_type1 string@nil\n");
+            printf("JUMPIFEQ $ERROR_SEM_OP_TYPES GF@exp_type2 string@nil\n");
+            printf("JUMPIFEQ $types_same%d GF@exp_type1 GF@exp_type2\n",
+                   *scope);
+
+            // tmp1 check bool
+            printf("JUMPIFEQ $type1_bool%d GF@exp_type1 string@bool\n", *scope);
+            printf("JUMP $type2_check%d\n", *scope);
+            printf("LABEL $type1_bool%d\n", *scope);
+            printf("JUMPIFEQ $type1_false%d GF@exp_tmp1 bool@false\n", *scope);
+            printf("PUSHS int@1\n");
+            printf("POPS GF@exp_tmp1\n");
+            printf("JUMP $type2_check%d\n", *scope);
+            printf("LABEL $type1_false%d\n", *scope);
+            printf("PUSHS int@0\n");
+            printf("POPS GF@exp_tmp1\n");
+            printf("LABEL $type2_check%d\n", *scope);
+            // tmp2 check bool
+            printf("JUMPIFEQ $type2_bool%d GF@exp_type2 string@bool\n", *scope);
+            printf("JUMP $no_bool%d\n", *scope);
+            printf("LABEL $type2_bool%d\n", *scope);
+            printf("JUMPIFEQ $type2_false%d GF@exp_tmp2 bool@false\n", *scope);
+            printf("PUSHS int@1\n");
+            printf("POPS GF@exp_tmp2\n");
+            printf("JUMP $no_bool%d\n", *scope);
+            printf("LABEL $type2_false%d\n", *scope);
+            printf("PUSHS int@0\n");
+            printf("POPS GF@exp_tmp2\n");
+            printf("LABEL $no_bool%d\n", *scope);
+            // only int or float
+            printf("JUMPIFEQ $type1_change%d GF@exp_type1 string@int\n",
+                   *scope);
+            printf("INT2FLOAT GF@exp_tmp2 GF@exp_tmp2\n");
+            printf("JUMP $types_same%d\n", *scope);
+            printf("LABEL $type1_change%d\n", *scope);
+            printf("INT2FLOAT GF@exp_tmp1 GF@exp_tmp1\n");
+
+            printf("LABEL $types_same%d\n", *scope);
+
             printf("GT GF@tmp_var GF@exp_tmp2 GF@exp_tmp1\n");
             printf("PUSHS GF@tmp_var\n");
             break;
         case L_LESSEQ:
             printf("POPS GF@exp_tmp1\n");
             printf("POPS GF@exp_tmp2\n");
+            printf("TYPE GF@exp_type1 GF@exp_tmp1\n");
+            printf("TYPE GF@exp_type2 GF@exp_tmp2\n");
+
             printf("LT GF@exp_result1 GF@exp_tmp2 GF@exp_tmp1\n");
             printf("EQ GF@exp_result2 GF@exp_tmp2 GF@exp_tmp1\n");
             printf("PUSHS GF@exp_result1\n");
@@ -952,6 +1043,9 @@ void generate_ast(ast_node_t* current,
         case L_GREATEREQ:
             printf("POPS GF@exp_tmp1\n");
             printf("POPS GF@exp_tmp2\n");
+            printf("TYPE GF@exp_type1 GF@exp_tmp1\n");
+            printf("TYPE GF@exp_type2 GF@exp_tmp2\n");
+
             printf("GT GF@exp_result1 GF@exp_tmp2 GF@exp_tmp1\n");
             printf("EQ GF@exp_result2 GF@exp_tmp2 GF@exp_tmp1\n");
             printf("PUSHS GF@exp_result1\n");
