@@ -291,11 +291,13 @@ void expression_parser(token_t* token, bool is_cond) {
                     generate_one_operand(new_tree->token, parser.in_function,
                                          parser.global_symtable);
             else if (parser.in_function) {
+                parser.scope++;
                 generate_ast(new_tree, parser.in_function,
-                             parser.local_symtable);
+                             parser.local_symtable, &parser.scope);
             } else {
+                parser.scope++;
                 generate_ast(new_tree, parser.in_function,
-                             parser.global_symtable);
+                             parser.global_symtable, &parser.scope);
             }
             // ast_dispose(new_tree);
             break;
