@@ -696,6 +696,9 @@ void generate_one_operand(token_t* token, bool in_func, htab_t* table) {
         case L_FLOAT:
             printf("MOVE GF@tmp_var float@%a\n", token->float_val);
             break;
+        case L_EXP:
+            printf("MOVE GF@tmp_var float@%a\n", token->float_val);
+            break;
         case K_NULL:
             printf("MOVE GF@tmp_var nil@nil\n");
             break;
