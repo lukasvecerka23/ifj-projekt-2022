@@ -1,4 +1,3 @@
-write("Ahoj\n\"Sve'te \\\042", "\n");
-write($s1, "\012", $s2, "\x0A");
-write($s1len4, " znaky od ", 16, ". znaku v \"", $s2, "\":", $s1, "\n"); 
-"\\\042"
+<?php
+declare(strict_types=1);
+if ("" >= null) {} else { write("fail \"\" >= null\n"); }
