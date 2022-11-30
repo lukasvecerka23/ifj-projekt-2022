@@ -561,6 +561,7 @@ bool statement() {
         // consume_token(L_LCURL, "missing left curl bracket in if statement");
         get_next_token();
         statement();
+        parser.in_while_if = true;
         consume_token(L_RCURL, "missing right curl bracket in if statement");
         get_token_consume_token(K_ELSE, "missing else");
         generate_if_else(if_scope);
@@ -568,6 +569,7 @@ bool statement() {
                                 "missing left curl bracket in if statement");
         get_next_token();
         statement();
+        parser.in_while_if = true;
         consume_token(L_RCURL, "missing right curl bracket in if statement");
         generate_if_end(if_scope);
         get_next_token();
@@ -593,6 +595,7 @@ bool statement() {
 
         get_next_token();
         statement();
+        parser.in_while_if = true;
         consume_token(L_RCURL, "missing right curl bracket in if statement");
         generate_while_end(while_scope);
         get_next_token();
