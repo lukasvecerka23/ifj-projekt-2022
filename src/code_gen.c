@@ -177,6 +177,8 @@ void generate_func_end(int scope, htab_item_data_t* func_data) {
                     "JUMPIFNEQ $ERROR_SEM_TYPE_CHECK GF@exp_type1 "
                     "string@string\n");
             break;
+        default:
+            break;
     }
     printf("POPFRAME\n");
     printf("RETURN\n");
@@ -702,6 +704,8 @@ void generate_one_operand(token_t* token, bool in_func, htab_t* table) {
         case K_NULL:
             printf("MOVE GF@tmp_var nil@nil\n");
             break;
+        default:
+            break;
     }
 }
 
@@ -1192,6 +1196,8 @@ void generate_ast(ast_node_t* current,
             break;
         case K_NULL:
             printf("PUSHS nil@nil\n");
+            break;
+        default:
             break;
     }
 }

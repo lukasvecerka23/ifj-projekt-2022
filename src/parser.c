@@ -335,6 +335,8 @@ void check_func_return() {
                     4, "missing return in function with required return type");
             }
             break;
+        default:
+            break;
     }
 }
 
