@@ -626,6 +626,12 @@ bool statement() {
         statement();
         return true;
     }
+
+    // epsilon
+    if (check_token_type(LEOF) || check_token_type(K_FUNCTION) ||
+        check_token_type(L_PHPEND) || check_token_type(L_RCURL))
+        return true;
+
     if (check_token_type(L_NUMBER) || check_token_type(L_STRING) ||
         check_token_type(L_FLOAT) || check_token_type(L_LPAR)) {
         expression_parser(parser.token, true);
@@ -636,9 +642,6 @@ bool statement() {
     if (check_token_type(L_SEMICOL)) {
         clear_and_exit_program(2, "empty semicolon");
     }
-
-    // epsilon
-    return true;
 }
 
 // <type> rule
