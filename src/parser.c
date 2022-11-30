@@ -335,6 +335,8 @@ void check_func_return() {
                     4, "missing return in function with required return type");
             }
             break;
+        default:
+            break;
     }
 }
 
@@ -551,6 +553,7 @@ bool statement() {
     if (parser.token->token_type == K_IF) {
         int if_scope = parser.scope + 1;
         parser.scope++;
+        parser.in_while_if = true;
         get_token_consume_token(L_LPAR, "missing left paren in if statement");
         expression_parser(parser.token, false);
         // consume_token(L_RPAR, "missing right paren in if statement");
@@ -558,6 +561,7 @@ bool statement() {
         // consume_token(L_LCURL, "missing left curl bracket in if statement");
         get_next_token();
         statement();
+        parser.in_while_if = true;
         consume_token(L_RCURL, "missing right curl bracket in if statement");
         get_token_consume_token(K_ELSE, "missing else");
         generate_if_else(if_scope);
@@ -565,14 +569,16 @@ bool statement() {
                                 "missing left curl bracket in if statement");
         get_next_token();
         statement();
+        parser.in_while_if = true;
         consume_token(L_RCURL, "missing right curl bracket in if statement");
         generate_if_end(if_scope);
         get_next_token();
         statement();
+        parser.in_while_if = false;
         return true;
     }
     if (parser.token->token_type == K_WHILE) {
-        parser.in_while = true;
+        parser.in_while_if = true;
         int while_scope = parser.scope + 1;
         parser.scope++;
         get_token_consume_token(L_LPAR,
@@ -589,11 +595,12 @@ bool statement() {
 
         get_next_token();
         statement();
+        parser.in_while_if = true;
         consume_token(L_RCURL, "missing right curl bracket in if statement");
         generate_while_end(while_scope);
-        parser.in_while = false;
         get_next_token();
         statement();
+        parser.in_while_if = false;
         return true;
     }
     if (parser.token->token_type == K_RETURN) {
@@ -626,6 +633,14 @@ bool statement() {
         statement();
         return true;
     }
+
+    // epsilon
+    if (check_token_type(LEOF) || check_token_type(K_FUNCTION) ||
+        check_token_type(L_PHPEND) ||
+        (check_token_type(L_RCURL) &&
+         (parser.in_while_if || parser.in_function)))
+        return true;
+
     if (check_token_type(L_NUMBER) || check_token_type(L_STRING) ||
         check_token_type(L_FLOAT) || check_token_type(L_LPAR)) {
         expression_parser(parser.token, true);
@@ -633,12 +648,7 @@ bool statement() {
         statement();
         return true;
     }
-    if (check_token_type(L_SEMICOL)) {
-        clear_and_exit_program(2, "empty semicolon");
-    }
-
-    // epsilon
-    return true;
+    clear_and_exit_program(2, "syntax error in statement");
 }
 
 // <type> rule
@@ -770,18 +780,16 @@ bool list_params() {
 
 // <program> rule
 bool program() {
-    parser.in_while = false;
+    parser.in_while_if = false;
     parser.in_function = false;
     parser.local_symtable = htab_init(10);
     if (parser.token->token_type == LEOF) {
-        // check if all function call are defined
         generate_func_declaration(parser.global_symtable, "main", false);
         generate_end();
         htab_free(parser.local_symtable);
         return true;
     }
     if (parser.token->token_type == L_PHPEND) {
-        // check if all function call are defined
         get_token_consume_token(LEOF, "missing eof after php epilogue");
         generate_func_declaration(parser.global_symtable, "main", false);
         generate_end();
@@ -827,7 +835,6 @@ bool program() {
         consume_token(L_RCURL,
                       "missing right curl bracket in function declaration");
         check_func_return();
-        // ht_print_table(parser.local_symtable, "LOCAL");
         generate_func_declaration(parser.local_symtable,
                                   parser.declared_function->name, true);
         generate_func_end(function_scope, parser.declared_function);
@@ -890,8 +897,7 @@ bool syntax_analyse() {
 
     prolog();
 
-    // just for testing
-    // ht_print_table(parser.global_symtable, "GLOBAL");
+    // check if all func calls, call defined functions
 
     htab_free(parser.global_symtable);
 
