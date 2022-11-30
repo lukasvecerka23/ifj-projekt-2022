@@ -685,13 +685,18 @@ void generate_one_operand(token_t* token, bool in_func, htab_t* table) {
                 printf("TYPE GF@exp_type1 LF@%s\n", token->string);
                 printf("JUMPIFEQ $ERROR_SEM_UNDEF_VAR GF@exp_type1 string@\n");
                 printf("PUSHS LF@%s\n", token->string);
+                printf("POPS GF@tmp_var\n");
             } else {
                 printf("TYPE GF@exp_type1 GF@%s\n", token->string);
                 printf("JUMPIFEQ $ERROR_SEM_UNDEF_VAR GF@exp_type1 string@\n");
                 printf("PUSHS GF@%s\n", token->string);
+                printf("POPS GF@tmp_var\n");
             }
             break;
         case L_FLOAT:
+            printf("MOVE GF@tmp_var float@%a\n", token->float_val);
+            break;
+        case L_EXP:
             printf("MOVE GF@tmp_var float@%a\n", token->float_val);
             break;
         case K_NULL:
@@ -1049,16 +1054,14 @@ void generate_ast(ast_node_t* current,
                    *scope);
             printf("JUMP $type1_safe%d\n", *scope);
             printf("LABEL $type1_str%d\n", *scope);
-            printf("JUMPIFEQ $ERROR_SEM_OP_TYPES GF@exp_type2 string@string\n",
-                   *scope);
+            printf("JUMPIFEQ $ERROR_SEM_OP_TYPES GF@exp_type2 string@string\n");
             printf("LABEL $type1_safe%d\n", *scope);
             // check string notstring
             printf("JUMPIFNEQ $type2_str%d GF@exp_type2 string@string\n",
                    *scope);
             printf("JUMP $type2_safe%d\n", *scope);
             printf("LABEL $type2_str%d\n", *scope);
-            printf("JUMPIFEQ $ERROR_SEM_OP_TYPES GF@exp_type1 string@string\n",
-                   *scope);
+            printf("JUMPIFEQ $ERROR_SEM_OP_TYPES GF@exp_type1 string@string\n");
             printf("LABEL $type2_safe%d\n", *scope);
             // only int or float
             printf("JUMPIFEQ $type1_change%d GF@exp_type1 string@int\n",
@@ -1143,16 +1146,14 @@ void generate_ast(ast_node_t* current,
                    *scope);
             printf("JUMP $type1_safe%d\n", *scope);
             printf("LABEL $type1_str%d\n", *scope);
-            printf("JUMPIFEQ $ERROR_SEM_OP_TYPES GF@exp_type2 string@string\n",
-                   *scope);
+            printf("JUMPIFEQ $ERROR_SEM_OP_TYPES GF@exp_type2 string@string\n");
             printf("LABEL $type1_safe%d\n", *scope);
             // check string notstring
             printf("JUMPIFNEQ $type2_str%d GF@exp_type2 string@string\n",
                    *scope);
             printf("JUMP $type2_safe%d\n", *scope);
             printf("LABEL $type2_str%d\n", *scope);
-            printf("JUMPIFEQ $ERROR_SEM_OP_TYPES GF@exp_type1 string@string\n",
-                   *scope);
+            printf("JUMPIFEQ $ERROR_SEM_OP_TYPES GF@exp_type1 string@string\n");
             printf("LABEL $type2_safe%d\n", *scope);
             // only int or float
             printf("JUMPIFEQ $type1_change%d GF@exp_type1 string@int\n",
