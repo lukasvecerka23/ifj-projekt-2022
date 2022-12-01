@@ -388,7 +388,8 @@ States FSM(States curr_state, char edge) {
                 return TOKEN_END;
             }
         case PHPSTART5:
-            if (isspace(edge)) {
+            printf("char: %c\n", edge);
+            if (isspace(edge) || edge == '/') {
                 if (char_cnt == 6)
                     return TOKEN_END;
                 else {
