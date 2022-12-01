@@ -9,6 +9,7 @@ Description: --
 #include "error.h"
 
 int err_flag = 0;
+unsigned long char_cnt = 0;
 
 void token_free(char* token) {
     printf("string: %d\n", token);
@@ -388,9 +389,15 @@ States FSM(States curr_state, char edge) {
             }
         case PHPSTART5:
             if (isspace(edge)) {
-                return TOKEN_END;
+                if (char_cnt == 6)
+                    return TOKEN_END;
+                else {
+                    err_flag = 1;
+                    return TOKEN_END;
+                }
             }
-            return err_flag = 1;
+            //<?php
+            err_flag = 1;
             return TOKEN_END;
         case PHPEND:
             if (edge == '>')
@@ -398,6 +405,10 @@ States FSM(States curr_state, char edge) {
             else
                 return TOKEN_END;
         case PHPEND2:
+            if (edge == EOF) {
+                return TOKEN_END;
+            }
+            err_flag = 1;
             return TOKEN_END;
         // case DECLARE:
         case STRING_LIT_E:
@@ -649,6 +660,7 @@ token_t get_token_data(scanner_t* scan) {
         if (edge == '\n')
             scan->line_num++;
         edge = getchar();
+        char_cnt++;
         if (edge == EOF) {
             if (now == START) {
                 return (token_t){.token_type = LEOF};
