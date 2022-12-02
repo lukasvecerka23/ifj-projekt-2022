@@ -558,13 +558,13 @@ int parse_expression(token_t* used_token,
                 if (!first_token_used) {
                     first_token_used = 1;
                     if (used_token != NULL) {
-                        printf("1st token: %d\n", used_token->token_type);
-                        printf("2nd token: %d\n", current_token->token_type);
+                        // printf("1st token: %d\n", used_token->token_type);
+                        // printf("2nd token: %d\n", current_token->token_type);
                         if (current_token->token_type == L_RPAR &&
                             used_token->token_type == L_LPAR) {
                             current_token = get_lex_value();
-                            printf("3rd token: %d\n",
-                                   current_token->token_type);
+                            // printf("3rd token: %d\n",
+                            //    current_token->token_type);
                             if (current_token->token_type == L_LCURL) {
                                 *tree = NULL;
                                 return 0;
