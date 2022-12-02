@@ -158,6 +158,19 @@ void load_builtin_funcs() {
     add_builtin_func(data, "chr");
 }
 
+void check_if_all_func_defined(htab_t* table) {
+    for (size_t i = 0; i < table->arr_size; i++) {
+        htab_item_t* item = table->arr_ptr[i];
+        while (item != NULL) {
+            if (item->data->type == ID_FUNC &&
+                item->data->func_data.defined == false)
+                clear_and_exit_program(3, "calling undefined function");
+
+            item = item->next;
+        }
+    }
+}
+
 void create_new_local_data() {
     htab_item_data_t* local_data =
         (htab_item_data_t*)malloc(sizeof(htab_item_data_t));
@@ -897,7 +910,7 @@ bool syntax_analyse() {
 
     prolog();
 
-    // check if all func calls, call defined functions
+    check_if_all_func_defined(parser.global_symtable);
 
     htab_free(parser.global_symtable);
 
