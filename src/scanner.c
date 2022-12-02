@@ -12,7 +12,7 @@ int err_flag = 0;
 unsigned long char_cnt = 0;
 
 void token_free(char* token) {
-    printf("string: %d\n", token);
+    // printf("string: %d\n", token);
     if (token != NULL) {
         free(token);
     }
@@ -388,7 +388,7 @@ States FSM(States curr_state, char edge) {
                 return TOKEN_END;
             }
         case PHPSTART5:
-            printf("char: %c\n", edge);
+            // printf("char: %c\n", edge);
             if (isspace(edge) || edge == '/') {
                 if (char_cnt == 6)
                     return TOKEN_END;
