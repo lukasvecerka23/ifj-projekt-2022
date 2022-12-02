@@ -905,8 +905,19 @@ void generate_ast(ast_node_t* current,
             printf("POPS GF@exp_tmp2\n");
             printf("TYPE GF@exp_type1 GF@exp_tmp1\n");
             printf("TYPE GF@exp_type2 GF@exp_tmp2\n");
+            printf("JUMPIFEQ $ERROR_SEM_OP_TYPES GF@exp_type1 string@bool\n");
+            printf("JUMPIFEQ $ERROR_SEM_OP_TYPES GF@exp_type2 string@bool\n");
+
+            printf("JUMPIFEQ $types_same%d GF@exp_type1 GF@exp_type2\n",
+                   *scope);
+            printf("PUSHS bool@false\n");
+            printf("JUMP $types_not_same%d\n", *scope);
+            printf("LABEL $types_same%d\n", *scope);
 
             printf("EQ GF@tmp_var GF@exp_tmp1 GF@exp_tmp2\n");
+            printf("PUSHS GF@tmp_var\n");
+            printf("LABEL $types_not_same%d\n", *scope);
+            printf("POPS GF@tmp_var\n");
             printf("PUSHS GF@tmp_var\n");
             break;
         case L_EXP:
@@ -917,10 +928,19 @@ void generate_ast(ast_node_t* current,
             printf("POPS GF@exp_tmp2\n");
             printf("TYPE GF@exp_type1 GF@exp_tmp1\n");
             printf("TYPE GF@exp_type2 GF@exp_tmp2\n");
+            printf("JUMPIFEQ $ERROR_SEM_OP_TYPES GF@exp_type1 string@bool\n");
+            printf("JUMPIFEQ $ERROR_SEM_OP_TYPES GF@exp_type2 string@bool\n");
+
+            printf("JUMPIFEQ $types_same%d GF@exp_type1 GF@exp_type2\n",
+                   *scope);
+            printf("PUSHS bool@true\n");
+            printf("JUMP $types_not_same%d\n", *scope);
+            printf("LABEL $types_same%d\n", *scope);
 
             printf("EQ GF@tmp_var GF@exp_tmp1 GF@exp_tmp2\n");
             printf("PUSHS GF@tmp_var\n");
             printf("NOTS\n");
+            printf("LABEL $types_not_same%d\n", *scope);
             printf("POPS GF@tmp_var\n");
             printf("PUSHS GF@tmp_var\n");
             break;
