@@ -47,7 +47,5 @@ bool return_type();
 bool statement();
 void clear_and_exit_program(int err_code, char* msg);
 void check_if_all_func_defined(htab_t* table);
-void add_token_to_str_arr();
-void free_all_string();
 // void prolog();
 #endif
