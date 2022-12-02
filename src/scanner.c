@@ -550,45 +550,59 @@ token_t create_lex(States final, char* token) {
     switch (final) {
         case PHPEND2:
             tmp_token = (token_t){.token_type = L_PHPEND};
+            free(token);
             break;
         case LPAR:
             tmp_token = (token_t){.token_type = L_LPAR};
+            free(token);
             break;
         case PHPSTART5:
             tmp_token = (token_t){.token_type = L_PHPSTART};
+            free(token);
             break;
         case RPAR:
             tmp_token = (token_t){.token_type = L_RPAR};
+            free(token);
             break;
         case COMMA:
             tmp_token = (token_t){.token_type = L_COMMA};
+            free(token);
             break;
         case DOT:
             tmp_token = (token_t){.token_type = L_DOT};
+            free(token);
             break;
         case LCURL:
             tmp_token = (token_t){.token_type = L_LCURL};
+            free(token);
             break;
         case RCURL:
             tmp_token = (token_t){.token_type = L_RCURL};
+            free(token);
             break;
         case SEMICOLON:
             tmp_token = (token_t){.token_type = L_SEMICOL};
+            free(token);
             break;
         case COLON:
             tmp_token = (token_t){.token_type = L_COLON};
+            free(token);
             break;
         case MUL:
             tmp_token = (token_t){.token_type = L_MUL};
+            free(token);
             break;
         case SLASH:
             tmp_token = (token_t){.token_type = L_SLASH};
+            free(token);
             break;
         case PLUS:
             tmp_token = (token_t){.token_type = L_PLUS};
+            free(token);
             break;
         case DASH:
             tmp_token = (token_t){.token_type = L_DASH};
+            free(token);
             break;
         case STRING_LIT_END:
             tmp_token = (token_t){.token_type = L_STRING,
@@ -611,24 +625,31 @@ token_t create_lex(States final, char* token) {
             break;
         case EQ1:
             tmp_token = (token_t){.token_type = L_ASSIGN};
+            free(token);
             break;
         case EQ3:
             tmp_token = (token_t){.token_type = L_EQ};
+            free(token);
             break;
         case NEQ3:
             tmp_token = (token_t){.token_type = L_NEQ};
+            free(token);
             break;
         case LESSEQ:
             tmp_token = (token_t){.token_type = L_LESSEQ};
+            free(token);
             break;
         case GREATEREQ:
             tmp_token = (token_t){.token_type = L_GREATEREQ};
+            free(token);
             break;
         case PHPSTART:
             tmp_token = (token_t){.token_type = L_LESS};
+            free(token);
             break;
         case GREATER:
             tmp_token = (token_t){.token_type = L_GREATER};
+            free(token);
             break;
         case FLOAT2:
             tmp_token = (token_t){.token_type = L_FLOAT,
@@ -636,6 +657,7 @@ token_t create_lex(States final, char* token) {
             break;
         case PHPEND:
             tmp_token = (token_t){.token_type = L_VARPREF};
+            free(token);
             break;
         case TOKEN_END:
             free(token);
@@ -691,9 +713,7 @@ token_t get_token_data(scanner_t* scan) {
             scan->tokenmem = scan->tokenmem * 2;
             scan->token = (char*)realloc(scan->token, scan->tokenmem);
             if (scan->token == NULL) {
-                fprintf(stderr,
-                        "realloc memory allocation fail (I am in scanner if "
-                        "you want to delete me\n");
+                exit_program(99, "allocation error");
             }
             // scan->usedmem = 0;
         }

@@ -39,7 +39,6 @@ void add_token_to_str_arr() {
 }
 
 void free_all_string() {
-    printf("usedmem: %d\n", parser.str_arr->usedmem);
     for (int i = 0; i < parser.str_arr->usedmem; i++) {
         if (parser.str_arr->strings[i] != NULL) {
             // printf("string: %s", *parser.str_arr->strings[i]);
