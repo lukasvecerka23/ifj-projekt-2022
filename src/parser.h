@@ -13,6 +13,11 @@ Description: --
 #include "scanner.h"
 #include "symtable.h"
 
+typedef struct strings_array {
+    int usedmem;
+    int allocated;
+    char** strings;
+} strings_array_t;
 typedef struct {
     token_t* token;
     htab_t* global_symtable;
@@ -20,6 +25,7 @@ typedef struct {
     htab_item_data_t* global_symtable_data;
     htab_item_data_t* local_symtable_data;
     htab_item_data_t* declared_function;
+    strings_array_t* str_arr;
     bool in_function;
     bool func_check;
     bool in_while_if;
@@ -48,5 +54,7 @@ bool return_type();
 bool statement();
 void clear_and_exit_program(int err_code, char* msg);
 void check_if_all_func_defined(htab_t* table);
+void add_token_to_str_arr();
+void free_all_string();
 // void prolog();
 #endif

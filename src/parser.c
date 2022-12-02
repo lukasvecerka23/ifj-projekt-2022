@@ -15,8 +15,29 @@ Parser parser;
 
 void get_next_token() {
     token_t* tmp_token = parser.token;
+    add_token_to_str_arr();
     parser.token = get_lex_value();
     free(tmp_token);
+}
+
+void add_token_to_str_arr() {
+    if (parser.str_arr->usedmem + 1 >= (parser.str_arr->allocated * 0.9)) {
+        parser.str_arr->allocated = parser.str_arr->allocated * 2;
+        parser.str_arr->strings =
+            realloc(parser.str_arr->strings, parser.str_arr->allocated);
+    }
+    parser.str_arr->strings[parser.str_arr->usedmem] = parser.token;
+    parser.str_arr->usedmem++;
+}
+
+void free_all_string() {
+    for (int i = 0; i < parser.str_arr->usedmem; i++) {
+        if (parser.str_arr->strings[i] != NULL) {
+            free(parser.str_arr->strings[i]);
+        }
+    }
+    free(parser.str_arr->strings);
+    free(parser.str_arr);
 }
 
 void consume_token(token_type token_type, char* err_msg) {
@@ -662,6 +683,7 @@ bool statement() {
         return true;
     }
     clear_and_exit_program(2, "syntax error in statement");
+    return false;
 }
 
 // <type> rule
@@ -900,10 +922,15 @@ bool prolog() {
 }
 
 bool syntax_analyse() {
-    get_next_token();
-
+    // parser init
     parser.global_symtable = htab_init(10);
     parser.scope = 0;
+    parser.str_arr = (strings_array_t*)malloc(sizeof(strings_array_t));
+    parser.str_arr->strings = malloc(sizeof(char*) * 100);
+    parser.str_arr->allocated = 100;
+    parser.str_arr->usedmem = 0;
+
+    get_next_token();
 
     // load builtin funcs to symtable
     load_builtin_funcs();
@@ -912,6 +939,7 @@ bool syntax_analyse() {
 
     check_if_all_func_defined(parser.global_symtable);
 
+    free_all_string();
     htab_free(parser.global_symtable);
 
     return true;
