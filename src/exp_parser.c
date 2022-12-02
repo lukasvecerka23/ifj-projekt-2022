@@ -498,6 +498,7 @@ int parse_expression(token_t* used_token,
     stack_init(&stack);
     stack_push(&stack, EMPTY);
     // lexeme used_token;
+    int first_token_used = 0;
 
     token_t* current_token;
     precedence_symbols current_token_enum;
@@ -554,6 +555,25 @@ int parse_expression(token_t* used_token,
                 stack_push(&stack, current_token_enum);
                 stack.top->token = current_token;
                 current_token = get_lex_value();
+                if (!first_token_used) {
+                    first_token_used = 1;
+                    if (used_token != NULL) {
+                        printf("1st token: %d\n", used_token->token_type);
+                        printf("2nd token: %d\n", current_token->token_type);
+                        if (current_token->token_type == L_RPAR &&
+                            used_token->token_type == L_LPAR) {
+                            current_token = get_lex_value();
+                            printf("3rd token: %d\n",
+                                   current_token->token_type);
+                            if (current_token->token_type == L_LCURL) {
+                                *tree = NULL;
+                                return 0;
+                            } else {
+                                return 2;
+                            }
+                        }
+                    }
+                }
                 // printf("current lexeme");
                 // print_lex(current_token);
                 current_token_enum = map_token_to_enum(current_token);
