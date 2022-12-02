@@ -26,17 +26,26 @@ void add_token_to_str_arr() {
         parser.str_arr->strings =
             realloc(parser.str_arr->strings, parser.str_arr->allocated);
     }
-    parser.str_arr->strings[parser.str_arr->usedmem] = parser.token;
-    parser.str_arr->usedmem++;
+    // printf("token pointer: %d\n", parser.token);
+    if (parser.token != NULL) {
+        if (parser.token->token_type == L_STRING ||
+            parser.token->token_type == L_VARID ||
+            parser.token->token_type == L_FUNCID) {
+            parser.str_arr->strings[parser.str_arr->usedmem] =
+                parser.token->string;
+            parser.str_arr->usedmem++;
+        }
+    }
 }
 
 void free_all_string() {
+    printf("usedmem: %d\n", parser.str_arr->usedmem);
     for (int i = 0; i < parser.str_arr->usedmem; i++) {
         if (parser.str_arr->strings[i] != NULL) {
+            // printf("string: %s", *parser.str_arr->strings[i]);
             free(parser.str_arr->strings[i]);
         }
     }
-    free(parser.str_arr->strings);
     free(parser.str_arr);
 }
 

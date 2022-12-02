@@ -159,11 +159,13 @@ void print_lex(token_t* token) {
 
 int return_digit(char* token) {
     int i = atoi(token);
+    free(token);
     return i;
 }
 
 double return_float(char* token) {
     double i = atof(token);
+    free(token);
     return i;
 }
 
