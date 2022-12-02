@@ -15,37 +15,8 @@ Parser parser;
 
 void get_next_token() {
     token_t* tmp_token = parser.token;
-    add_token_to_str_arr();
     parser.token = get_lex_value();
     free(tmp_token);
-}
-
-void add_token_to_str_arr() {
-    if (parser.str_arr->usedmem + 1 >= (parser.str_arr->allocated * 0.9)) {
-        parser.str_arr->allocated = parser.str_arr->allocated * 2;
-        parser.str_arr->strings =
-            realloc(parser.str_arr->strings, parser.str_arr->allocated);
-    }
-    // printf("token pointer: %d\n", parser.token);
-    if (parser.token != NULL) {
-        if (parser.token->token_type == L_STRING ||
-            parser.token->token_type == L_VARID ||
-            parser.token->token_type == L_FUNCID) {
-            parser.str_arr->strings[parser.str_arr->usedmem] =
-                parser.token->string;
-            parser.str_arr->usedmem++;
-        }
-    }
-}
-
-void free_all_string() {
-    for (int i = 0; i < parser.str_arr->usedmem; i++) {
-        if (parser.str_arr->strings[i] != NULL) {
-            // printf("string: %s", *parser.str_arr->strings[i]);
-            free(parser.str_arr->strings[i]);
-        }
-    }
-    free(parser.str_arr);
 }
 
 void consume_token(token_type token_type, char* err_msg) {
@@ -185,19 +156,6 @@ void load_builtin_funcs() {
                                             .param_count = 1,
                                             .ret_type = RETTYPE_STRING}};
     add_builtin_func(data, "chr");
-}
-
-void check_if_all_func_defined(htab_t* table) {
-    for (size_t i = 0; i < table->arr_size; i++) {
-        htab_item_t* item = table->arr_ptr[i];
-        while (item != NULL) {
-            if (item->data->type == ID_FUNC &&
-                item->data->func_data.defined == false)
-                clear_and_exit_program(3, "calling undefined function");
-
-            item = item->next;
-        }
-    }
 }
 
 void create_new_local_data() {
@@ -691,7 +649,6 @@ bool statement() {
         return true;
     }
     clear_and_exit_program(2, "syntax error in statement");
-    return false;
 }
 
 // <type> rule
@@ -930,24 +887,18 @@ bool prolog() {
 }
 
 bool syntax_analyse() {
-    // parser init
+    get_next_token();
+
     parser.global_symtable = htab_init(10);
     parser.scope = 0;
-    parser.str_arr = (strings_array_t*)malloc(sizeof(strings_array_t));
-    parser.str_arr->strings = malloc(sizeof(char*) * 100);
-    parser.str_arr->allocated = 100;
-    parser.str_arr->usedmem = 0;
-
-    get_next_token();
 
     // load builtin funcs to symtable
     load_builtin_funcs();
 
     prolog();
 
-    check_if_all_func_defined(parser.global_symtable);
+    // check if all func calls, call defined functions
 
-    free_all_string();
     htab_free(parser.global_symtable);
 
     return true;

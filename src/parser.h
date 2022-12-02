@@ -12,12 +12,6 @@ Description: --
 #include "exp_parser.h"
 #include "scanner.h"
 #include "symtable.h"
-
-typedef struct strings_array {
-    int usedmem;
-    int allocated;
-    char** strings;
-} strings_array_t;
 typedef struct {
     token_t* token;
     htab_t* global_symtable;
@@ -25,7 +19,6 @@ typedef struct {
     htab_item_data_t* global_symtable_data;
     htab_item_data_t* local_symtable_data;
     htab_item_data_t* declared_function;
-    strings_array_t* str_arr;
     bool in_function;
     bool func_check;
     bool in_while_if;
