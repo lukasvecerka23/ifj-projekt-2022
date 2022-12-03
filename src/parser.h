@@ -12,9 +12,8 @@ Description: --
 #include "exp_parser.h"
 #include "scanner.h"
 #include "symtable.h"
-
 typedef struct {
-    token_t token;
+    token_t* token;
     htab_t* global_symtable;
     htab_t* local_symtable;
     htab_item_data_t* global_symtable_data;
@@ -22,7 +21,7 @@ typedef struct {
     htab_item_data_t* declared_function;
     bool in_function;
     bool func_check;
-    bool in_while;
+    bool in_while_if;
     size_t scope;
     size_t param_counter;
 } Parser;
@@ -46,5 +45,7 @@ bool next_input_parameter();
 bool term();
 bool return_type();
 bool statement();
+void clear_and_exit_program(int err_code, char* msg);
+void check_if_all_func_defined(htab_t* table);
 // void prolog();
 #endif

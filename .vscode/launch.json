@@ -9,7 +9,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/src/ifj22_compiler",
-            "args": ["<", "${workspaceFolder}/code-examples/example-basic-code-gen"],
+            "args": ["<", "${workspaceFolder}/code-examples/example"],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
             "environment": [],

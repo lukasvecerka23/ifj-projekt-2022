@@ -51,7 +51,7 @@ typedef enum precedence_symbols {
 
 typedef struct stack_el {
     precedence_symbols data;
-    token_t token;
+    token_t* token;
     ast_node_t* tree;
     struct stack_el* next_element;
 
@@ -77,6 +77,7 @@ int stack_empty(Stack* stack);
 int rule_reduction(Stack* stack);
 
 int parse_expression(token_t* used_token,
+                     token_t* used_token2,
                      bool is_expression,
                      ast_node_t** tree);
 

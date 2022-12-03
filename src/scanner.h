@@ -133,8 +133,8 @@ typedef struct {
 
 States FSM(States curr_state, char edge);
 token_t create_lex(States final, char* token);
-token_t get_lex_value();
+token_t* get_lex_value();
 token_t isKeyword(char* keywd);
 
-void print_lex(token_t token);
+void print_lex(token_t* token);
 #endif

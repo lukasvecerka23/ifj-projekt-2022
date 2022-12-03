@@ -10,8 +10,10 @@ Description: --
 #include "scanner.h"
 
 int main() {
-    // token_t l = {0};
-    // while (l.token_type != LEOF) {
+    // token_t* l = malloc(sizeof(token_t));
+    // // l->token_type = 0;
+
+    // while (l->token_type != LEOF) {
     //     l = get_lex_value();
     //     print_lex(l);
     // }

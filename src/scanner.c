@@ -8,13 +8,18 @@ Description: --
 #include <string.h>
 #include "error.h"
 
-/*
-just for testing
-*/
 int err_flag = 0;
+unsigned long char_cnt = 0;
 
-void print_lex(token_t token) {
-    switch (token.token_type) {
+void token_free(char* token) {
+    // printf("string: %d\n", token);
+    if (token != NULL) {
+        free(token);
+    }
+}
+
+void print_lex(token_t* token) {
+    switch (token->token_type) {
         case L_LPAR:
             printf("( ( )\n");
             return;
@@ -52,23 +57,23 @@ void print_lex(token_t token) {
             printf("( / )\n");
             return;
         case L_EXP:
-            printf("( exp, %f)\n", token.float_val);
+            printf("( exp, %f)\n", token->float_val);
             // printf("( exp, %s)\n", lex.string);
             return;
         case L_NUMBER:
-            printf("(integer, %lld)\n", token.val);
+            printf("(integer, %lld)\n", token->val);
             return;
         case L_VARID:
-            printf("(varid, %s)\n", token.string);
+            printf("(varid, %s)\n", token->string);
             return;
         case L_VARPREF:
             printf("( ? )\n");
             return;
         case L_ID:
-            printf("(identifier, %s)\n", token.string);
+            printf("(identifier, %s)\n", token->string);
             return;
         case L_STRING:
-            printf("(string, %s)\n", token.string);
+            printf("(string, %s)\n", token->string);
             return;
         case L_DASH:
             printf("( - )\n");
@@ -95,7 +100,7 @@ void print_lex(token_t token) {
             printf("( >= )\n");
             return;
         case L_FLOAT:
-            printf("(float, %f)\n", token.float_val);
+            printf("(float, %f)\n", token->float_val);
             return;
         case K_ELSE:
             printf("( else )\n");
@@ -128,7 +133,7 @@ void print_lex(token_t token) {
             printf("( float )\n");
             return;
         case L_FUNCID:
-            printf("( funcid, %s )\n", token.string);
+            printf("( funcid, %s )\n", token->string);
             return;
         case L_PHPEND:
             printf("( php end )\n");
@@ -153,16 +158,18 @@ void print_lex(token_t token) {
 }
 
 int return_digit(char* token) {
-    return atoi(token);
+    int i = atoi(token);
+    return i;
 }
 
 double return_float(char* token) {
-    return atof(token);
+    double i = atof(token);
+    return i;
 }
 
 char* escape_sequence_parser(char* str) {
     unsigned long long i = 0;
-    char* tmp = malloc(sizeof(char) * (strlen(str) + 1));
+    char* tmp = malloc(sizeof(char) * (strlen(str) * 2));
     unsigned long long j = 0;
     for (i, j = 0; str[i] != '\0'; i++, j++) {
         if (str[i] == '$') {  // error
@@ -213,6 +220,8 @@ char* escape_sequence_parser(char* str) {
                 } else {
                     char buffer[3];
                     sprintf(buffer, "%d", num);  // convert dec num to str form.
+                    tmp[j++] = '\\';
+                    tmp[j++] = '0';
                     for (int l = 0; buffer[l] != '\0'; l++) {
                         tmp[j++] = buffer[l];  // load dec number to tmp
                     }
@@ -240,6 +249,8 @@ char* escape_sequence_parser(char* str) {
                 } else {
                     char buffer_dec[4];
                     sprintf(buffer_dec, "%d", num);
+                    tmp[j++] = '\\';
+                    tmp[j++] = '0';
                     for (int l = 0; buffer_dec[l] != '\0'; l++) {
                         tmp[j++] = buffer_dec[l];
                         // printf("c: %c\n", tmp[j]);
@@ -377,10 +388,17 @@ States FSM(States curr_state, char edge) {
                 return TOKEN_END;
             }
         case PHPSTART5:
-            if (isspace(edge)) {
-                return TOKEN_END;
+            // printf("char: %c\n", edge);
+            if (isspace(edge) || edge == '/') {
+                if (char_cnt == 6)
+                    return TOKEN_END;
+                else {
+                    err_flag = 1;
+                    return TOKEN_END;
+                }
             }
-            return err_flag = 1;
+            //<?php
+            err_flag = 1;
             return TOKEN_END;
         case PHPEND:
             if (edge == '>')
@@ -388,6 +406,10 @@ States FSM(States curr_state, char edge) {
             else
                 return TOKEN_END;
         case PHPEND2:
+            if (edge == EOF) {
+                return TOKEN_END;
+            }
+            err_flag = 1;
             return TOKEN_END;
         // case DECLARE:
         case STRING_LIT_E:
@@ -499,7 +521,7 @@ States FSM(States curr_state, char edge) {
             err_flag = 1;
             return TOKEN_END;
         case ID1:
-            if (isalpha(edge) || edge == '_')
+            if (isalnum(edge) || edge == '_')  // changes from isalpha()
                 return ID1;
             return TOKEN_END;
         // case ID2:
@@ -522,92 +544,124 @@ TODO:
 - sending tokens to syntax analyzer
 */
 token_t create_lex(States final, char* token) {
+    token_t tmp_token = {0};
     switch (final) {
         case PHPEND2:
-            return (token_t){.token_type = L_PHPEND};
+            tmp_token = (token_t){.token_type = L_PHPEND};
+            break;
         case LPAR:
-            return (token_t){.token_type = L_LPAR};
+            tmp_token = (token_t){.token_type = L_LPAR};
+            break;
         case PHPSTART5:
-            return (token_t){.token_type = L_PHPSTART};
+            tmp_token = (token_t){.token_type = L_PHPSTART};
+            break;
         case RPAR:
-            return (token_t){.token_type = L_RPAR};
+            tmp_token = (token_t){.token_type = L_RPAR};
+            break;
         case COMMA:
-            return (token_t){.token_type = L_COMMA};
+            tmp_token = (token_t){.token_type = L_COMMA};
+            break;
         case DOT:
-            return (token_t){.token_type = L_DOT};
+            tmp_token = (token_t){.token_type = L_DOT};
+            break;
         case LCURL:
-            return (token_t){.token_type = L_LCURL};
+            tmp_token = (token_t){.token_type = L_LCURL};
+            break;
         case RCURL:
-            return (token_t){.token_type = L_RCURL};
+            tmp_token = (token_t){.token_type = L_RCURL};
+            break;
         case SEMICOLON:
-            return (token_t){.token_type = L_SEMICOL};
+            tmp_token = (token_t){.token_type = L_SEMICOL};
+            break;
         case COLON:
-            return (token_t){.token_type = L_COLON};
+            tmp_token = (token_t){.token_type = L_COLON};
+            break;
         case MUL:
-            return (token_t){.token_type = L_MUL};
+            tmp_token = (token_t){.token_type = L_MUL};
+            break;
         case SLASH:
-            return (token_t){.token_type = L_SLASH};
+            tmp_token = (token_t){.token_type = L_SLASH};
+            break;
         case PLUS:
-            return (token_t){.token_type = L_PLUS};
+            tmp_token = (token_t){.token_type = L_PLUS};
+            break;
         case DASH:
-            return (token_t){.token_type = L_DASH};
+            tmp_token = (token_t){.token_type = L_DASH};
+            break;
         case STRING_LIT_END:
-            return (token_t){.token_type = L_STRING,
-                             .string = escape_sequence_parser(token)};
+            tmp_token = (token_t){.token_type = L_STRING,
+                                  .string = escape_sequence_parser(token)};
+            break;
         case EXP_2:
-            return (token_t){.token_type = L_EXP,
-                             .float_val = return_float(token)};
+            tmp_token = (token_t){.token_type = L_EXP,
+                                  .float_val = return_float(token)};
+            break;
         case ID1:
             // call function for decision between funcid, keyword or type id
-            return isKeyword(token);
+            tmp_token = isKeyword(token);
+            break;
         case VARID:
-            return (token_t){.token_type = L_VARID, .string = token};
+            tmp_token = (token_t){.token_type = L_VARID, .string = token};
+            break;
         case NUMBER:
-            return (token_t){.token_type = L_NUMBER,
-                             .val = return_digit(token)};
+            tmp_token =
+                (token_t){.token_type = L_NUMBER, .val = return_digit(token)};
+            break;
         case EQ1:
-            return (token_t){.token_type = L_ASSIGN};
+            tmp_token = (token_t){.token_type = L_ASSIGN};
+            break;
         case EQ3:
-            return (token_t){.token_type = L_EQ};
+            tmp_token = (token_t){.token_type = L_EQ};
+            break;
         case NEQ3:
-            return (token_t){.token_type = L_NEQ};
+            tmp_token = (token_t){.token_type = L_NEQ};
+            break;
         case LESSEQ:
-            return (token_t){.token_type = L_LESSEQ};
+            tmp_token = (token_t){.token_type = L_LESSEQ};
+            break;
         case GREATEREQ:
-            return (token_t){.token_type = L_GREATEREQ};
+            tmp_token = (token_t){.token_type = L_GREATEREQ};
+            break;
         case PHPSTART:
-            return (token_t){.token_type = L_LESS};
+            tmp_token = (token_t){.token_type = L_LESS};
+            break;
         case GREATER:
-            return (token_t){.token_type = L_GREATER};
+            tmp_token = (token_t){.token_type = L_GREATER};
+            break;
         case FLOAT2:
-            return (token_t){.token_type = L_FLOAT,
-                             .float_val = return_float(token)};
+            tmp_token = (token_t){.token_type = L_FLOAT,
+                                  .float_val = return_float(token)};
+            break;
         case PHPEND:
-            return (token_t){.token_type = L_VARPREF};
+            tmp_token = (token_t){.token_type = L_VARPREF};
+            break;
         case TOKEN_END:
+            free(token);
             exit_program(1, "wrong token");
             break;
             // error_exit("reached end of token");
         default:
+            free(token);
             exit_program(1, "undefined lexeme");
             break;
     }
-    return (token_t){0};
+    return tmp_token;
 }
 
-token_t get_token_data(scanner_t scan) {
+token_t get_token_data(scanner_t* scan) {
     // tmp, move to main and pass as argument
     States now = START;
-    scan.tokenmem = 100;
-    scan.usedmem = 0;
-    scan.token =
-        (char*)calloc(scan.tokenmem, sizeof(char*));  // tmp, create fnc
+    scan->tokenmem = 5;
+    scan->usedmem = 0;
+    scan->token =
+        (char*)calloc(scan->tokenmem, sizeof(char*));  // tmp, create fnc
     char edge = ' ';
     int idx = 0;
     while (true) {
         if (edge == '\n')
-            scan.line_num++;
+            scan->line_num++;
         edge = getchar();
+        char_cnt++;
         if (edge == EOF) {
             if (now == START) {
                 return (token_t){.token_type = LEOF};
@@ -617,23 +671,29 @@ token_t get_token_data(scanner_t scan) {
         States next = FSM(now, edge);
         if (next == TOKEN_END) {
             ungetc(edge, stdin);
-            scan.token[idx++] = '\0';
+            scan->token[idx++] = '\0';
             if (!err_flag) {
-                return create_lex(now, scan.token);
+                return create_lex(now, scan->token);
 
             } else {
+                token_free(scan->token);
                 exit_program(1, "wrong token");
                 err_flag = 0;
                 next = START;
             }
         }
-        scan.token[idx] = edge;
+        scan->token[idx] = edge;
         idx++;
-        scan.usedmem++;
-        if (scan.usedmem >= (scan.tokenmem * 0.9)) {
-            scan.tokenmem = scan.tokenmem * 2;
-            scan.token = (char*)realloc(scan.token, scan.tokenmem);
-            scan.usedmem = 0;
+        scan->usedmem++;
+        if (scan->usedmem >= (scan->tokenmem * 0.9)) {
+            scan->tokenmem = scan->tokenmem * 2;
+            scan->token = (char*)realloc(scan->token, scan->tokenmem);
+            if (scan->token == NULL) {
+                fprintf(stderr,
+                        "realloc memory allocation fail (I am in scanner if "
+                        "you want to delete me\n");
+            }
+            // scan->usedmem = 0;
         }
 
         if (next == START) {
@@ -643,14 +703,15 @@ token_t get_token_data(scanner_t scan) {
     }
 }
 
-void token_free(token_t* token) {
-    free(token);
-}
-
-token_t get_lex_value(scanner_t scan) {
+token_t* get_lex_value() {
+    scanner_t* scan = (scanner_t*)malloc(sizeof(scanner_t));
     token_t* token = malloc(sizeof(token_t));
 
     *token = get_token_data(scan);
 
-    return *token;
+    if (scan != NULL) {
+        free(scan);
+    }
+
+    return token;
 }
