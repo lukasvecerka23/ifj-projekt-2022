@@ -472,24 +472,10 @@ void stack_test() {
     stack_push(&stack, T_MUL);
     stack_shift_push(&stack);
     stack_print_stack(&stack);
-    // printf("Stack non terminal %d\n", stack_top_nonterminal(&stack));
-    // printf("stack empty:%d\n", stack_empty(&stack));
-    //  ////printf("hit\n");
-    // printf("stack top: %d\n", stack_top(&stack));
-    // printf("Stack non terminal %d\n", stack_top_nonterminal(&stack));
-    // printf("popped element %d\n", stack_pop(&stack));
-    // printf("stack top: %d\n", stack_top(&stack));
-    // printf("popped element %d\n", stack_pop(&stack));
-    // printf("popped element %d\n", stack_pop(&stack));
-    // printf("popped element %d\n", stack_pop(&stack));
-    // printf("stack top: %d\n", stack_top(&stack));
-    // printf("popped element %d\n", stack_pop(&stack));
-    // printf("popped element %d\n", stack_pop(&stack));
-    // printf("popped element %d\n", stack_pop(&stack));
-    // printf("--------------- end stack test ---------------\n");
 }
 
 int parse_expression(token_t* used_token,
+                     token_t* used_token2,
                      bool is_expression,
                      ast_node_t** tree) {
     // //print_lex(*used_token);
@@ -499,6 +485,10 @@ int parse_expression(token_t* used_token,
     stack_push(&stack, EMPTY);
     // lexeme used_token;
     int first_token_used = 0;
+    int second_token = 0;
+    if (used_token2 != NULL) {
+        second_token = 1;
+    }
 
     token_t* current_token;
     precedence_symbols current_token_enum;
@@ -539,7 +529,12 @@ int parse_expression(token_t* used_token,
                 // next token
                 stack_push(&stack, current_token_enum);
                 stack.top->token = current_token;
-                current_token = get_lex_value();
+                if (used_token2 != NULL && second_token) {
+                    current_token = used_token2;
+                    second_token = 0;
+                } else {
+                    current_token = get_lex_value();
+                }
                 // printf("current lexeme");
                 // print_lex(current_token);
                 current_token_enum = map_token_to_enum(current_token);
@@ -554,7 +549,12 @@ int parse_expression(token_t* used_token,
                 stack_shift_push(&stack);
                 stack_push(&stack, current_token_enum);
                 stack.top->token = current_token;
-                current_token = get_lex_value();
+                if (used_token2 != NULL && second_token) {
+                    current_token = used_token2;
+                    second_token = 0;
+                } else {
+                    current_token = get_lex_value();
+                }
                 if (!first_token_used) {
                     first_token_used = 1;
                     if (used_token != NULL) {

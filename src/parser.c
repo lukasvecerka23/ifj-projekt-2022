@@ -288,10 +288,10 @@ void var_init() {
     }
 }
 
-void expression_parser(token_t* token, bool is_cond) {
+void expression_parser(token_t* token, token_t* token2, bool is_cond) {
     ast_node_t* new_tree;
     int err_code;
-    err_code = parse_expression(token, is_cond, &new_tree);
+    err_code = parse_expression(token, NULL, is_cond, &new_tree);
 
     switch (err_code) {
         case 0:
@@ -520,7 +520,7 @@ bool statement() {
                 statement();
                 return true;
             } else {
-                expression_parser(parser.token, true);
+                expression_parser(parser.token, NULL, true);
                 if (parser.in_function) {
                     generate_exp_local_assignment(tmp_var->string);
                 } else {
@@ -529,7 +529,7 @@ bool statement() {
             }
         } else {
             if (!check_token_type(L_SEMICOL))
-                expression_parser(tmp_var, true);
+                expression_parser(tmp_var, NULL, true);
             else if (parser.in_function)
                 generate_one_operand(tmp_var, parser.in_function,
                                      parser.local_symtable);
@@ -568,7 +568,7 @@ bool statement() {
         parser.scope++;
         parser.in_while_if = true;
         get_token_consume_token(L_LPAR, "missing left paren in if statement");
-        expression_parser(parser.token, false);
+        expression_parser(parser.token, NULL, false);
         // consume_token(L_RPAR, "missing right paren in if statement");
         generate_if_then(if_scope);
         // consume_token(L_LCURL, "missing left curl bracket in if statement");
@@ -597,7 +597,7 @@ bool statement() {
         get_token_consume_token(L_LPAR,
                                 "missing left paren in while statement");
         generate_while_start(while_scope);
-        expression_parser(parser.token, false);
+        expression_parser(parser.token, NULL, false);
         // get_token_consume_token(L_RPAR,
         //                         "missing right paren in while statement");
         generate_while_condition(while_scope);
@@ -632,13 +632,13 @@ bool statement() {
                         6, "return empty expression in non void function");
                 }
                 parser.declared_function->func_data.returned = true;
-                expression_parser(parser.token, true);
+                expression_parser(parser.token, NULL, true);
                 generate_return(parser.declared_function->name, false);
             }
         } else {
             get_next_token();
             if (!check_token_type(L_SEMICOL)) {
-                expression_parser(parser.token, true);
+                expression_parser(parser.token, NULL, true);
             }
             generate_exit_program();
         }
@@ -656,7 +656,7 @@ bool statement() {
 
     if (check_token_type(L_NUMBER) || check_token_type(L_STRING) ||
         check_token_type(L_FLOAT) || check_token_type(L_LPAR)) {
-        expression_parser(parser.token, true);
+        expression_parser(parser.token, NULL, true);
         get_next_token();
         statement();
         return true;
