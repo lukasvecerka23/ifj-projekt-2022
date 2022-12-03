@@ -291,7 +291,7 @@ void var_init() {
 void expression_parser(token_t* token, token_t* token2, bool is_cond) {
     ast_node_t* new_tree;
     int err_code;
-    err_code = parse_expression(token, NULL, is_cond, &new_tree);
+    err_code = parse_expression(token, token2, is_cond, &new_tree);
 
     switch (err_code) {
         case 0:
@@ -529,7 +529,7 @@ bool statement() {
             }
         } else {
             if (!check_token_type(L_SEMICOL))
-                expression_parser(tmp_var, NULL, true);
+                expression_parser(tmp_var, parser.token, true);
             else if (parser.in_function)
                 generate_one_operand(tmp_var, parser.in_function,
                                      parser.local_symtable);
