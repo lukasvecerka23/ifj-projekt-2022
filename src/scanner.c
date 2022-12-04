@@ -152,12 +152,8 @@ void print_lex(token_t* token) {
             printf("( declare )\n");
             return;
         default:
-            warning_msg("did not match any token \n");
             return;
     }
-    warning_msg(
-        "token should have been printed (didnt you forget to add it print "
-        "func)");
     return;
 }
 
