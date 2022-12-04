@@ -17,7 +17,6 @@ int err_flag = 0;
 unsigned long char_cnt = 0;
 
 void token_free(char* token) {
-    // printf("string: %d\n", token);
     if (token != NULL) {
         free(token);
     }
@@ -235,18 +234,14 @@ char* escape_sequence_parser(char* str) {
             }
 
             if (isdigit(str[i])) {
-                // printf("hit\n");
                 char dec_num[4];
                 int k;
                 for (k = 0; k <= 2; k++) {
                     dec_num[k] = str[i + k];
-                    // printf("loading...\n");
                 }
                 dec_num[3] = '\0';
-                // printf("dec_num, %s :\n", dec_num);
                 char* err_str_dec;
                 int num = (int)strtol(dec_num, &err_str_dec, 8);
-                // printf("num: %d\n", num);
                 dec_num[k++] = '\0';
                 if (strlen(err_str_dec) >= 1) {
                     tmp[j] = str[i];
@@ -258,13 +253,9 @@ char* escape_sequence_parser(char* str) {
                     tmp[j++] = '0';
                     for (int l = 0; buffer_dec[l] != '\0'; l++) {
                         tmp[j++] = buffer_dec[l];
-                        // printf("c: %c\n", tmp[j]);
                     }
                 }
                 i = i + 3;
-                // printf("str: %c\n", str[i]);
-                // tmp[j] = str[i];
-                // continue;
             }
             tmp[j] = str[i];
 
@@ -529,10 +520,6 @@ States FSM(States curr_state, char edge) {
             if (isalnum(edge) || edge == '_')  // changes from isalpha()
                 return ID1;
             return TOKEN_END;
-        // case ID2:
-        //     if (isalnum(edge) || edge == '_')
-        //         return ID2;
-        //     return TOKEN_END;
         case GREATER:
             if (edge == '=')
                 return GREATEREQ;
@@ -542,12 +529,7 @@ States FSM(States curr_state, char edge) {
     }
     return TOKEN_END;
 }
-/*
-TODO:
-- store data to lexeme depends on its type
-- uploading var id, func id to symtable
-- sending tokens to syntax analyzer
-*/
+
 token_t create_lex(States final, char* token) {
     token_t tmp_token = {0};
     switch (final) {
@@ -644,7 +626,6 @@ token_t create_lex(States final, char* token) {
             free(token);
             exit_program(1, "wrong token");
             break;
-            // error_exit("reached end of token");
         default:
             free(token);
             exit_program(1, "undefined lexeme");
@@ -654,7 +635,6 @@ token_t create_lex(States final, char* token) {
 }
 
 token_t get_token_data(scanner_t* scan) {
-    // tmp, move to main and pass as argument
     States now = START;
     scan->tokenmem = 5;
     scan->usedmem = 0;
@@ -698,7 +678,6 @@ token_t get_token_data(scanner_t* scan) {
                         "realloc memory allocation fail (I am in scanner if "
                         "you want to delete me\n");
             }
-            // scan->usedmem = 0;
         }
 
         if (next == START) {

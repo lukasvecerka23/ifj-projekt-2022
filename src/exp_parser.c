@@ -86,83 +86,6 @@ precedence_symbols map_token_to_enum(token_t* token) {
     return T_INVALID;
 }
 
-void print_enum_as_str(precedence_symbols data) {
-    switch (data) {
-        case T_PLUS:
-            // printf("T_PLUS");
-            break;
-        case T_MUL:
-            // printf("T_MUL");
-            break;
-        case T_LPAR:
-            // printf("T_LPAR");
-            break;
-        case T_RPAR:
-            // printf("T_RPAR");
-            break;
-        case T_INT:
-            // printf("T_INT");
-            break;
-        case $:
-            // printf("$");
-            break;
-        case T_FLOAT:
-            // printf("T_FLOAT");
-            break;
-        case T_STRING:
-            // printf("T_STRING");
-            break;
-        case T_DIV:
-            // printf("T_DIV");
-            break;
-        case T_MINUS:
-            // printf("T_MINUS");
-            break;
-        case T_LESS:
-            // printf("T_LESS");
-            break;
-        case T_GREATER:
-            // printf("T_GREATER");
-            break;
-        case T_LESSEQ:
-            // printf("T_LESSEQ");
-            break;
-        case T_GREATEREQ:
-            // printf("T_GREATEREQ");
-            break;
-        // case K_NULL:
-        //     ////printf("T_NULL");
-        case T_EQ:
-            // printf("T_EQ");
-            break;
-        case T_NEQ:
-            // printf("T_NEQ");
-            break;
-        case EMPTY:
-            // printf("EMPTY");
-            break;
-        case W:
-            // printf("W");
-            break;
-        case R:
-            // printf("R");
-            break;
-        case S:
-            // printf("S");
-            break;
-        case Er:
-            // printf("Er");
-            break;
-        case E:
-            // printf("E");
-            break;
-        default:
-            // printf("not in enum range %d", data);
-            break;
-    }
-    // //printf("hit\n");
-}
-
 precedence_symbols stack_top_nonterminal(Stack* stack) {
     Stack_exp tmp;
     tmp = stack->top;
@@ -224,7 +147,6 @@ void stack_shift_push(Stack* stack) {
 void stack_print_stack(Stack* stack) {
     Stack_exp tmp = stack->top;
     while (tmp != NULL) {
-        print_enum_as_str(tmp->data);
         tmp = tmp->next_element;
     }
 }
@@ -403,10 +325,7 @@ int parse_expression(token_t* used_token,
 
     do {
         stack_print_stack(&stack);
-        print_enum_as_str(current_token_enum);
         top = stack_top_nonterminal(&stack);
-        print_enum_as_str(top);
-        print_enum_as_str(prec_table[top][current_token_enum]);
         switch (prec_table[top][current_token_enum]) {
             case W:  // get next token and push current
                 // next token
