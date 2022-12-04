@@ -49,3 +49,4 @@ void clear_and_exit_program(int err_code, char* msg);
 void check_if_all_func_defined(htab_t* table);
 // void prolog();
 #endif
+/*END OF FILE*/

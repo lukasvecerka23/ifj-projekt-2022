@@ -55,7 +55,7 @@ typedef struct stack_el {
     ast_node_t* tree;
     struct stack_el* next_element;
 
-} * Stack_exp;
+}* Stack_exp;
 
 typedef struct {
     Stack_exp top;
@@ -82,3 +82,4 @@ int parse_expression(token_t* used_token,
                      ast_node_t** tree);
 
 #endif
+/*END OF FILE*/

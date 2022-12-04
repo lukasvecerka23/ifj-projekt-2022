@@ -1221,3 +1221,4 @@ void generate_ast(ast_node_t* current,
             break;
     }
 }
+/*END OF FILE*/

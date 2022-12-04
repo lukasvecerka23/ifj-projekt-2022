@@ -80,3 +80,4 @@ void htab_free(htab_t* table);
 
 void ht_print_table(htab_t* table, char* table_type);
 #endif
+/*END OF FILE*/

@@ -336,7 +336,6 @@ int rule_reduction(Stack* stack) {
     if (stack_data[1]->data == S && stack_data[0]->data == T_INT) {  // i -> E
         // stack_pop(stack);
         stack_push(stack, E);
-        htab_item_t data;
         if (stack_data[0]->token->token_type == L_VARID) {
             // data = htab_search(table,
             // stack_data[0]->token.string);
@@ -344,7 +343,7 @@ int rule_reduction(Stack* stack) {
             //     return 5;
             // }
         }
-        stack->top->tree = make_leaf(stack_data[0]->token, data);
+        stack->top->tree = make_leaf(stack_data[0]->token);
         stack->top->token = stack_data[0]->token;
         // stack_data[0]
         // free(stack_data);
@@ -593,7 +592,7 @@ int parse_expression(token_t* used_token,
                 // return;
             case Er:
                 stack_print_stack(&stack);
-                ast_print_tree(stack.top->tree);
+                // ast_print_tree(stack.top->tree);
                 // printf("--- SYNTAX ERROR ---\n");
                 return 2;
                 break;
@@ -647,3 +646,4 @@ int parse_expression(token_t* used_token,
 
 //     return 1;
 // }
+/*END OF FILE*/

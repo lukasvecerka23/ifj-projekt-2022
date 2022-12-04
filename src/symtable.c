@@ -178,11 +178,9 @@ bool htab_delete(htab_t* table, htab_key_t key) {
             free(tmp);
             table->arr_ptr[index] = tmp_next;
         }
-        printf("hit1");
         table->size--;
         return true;
     }
-    printf("hit2");
     while (tmp->next != NULL) {
         if (!strcmp(tmp->next->key, key)) {
             htab_item_t* tmp_next = tmp->next->next;
@@ -223,3 +221,4 @@ void htab_free(htab_t* table) {
     free(table->arr_ptr);
     free(table);
 }
+/*END OF FILE*/
