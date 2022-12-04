@@ -257,7 +257,6 @@ void symtable_var_check() {
         tmp_item = htab_search(parser.local_symtable, parser.token->string);
         if (tmp_item == NULL) {
             create_new_local_data();
-            parser.local_symtable_data->var_data.init = false;
             parser.local_symtable_data->name = parser.token->string;
             parser.local_symtable_data->type = ID_VAR;
             htab_insert_update(parser.local_symtable, parser.token->string,
@@ -269,7 +268,6 @@ void symtable_var_check() {
         tmp_item = htab_search(parser.global_symtable, parser.token->string);
         if (tmp_item == NULL) {
             create_new_global_data();
-            parser.global_symtable_data->var_data.init = false;
             parser.global_symtable_data->name = parser.token->string;
             parser.global_symtable_data->type = ID_VAR;
             htab_insert_update(parser.global_symtable, parser.token->string,
@@ -277,14 +275,6 @@ void symtable_var_check() {
         } else {
             parser.global_symtable_data = tmp_item->data;
         }
-    }
-}
-
-void var_init() {
-    if (parser.in_function) {
-        parser.local_symtable_data->var_data.init = true;
-    } else {
-        parser.global_symtable_data->var_data.init = true;
     }
 }
 
@@ -486,7 +476,6 @@ bool statement() {
         *tmp_var = *parser.token;
         get_next_token();
         if (parser.token->token_type == L_ASSIGN) {
-            var_init();
             get_next_token();
             if (parser.token->token_type == L_FUNCID) {
                 check_func_id(false);
@@ -720,8 +709,10 @@ bool next_parameter() {
         get_token_consume_token(L_VARID,
                                 "missing variable identifier after data type "
                                 "in function declaration");
+        // check if parameter already exist in symtable
+        if (htab_search(parser.local_symtable, parser.token->string))
+            clear_and_exit_program(4, "redefinition of function parameter");
         // add variable to symtable and add param to function declaration
-        parser.local_symtable_data->var_data.init = true;
         parser.local_symtable_data->name = parser.token->string;
         parser.local_symtable_data->type = ID_VAR;
         htab_insert_update(parser.local_symtable, parser.token->string,
@@ -759,8 +750,10 @@ bool list_params() {
             get_token_consume_token(
                 L_VARID, "missing variable identifier after data type");
 
+            // check if parameter already exist in symtable
+            if (htab_search(parser.local_symtable, parser.token->string))
+                clear_and_exit_program(4, "redefinition of function parameter");
             // add param variable to local symtable
-            parser.local_symtable_data->var_data.init = true;
             parser.local_symtable_data->name = parser.token->string;
             parser.local_symtable_data->type = ID_VAR;
             htab_insert_update(parser.local_symtable, parser.token->string,

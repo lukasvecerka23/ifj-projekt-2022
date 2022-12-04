@@ -13,46 +13,6 @@ Description: --
 #define AVG_LEN_MAX 1.5
 #define AVG_LEN_MIN 0.35
 
-// test printing of table
-void ht_print_table(htab_t* table, char* table_type) {
-    int max_count = 0;
-    int sum_count = 0;
-
-    printf("------------%s HASH TABLE--------------\n", table_type);
-    for (size_t i = 0; i < table->arr_size; i++) {
-        printf("%li: ", i);
-        int count = 0;
-        htab_item_t* item = table->arr_ptr[i];
-        while (item != NULL) {
-            if (item->data->type == ID_FUNC)
-                printf(
-                    "(%s, RETURN_TYPE: %d, DEFINED: %d, OPTIONAL_RET: %d, "
-                    "PARAM_COUNT: %ld)",
-                    item->key, item->data->func_data.ret_type,
-                    item->data->func_data.defined,
-                    item->data->func_data.optional_ret_type,
-                    item->data->func_data.param_count);
-            else if (item->data->type == ID_VAR)
-                printf("(%s, DATA_TYPE: %d, OPTIONAL: %d, INITIALIZED: %d)",
-                       item->key, item->data->var_data.data_type,
-                       item->data->var_data.optional_type,
-                       item->data->var_data.init);
-            count++;
-            item = item->next;
-        }
-        printf("\n");
-        if (count > max_count) {
-            max_count = count;
-        }
-        sum_count += count;
-    }
-
-    printf("------------------------------------\n");
-    printf("Total items in hash table: %i\n", sum_count);
-    printf("Maximum hash collisions: %i\n", max_count == 0 ? 0 : max_count - 1);
-    printf("------------------------------------\n");
-}
-
 // hashovaci funkce
 size_t htab_hash_function(htab_key_t str) {
     uint32_t hash = 0;

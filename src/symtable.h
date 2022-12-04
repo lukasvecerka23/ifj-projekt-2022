@@ -27,7 +27,6 @@ typedef const char* htab_key_t;
 typedef struct htab_item htab_item_t;
 
 typedef struct htab_var_data {
-    bool init;
     bool optional_type;
     DTYPE data_type;
 } htab_var_data_t;
