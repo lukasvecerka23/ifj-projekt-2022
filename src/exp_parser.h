@@ -1,8 +1,13 @@
-/*
-Name: IFJ PROJEKT 2022
-Authors: xdolez0c, xvecer30, xnespo10, xtomko06
-Description: --
-*/
+/**
+ * Project - IFJ Projekt 2022
+ *
+ * @author Lukas Vecerka xvecer30
+ * @author Jachym Dolezal xdolez0c
+ * @author Andrej Nespor xnespo10
+ * @author Matej Tomko xtomko06
+ *
+ * @brief Header file for Expression Parser
+ */
 
 #ifndef EXP_PARSER_H
 #define EXP_PARSER_H
@@ -11,15 +16,6 @@ Description: --
 #include "ast.h"
 #include "scanner.h"
 #define TABLE_SIZE 15
-
-// typedef struct {
-//     lexeme token;
-//     // htab_t* global_symtable;
-//     // htab_t* local_symtable;
-//     // htab_item_data_t* global_symtable_data;
-//     // htab_item_data_t* local_symtable_data;
-//     bool in_function;
-// } Exp_parser;
 
 typedef enum precedence_symbols {
     T_PLUS,
@@ -55,7 +51,7 @@ typedef struct stack_el {
     ast_node_t* tree;
     struct stack_el* next_element;
 
-}* Stack_exp;
+} * Stack_exp;
 
 typedef struct {
     Stack_exp top;
@@ -82,4 +78,5 @@ int parse_expression(token_t* used_token,
                      ast_node_t** tree);
 
 #endif
+
 /*END OF FILE*/
