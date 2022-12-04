@@ -1,8 +1,13 @@
-/*
-Name: IFJ PROJEKT 2022
-Authors: xdolez0c, xvecer30, xnespo10, xtomko06
-Description: --
-*/
+/**
+ * Project - IFJ Projekt 2022
+ *
+ * @author Lukas Vecerka xvecer30
+ * @author Jachym Dolezal xdolez0c
+ * @author Andrej Nespor xnespo10
+ * @author Matej Tomko xtomko06
+ *
+ * @brief Header file for AST Tree
+ */
 
 #ifndef IFJ_AST_H
 #define IFJ_AST_H
