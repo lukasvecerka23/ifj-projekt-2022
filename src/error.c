@@ -1,13 +1,15 @@
-/*
-Name: IFJ PROJEKT 2022
-Authors: xdolez0c, xvecer30, xnespo10, xtomko06
-Description: --
-*/
+/**
+ * Project - IFJ Projekt 2022
+ *
+ * @author Lukas Vecerka xvecer30
+ * @author Jachym Dolezal xdolez0c
+ * @author Andrej Nespor xnespo10
+ * @author Matej Tomko xtomko06
+ *
+ * @brief Function implementation for exiting program with specified code
+ */
 
 #include "error.h"
-#include <stdarg.h>
-#include <stdio.h>
-#include <stdlib.h>
 
 void exit_program(int err_code, char* msg) {
     switch (err_code) {
@@ -39,24 +41,5 @@ void exit_program(int err_code, char* msg) {
             fprintf(stderr, "internal error: %s\n", msg);
             exit(99);
     }
-}
-
-void warning_msg(const char* fmt, ...) {
-    va_list args;
-
-    va_start(args, fmt);
-    fprintf(stderr, "INVALID_SYNTAX: ");
-    vfprintf(stderr, fmt, args);
-    fprintf(stderr, "\n");
-    va_end(args);
-}
-void error_exit(const char* fmt, ...) {
-    va_list args;
-    va_start(args, fmt);
-    fprintf(stderr, "ERROR: ");
-    vfprintf(stderr, fmt, args);
-    fprintf(stderr, "\n");
-    va_end(args);
-    exit(1);
 }
 /*END OF FILE*/

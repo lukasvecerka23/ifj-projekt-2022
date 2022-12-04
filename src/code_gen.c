@@ -9,12 +9,6 @@ Description: --
 #include <stdlib.h>
 #include <string.h>
 
-/** TODO
- * RETURN TYPE CHECK
- * Semantic checks for type incompatibility in arithmetic and relation
- * operations
- */
-
 // Functions for dynamic string
 void string_add_char(dynamic_string_t* string, char c) {
     if (string->usedmem + 1 >= (string->stringmem * 0.9)) {
