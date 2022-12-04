@@ -721,6 +721,8 @@ bool next_parameter() {
                                 "missing variable identifier after data type "
                                 "in function declaration");
         // add variable to symtable and add param to function declaration
+        if (htab_search(parser.local_symtable, parser.token->string))
+            clear_and_exit_program(4, "redefinition of function parameter");
         parser.local_symtable_data->var_data.init = true;
         parser.local_symtable_data->name = parser.token->string;
         parser.local_symtable_data->type = ID_VAR;
@@ -760,6 +762,8 @@ bool list_params() {
                 L_VARID, "missing variable identifier after data type");
 
             // add param variable to local symtable
+            if (htab_search(parser.local_symtable, parser.token->string))
+                clear_and_exit_program(4, "redefinition of function parameter");
             parser.local_symtable_data->var_data.init = true;
             parser.local_symtable_data->name = parser.token->string;
             parser.local_symtable_data->type = ID_VAR;
