@@ -213,7 +213,7 @@ void generate_func_param(htab_item_t* param_data,
             if (param_data->data->var_data.optional_type) {
                 printf("JUMPIFNEQ $%d%s_notnil LF@%s_type string@nil\n", scope,
                        param_data->key, param_data->key);
-                printf("MOVE LF@%s float@0x0p+0\n", param_data->key);
+                printf("MOVE LF@%s nil@nil\n", param_data->key);
                 printf("JUMP $%d%s_continue\n", scope, param_data->key);
                 printf("LABEL $%d%s_notnil\n", scope, param_data->key);
             }
@@ -225,7 +225,7 @@ void generate_func_param(htab_item_t* param_data,
             if (param_data->data->var_data.optional_type) {
                 printf("JUMPIFNEQ $%d%s_notnil LF@%s_type string@nil\n", scope,
                        param_data->key, param_data->key);
-                printf("MOVE LF@%s int@0\n", param_data->key);
+                printf("MOVE LF@%s nil@nil\n", param_data->key);
                 printf("JUMP $%d%s_continue\n", scope, param_data->key);
                 printf("LABEL $%d%s_notnil\n", scope, param_data->key);
             }
@@ -237,7 +237,7 @@ void generate_func_param(htab_item_t* param_data,
             if (param_data->data->var_data.optional_type) {
                 printf("JUMPIFNEQ $%d%s_notnil LF@%s_type string@nil\n", scope,
                        param_data->key, param_data->key);
-                printf("MOVE LF@%s string@\n", param_data->key);
+                printf("MOVE LF@%s nil@nil\n", param_data->key);
                 printf("JUMP $%d%s_continue\n", scope, param_data->key);
                 printf("LABEL $%d%s_notnil\n", scope, param_data->key);
             }
