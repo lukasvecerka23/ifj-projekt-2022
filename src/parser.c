@@ -1,17 +1,15 @@
-/*
-Name: IFJ PROJEKT 2022
-Authors: xdolez0c, xvecer30, xnespo10, xtomko06
-Description: --
-*/
+/**
+ * Project - IFJ Projekt 2022
+ *
+ * @author Lukas Vecerka xvecer30
+ * @author Jachym Dolezal xdolez0c
+ * @author Andrej Nespor xnespo10
+ * @author Matej Tomko xtomko06
+ *
+ * @brief Implementation of parser
+ */
 
 #include "parser.h"
-#include <stdio.h>
-#include "error.h"
-/** TODO
- * Dodelat semanticke kontroly
- **/
-
-Parser parser;
 
 void get_next_token() {
     token_t* tmp_token = parser.token;
@@ -21,7 +19,6 @@ void get_next_token() {
 
 void consume_token(token_type token_type, char* err_msg) {
     if (parser.token->token_type != token_type) {
-        htab_free(parser.global_symtable);
         clear_and_exit_program(2, err_msg);
     }
 }
@@ -29,7 +26,6 @@ void consume_token(token_type token_type, char* err_msg) {
 void get_token_consume_token(token_type token_type, char* err_msg) {
     get_next_token();
     if (parser.token->token_type != token_type) {
-        htab_free(parser.global_symtable);
         clear_and_exit_program(2, err_msg);
     }
 }
@@ -52,6 +48,8 @@ void clear_and_exit_program(int err_code, char* msg) {
 void add_builtin_func(htab_item_data_t data, char* func_name) {
     htab_item_data_t* func_data =
         (htab_item_data_t*)malloc(sizeof(htab_item_data_t));
+    if (func_data == NULL)
+        clear_and_exit_program(99, "malloc error");
     *func_data = data;
     htab_insert_update(parser.global_symtable, func_name, func_data);
 }
@@ -83,7 +81,7 @@ void load_builtin_funcs() {
                                             .ret_type = RETTYPE_FLOAT}};
     add_builtin_func(data, "readf");
 
-    // write - vyresit alokovani n poctu termu v parametrech
+    // write
     data = (htab_item_data_t){.name = "write",
                               .type = ID_FUNC,
                               .func_data = {.defined = true,
@@ -174,13 +172,16 @@ void check_if_all_func_defined(htab_t* table) {
 void create_new_local_data() {
     htab_item_data_t* local_data =
         (htab_item_data_t*)malloc(sizeof(htab_item_data_t));
+    if (local_data == NULL)
+        clear_and_exit_program(99, "malloc error");
     parser.local_symtable_data = local_data;
 }
 
 void create_new_global_data() {
     htab_item_data_t* global_data =
         (htab_item_data_t*)malloc(sizeof(htab_item_data_t));
-
+    if (global_data == NULL)
+        clear_and_exit_program(99, "malloc error");
     parser.global_symtable_data = global_data;
 }
 
@@ -204,143 +205,6 @@ bool check_param_types() {
             break;
     }
     return true;
-}
-
-void check_func_id(bool def_check) {
-    htab_item_t* tmp_item =
-        htab_search(parser.global_symtable, parser.token->string);
-
-    // if record about func is not in symtable, create new record
-    if (tmp_item == NULL) {
-        create_new_global_data();
-        if (def_check) {
-            parser.global_symtable_data->func_data.defined = true;
-        } else {
-            if (parser.in_function)
-                parser.global_symtable_data->func_data.defined = false;
-            else
-                clear_and_exit_program(
-                    3,
-                    "calling undefined function outside of function "
-                    "declaration");
-        }
-        parser.global_symtable_data->name = parser.token->string;
-        parser.global_symtable_data->type = ID_FUNC;
-        parser.global_symtable_data->func_data.param_count = 0;
-        parser.global_symtable_data->func_data.optional_ret_type = false;
-        parser.global_symtable_data->func_data.returned = false;
-        htab_insert_update(parser.global_symtable, parser.token->string,
-                           parser.global_symtable_data);
-        parser.func_check = false;
-    } else {
-        // if there is record check if function is already defined, if yes
-        // return error if not update the symtable record
-        parser.global_symtable_data = tmp_item->data;
-        if (strcmp(tmp_item->key, "write") != 0) {
-            parser.func_check = true;
-        } else {
-            parser.func_check = false;
-        }
-
-        if (def_check) {
-            if (tmp_item->data->func_data.defined == true) {
-                clear_and_exit_program(3, "redefinition of function");
-            }
-            parser.global_symtable_data->func_data.defined = true;
-        }
-    }
-}
-
-void symtable_var_check() {
-    htab_item_t* tmp_item;
-    if (parser.in_function) {
-        tmp_item = htab_search(parser.local_symtable, parser.token->string);
-        if (tmp_item == NULL) {
-            create_new_local_data();
-            parser.local_symtable_data->name = parser.token->string;
-            parser.local_symtable_data->type = ID_VAR;
-            htab_insert_update(parser.local_symtable, parser.token->string,
-                               parser.local_symtable_data);
-        } else {
-            parser.local_symtable_data = tmp_item->data;
-        }
-    } else {
-        tmp_item = htab_search(parser.global_symtable, parser.token->string);
-        if (tmp_item == NULL) {
-            create_new_global_data();
-            parser.global_symtable_data->name = parser.token->string;
-            parser.global_symtable_data->type = ID_VAR;
-            htab_insert_update(parser.global_symtable, parser.token->string,
-                               parser.global_symtable_data);
-        } else {
-            parser.global_symtable_data = tmp_item->data;
-        }
-    }
-}
-
-void expression_parser(token_t* token, token_t* token2, bool is_cond) {
-    ast_node_t* new_tree;
-    int err_code;
-    err_code = parse_expression(token, token2, is_cond, &new_tree);
-
-    switch (err_code) {
-        case 0:
-            // ast_print_tree(new_tree);
-            if (is_cond == false && ast_height(new_tree) == 1)
-                if (parser.in_function)
-                    generate_one_operand(new_tree->token, parser.in_function,
-                                         parser.local_symtable);
-                else
-                    generate_one_operand(new_tree->token, parser.in_function,
-                                         parser.global_symtable);
-            else if (parser.in_function) {
-                parser.scope++;
-                generate_ast(new_tree, parser.in_function,
-                             parser.local_symtable, &parser.scope);
-            } else {
-                parser.scope++;
-                generate_ast(new_tree, parser.in_function,
-                             parser.global_symtable, &parser.scope);
-            }
-            break;
-        case 2:
-            clear_and_exit_program(2, "syntax error in expression parser");
-            break;
-        case 5:
-            clear_and_exit_program(5, "undefinded variable in expression");
-            break;
-    }
-}
-
-void check_func_return() {
-    switch (parser.declared_function->func_data.ret_type) {
-        case RETTYPE_STRING:
-            if (parser.declared_function->func_data.returned == false &&
-                parser.declared_function->func_data.optional_ret_type ==
-                    false) {
-                clear_and_exit_program(
-                    4, "missing return in function with required return type");
-            }
-            break;
-        case RETTYPE_FLOAT:
-            if (parser.declared_function->func_data.returned == false &&
-                parser.declared_function->func_data.optional_ret_type ==
-                    false) {
-                clear_and_exit_program(
-                    4, "missing return in function with required return type");
-            }
-            break;
-        case RETTYPE_INT:
-            if (parser.declared_function->func_data.returned == false &&
-                parser.declared_function->func_data.optional_ret_type ==
-                    false) {
-                clear_and_exit_program(
-                    4, "missing return in function with required return type");
-            }
-            break;
-        default:
-            break;
-    }
 }
 
 bool check_return_type() {
@@ -367,6 +231,137 @@ bool check_return_type() {
     }
     return true;
 }
+
+void check_func_id(bool def_check) {
+    htab_item_t* tmp_item =
+        htab_search(parser.global_symtable, parser.token->string);
+
+    // if record about func is not in symtable, create new record
+    if (tmp_item == NULL) {
+        create_new_global_data();
+        if (def_check) {
+            parser.global_symtable_data->func_data.defined = true;
+        } else {
+            if (parser.in_function)
+                parser.global_symtable_data->func_data.defined = false;
+            else
+                clear_and_exit_program(
+                    3,
+                    "calling undefined function outside of function "
+                    "declaration");
+        }
+
+        // init
+        parser.global_symtable_data->name = parser.token->string;
+        parser.global_symtable_data->type = ID_FUNC;
+        parser.global_symtable_data->func_data.param_count = 0;
+        parser.global_symtable_data->func_data.optional_ret_type = false;
+        parser.global_symtable_data->func_data.returned = false;
+        htab_insert_update(parser.global_symtable, parser.token->string,
+                           parser.global_symtable_data);
+        // check param count disable
+        parser.func_check = false;
+    } else {
+        // update global data
+        parser.global_symtable_data = tmp_item->data;
+        // if function is not write, change flag of parser to check param count
+        if (strcmp(tmp_item->key, "write") != 0) {
+            parser.func_check = true;
+        } else {
+            parser.func_check = false;
+        }
+
+        // if there is record check if function is already defined, if yes
+        // return error if not update the symtable record
+        if (def_check) {
+            if (tmp_item->data->func_data.defined == true) {
+                clear_and_exit_program(3, "redefinition of function");
+            }
+            parser.global_symtable_data->func_data.defined = true;
+        }
+    }
+}
+
+void symtable_var_check() {
+    htab_item_t* tmp_item;
+    // if in function declaration looks to local symtable, otherwise looks to
+    // global
+    if (parser.in_function) {
+        tmp_item = htab_search(parser.local_symtable, parser.token->string);
+        // if var not in symtable create new one
+        if (tmp_item == NULL) {
+            create_new_local_data();
+            // init
+            parser.local_symtable_data->name = parser.token->string;
+            parser.local_symtable_data->type = ID_VAR;
+            htab_insert_update(parser.local_symtable, parser.token->string,
+                               parser.local_symtable_data);
+        } else {
+            // update parser local data
+            parser.local_symtable_data = tmp_item->data;
+        }
+
+    } else {
+        tmp_item = htab_search(parser.global_symtable, parser.token->string);
+        // if not in symtable create new record
+        if (tmp_item == NULL) {
+            create_new_global_data();
+            // init
+            parser.global_symtable_data->name = parser.token->string;
+            parser.global_symtable_data->type = ID_VAR;
+            htab_insert_update(parser.global_symtable, parser.token->string,
+                               parser.global_symtable_data);
+        } else {
+            // update parser global data
+            parser.global_symtable_data = tmp_item->data;
+        }
+    }
+}
+
+void expression_parser(token_t* token, token_t* token2, bool check_semicolon) {
+    // tree is given by reference
+    ast_node_t* new_tree;
+    int err_code;
+    err_code = parse_expression(token, token2, check_semicolon, &new_tree);
+
+    switch (err_code) {
+        case 0:
+            if (check_semicolon == false && ast_height(new_tree) == 1)
+                if (parser.in_function)
+                    generate_one_operand(new_tree->token, parser.in_function,
+                                         parser.local_symtable);
+                else
+                    generate_one_operand(new_tree->token, parser.in_function,
+                                         parser.global_symtable);
+            else if (parser.in_function) {
+                parser.scope++;
+                generate_ast(new_tree, parser.in_function,
+                             parser.local_symtable, &parser.scope);
+            } else {
+                parser.scope++;
+                generate_ast(new_tree, parser.in_function,
+                             parser.global_symtable, &parser.scope);
+            }
+            break;
+        case 2:
+            clear_and_exit_program(2, "syntax error in expression parser");
+            break;
+        case 5:
+            clear_and_exit_program(5, "undefinded variable in expression");
+            break;
+    }
+}
+
+void check_func_return() {
+    if (parser.declared_function->func_data.ret_type != RETTYPE_VOID) {
+        if (parser.declared_function->func_data.returned == false &&
+            parser.declared_function->func_data.optional_ret_type == false) {
+            clear_and_exit_program(
+                4, "missing return in function with required return type");
+        }
+    }
+}
+
 // <term> rule
 bool term() {
     switch (parser.token->token_type) {
