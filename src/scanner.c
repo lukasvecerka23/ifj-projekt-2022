@@ -177,7 +177,9 @@ char* escape_sequence_parser(char* str) {
     unsigned long long j = 0;
     for (i, j = 0; str[i] != '\0'; i++, j++) {
         if (str[i] == '$') {  // error
-            return NULL;
+            exit_program(1,
+                         "Error when parsing string, $ must be written with \\ "
+                         "try -> \\$");
         }
         if (str[i] == '\\') {
             i++;
@@ -358,10 +360,6 @@ States FSM(States curr_state, char edge) {
                 return LESSEQ;
             }
             return TOKEN_END;
-        // case LESS:
-        //     return TOKEN_END;
-        // case LESSEQ:
-        //     return TOKEN_END;
         case PHPSTART2:
             if (edge == 'p') {
                 return PHPSTART3;
@@ -384,7 +382,6 @@ States FSM(States curr_state, char edge) {
                 return TOKEN_END;
             }
         case PHPSTART5:
-            // printf("char: %c\n", edge);
             if (isspace(edge) || edge == '/') {
                 if (char_cnt == 6)
                     return TOKEN_END;
@@ -420,7 +417,7 @@ States FSM(States curr_state, char edge) {
                 return TOKEN_END;
             }
             return STRING_LIT_E;
-        case STRING_SLASH:
+        case STRING_SLASH:  // todo delete
             if (edge == '"')
                 return STRING_LIT_E;
             return STRING_LIT_E;
@@ -443,7 +440,7 @@ States FSM(States curr_state, char edge) {
             if (edge == '/')
                 return START;
             else {
-                return MULT_L_COMMENT;
+                return MULT_L_COMMENT;  // fix kdyz narazi na eof ted
             }
         case ONE_L_COMMENT:
             if (edge == '\n' || edge == EOF)
