@@ -1,14 +1,7 @@
 <?php
 declare(strict_types=1);
 
-function print(int $num): string{
-    while($num > 1){
-        write($num);
-        $num = $num - 1;
-    }
-    return $num+1;
+function f(): ?string{
+    return null;
 }
-return 9;
-write("Zadejte cislo: ");
-$a = readi(); 
-print($a);
+f();
