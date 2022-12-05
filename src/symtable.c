@@ -1,19 +1,17 @@
 
-/*
-Name: IFJ PROJEKT 2022
-Authors: xdolez0c, xvecer30, xnespo10, xtomko06
-Description: --
-*/
+/**
+ * Project - IFJ Projekt 2022
+ *
+ * @author Lukas Vecerka xvecer30
+ * @author Jachym Dolezal xdolez0c
+ * @author Andrej Nespor xnespo10
+ * @author Matej Tomko xtomko06
+ *
+ * @brief Functions implementation for working with symtable
+ */
 
 #include "symtable.h"
-#include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
 
-#define AVG_LEN_MAX 1.5
-#define AVG_LEN_MIN 0.35
-
-// hashovaci funkce
 size_t htab_hash_function(htab_key_t str) {
     uint32_t hash = 0;
     unsigned char* p;
@@ -24,15 +22,13 @@ size_t htab_hash_function(htab_key_t str) {
     return hash;
 }
 
-// inicializace tabulky
 htab_t* htab_init(size_t size) {
     if (size == 0) {
-        // error_exit("Chyba: tabulka musí obsahovat alespoň jeden řádek.");
-        exit(1);
+        exit_program(99, "size of table should be > 0");
     }
     htab_t* htab_new = malloc(sizeof(htab_t));
     if (htab_new == NULL) {
-        return NULL;
+        exit_program(99, "malloc error");
     }
     htab_new->arr_ptr = malloc(sizeof(htab_item_t*) * size);
     if (htab_new->arr_ptr == NULL) {
@@ -49,23 +45,22 @@ htab_t* htab_init(size_t size) {
     return htab_new;
 }
 
-// funkce pro zjisteni plnosti tabulky
 size_t htab_size(htab_t* table) {
     return table->size;
 }
 
-// funkce pro zjisteni velikosti tabulky
 size_t htab_bucket_count(htab_t* table) {
     return table->arr_size;
 }
 
-// zvetseni tabulky
 void htab_resize(htab_t* table, size_t newsize) {
     size_t old_size = table->arr_size;
     table->arr_size = newsize;
     htab_item_t** old_arr_ptr = table->arr_ptr;
     table->arr_ptr = calloc(newsize, sizeof(htab_item_t*));
-
+    if (table->arr_ptr == NULL) {
+        exit_program(99, "malloc error");
+    }
     for (size_t i = 0; i < old_size; i++) {
         if (old_arr_ptr[i] == NULL) {
             continue;
@@ -106,7 +101,7 @@ htab_item_t* htab_search(htab_t* table, htab_key_t key) {
 htab_item_t* create_new_item(htab_key_t key, htab_item_data_t* data) {
     htab_item_t* new_item = malloc(sizeof(htab_item_t));
     if (new_item == NULL) {
-        return NULL;
+        exit_program(99, "malloc error");
     }
 
     size_t str_size = strlen(key) + 1;
@@ -121,8 +116,7 @@ htab_item_t* create_new_item(htab_key_t key, htab_item_data_t* data) {
 
     return new_item;
 }
-// try to search item with given key, when key's not found create new element
-// with this key
+
 htab_item_t* htab_insert_update(htab_t* table,
                                 htab_key_t key,
                                 htab_item_data_t* data) {
@@ -154,7 +148,6 @@ htab_item_t* htab_insert_update(htab_t* table,
     return new_item;
 }
 
-// delete item with specified key
 bool htab_delete(htab_t* table, htab_key_t key) {
     if (table->size < table->arr_size * AVG_LEN_MIN) {
         htab_resize(table, (table->arr_size / 2));
@@ -167,7 +160,6 @@ bool htab_delete(htab_t* table, htab_key_t key) {
     }
 
     if (!strcmp(tmp->key, key)) {
-        printf("hit");
         if (tmp->next == NULL) {
             free((char*)tmp->key);
             free(tmp);
@@ -199,7 +191,6 @@ bool htab_delete(htab_t* table, htab_key_t key) {
     return true;
 }
 
-// delete all items from table
 void htab_clear(htab_t* table) {
     for (size_t i = 0; i < table->arr_size; i++) {
         if (table->arr_ptr[i] != NULL) {
@@ -215,7 +206,6 @@ void htab_clear(htab_t* table) {
     }
 }
 
-// clear table and free memory of hashtable
 void htab_free(htab_t* table) {
     htab_clear(table);
     free(table->arr_ptr);
