@@ -11,10 +11,6 @@
 
 #include "exp_parser.h"
 
-void stack_init(Stack* stack) {
-    stack->top = NULL;
-}
-
 // 2D array which represents precedence table
 precedence_symbols prec_table[TABLE_SIZE][TABLE_SIZE] = {
     /*   +  *  (  )  i  $  -  /  .   <  >  <= >= === !==*/
@@ -85,6 +81,10 @@ precedence_symbols map_token_to_enum(token_t* token) {
             break;
     }
     return T_INVALID;
+}
+
+void stack_init(Stack* stack) {
+    stack->top = NULL;
 }
 
 precedence_symbols stack_top_nonterminal(Stack* stack) {
@@ -173,19 +173,12 @@ int stack_empty(Stack* stack) {
 }
 
 int exp_correct_syntax(Stack* stack) {
-    if (stack->top != NULL) {
-        if (stack->top->data == E) {
-            if (stack->top->next_element != NULL) {
-                if (stack->top->next_element->data == $) {
-                    if (stack->top->next_element->next_element != NULL) {
-                        if (stack->top->next_element->next_element->data ==
-                            EMPTY) {
-                            return 1;
-                        }
-                    }
-                }
-            }
-        }
+    if (stack->top != NULL && stack->top->data == E &&
+        stack->top->next_element != NULL &&
+        stack->top->next_element->data == $ &&
+        stack->top->next_element->next_element != NULL &&
+        stack->top->next_element->next_element->data == EMPTY) {
+        return 1;
     }
     return 0;
 }
