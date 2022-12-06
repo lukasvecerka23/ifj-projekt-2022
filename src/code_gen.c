@@ -457,7 +457,7 @@ void generate_func_end(int scope, htab_item_data_t* func_data) {
         case RETTYPE_FLOAT:
             printf("TYPE GF@exp_type1 LF@retval$1\n");
             if (func_data->func_data.optional_ret_type)
-                check_optional_type("float");
+                check_optional_ret_type("float");
             else
                 printf(
                     "JUMPIFNEQ $ERROR_SEM_TYPE_CHECK GF@exp_type1 "
@@ -466,7 +466,7 @@ void generate_func_end(int scope, htab_item_data_t* func_data) {
         case RETTYPE_INT:
             printf("TYPE GF@exp_type1 LF@retval$1\n");
             if (func_data->func_data.optional_ret_type)
-                check_optional_type("int");
+                check_optional_ret_type("int");
             else
                 printf(
                     "JUMPIFNEQ $ERROR_SEM_TYPE_CHECK GF@exp_type1 "
@@ -475,7 +475,7 @@ void generate_func_end(int scope, htab_item_data_t* func_data) {
         case RETTYPE_STRING:
             printf("TYPE GF@exp_type1 LF@retval$1\n");
             if (func_data->func_data.optional_ret_type)
-                check_optional_type("string");
+                check_optional_ret_type("string");
             else
                 printf(
                     "JUMPIFNEQ $ERROR_SEM_TYPE_CHECK GF@exp_type1 "
