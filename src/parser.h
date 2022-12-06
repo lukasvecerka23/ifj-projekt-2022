@@ -203,14 +203,43 @@ void list_input_params();
  */
 void statement();
 
+/**
+ * NEXT_PARAMETER grammar rule
+ * Check 2,3,... parameter of function declaration
+ * Check if correct type is defined, if var_id is not already in table
+ * if not store var_id data to local table, check or store function
+ * parameter count to global_table
+ * Generate code for function parameter checking
+ */
 void next_parameter();
 
+/**
+ * LIST_PARAMS grammar rule
+ * Check parameters of function declaration
+ * Check if correct type is defined, if var_id is not already in table
+ * if not store var_id data to local table, check or store function
+ * parameter count to global_table
+ * Generate code for function parameter checking
+ */
 void list_params();
 
+/**
+ * PROGRAM grammar rule
+ * Check of eof/phpend, function declaration, statements in main scope
+ * Generate function declaration, main scope declaration and program end
+ */
 void program();
 
+/**
+ * Check correct prolog
+ * Generate program header
+ */
 void prolog();
 
+/**
+ * Main function
+ * initialisation of global symtable, loading builtin functions to symtable
+ */
 void syntax_analyse();
 #endif
 /*END OF FILE*/

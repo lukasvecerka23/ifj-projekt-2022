@@ -736,20 +736,28 @@ void next_parameter() {
     if (!check_token_type(L_RPAR)) {
         create_new_local_data();
         consume_token(L_COMMA, "missing comma between arguments");
+
         get_next_token();
         type();
+
         get_token_consume_token(L_VARID,
                                 "missing variable identifier after data type "
                                 "in function declaration");
+
         // check if parameter already exist in symtable
         if (htab_search(parser.local_symtable, parser.token->string))
             clear_and_exit_program(4, "redefinition of function parameter");
+
         // add variable to symtable and add param to function declaration
         parser.local_symtable_data->name = parser.token->string;
         parser.local_symtable_data->type = ID_VAR;
         htab_insert_update(parser.local_symtable, parser.token->string,
                            parser.local_symtable_data);
 
+        // func_check false - function haven't been called yet, store parameter
+        // count to symtable
+        // func_chec true - function was called before definition, checking
+        // parameter count
         if (parser.func_check == false) {
             parser.global_symtable_data->func_data.param_count++;
             generate_func_param(
@@ -785,6 +793,7 @@ void list_params() {
         // check if parameter already exist in symtable
         if (htab_search(parser.local_symtable, parser.token->string))
             clear_and_exit_program(4, "redefinition of function parameter");
+
         // add param variable to local symtable
         parser.local_symtable_data->name = parser.token->string;
         parser.local_symtable_data->type = ID_VAR;
@@ -793,8 +802,7 @@ void list_params() {
 
         // if func_check true - function is already in symtable and we need to
         // check if param count is correct,
-        // if func_check false - creating new
-        // record to symtable and load param count
+        // if func_check false - load param count to symtable
         if (parser.func_check == false) {
             parser.global_symtable_data->func_data.param_count++;
             generate_func_param(
@@ -821,28 +829,34 @@ void list_params() {
 void program() {
     parser.in_while_if = false;
     parser.in_function = false;
-    parser.local_symtable = htab_init(10);
+
+    // eof
     if (parser.token->token_type == LEOF) {
         generate_func_declaration(parser.global_symtable, "main", false);
         generate_end();
-        htab_free(parser.local_symtable);
         return;
     }
+    // phpend
     if (parser.token->token_type == L_PHPEND) {
         get_token_consume_token(LEOF, "missing eof after php epilogue");
         generate_func_declaration(parser.global_symtable, "main", false);
         generate_end();
-        htab_free(parser.local_symtable);
         return;
     }
+    // function funcid(<list_params>): <ret_type>{...}
     if (parser.token->token_type == K_FUNCTION) {
+        parser.local_symtable = htab_init(10);  // local table for this function
         parser.in_function = true;
+        parser.scope++;
         int function_scope = parser.scope;
+
         get_token_consume_token(L_FUNCID,
                                 "missing function identifier keyword");
 
+        // check func_id in symtable
         check_func_id(true);
 
+        // store declaring function for next parsing
         parser.declared_function = parser.global_symtable_data;
 
         generate_func_header(parser.global_symtable_data->name, function_scope);
@@ -853,11 +867,8 @@ void program() {
         get_next_token();
         list_params();
 
-        if (parser.func_check &&
-            parser.param_counter !=
-                parser.global_symtable_data->func_data.param_count) {
-            clear_and_exit_program(4, "wrong param count in function call");
-        }
+        // check if param count is correct
+        check_param_count();
 
         consume_token(L_RPAR, "missing right paren in function declaration");
         get_token_consume_token(L_COLON,
@@ -871,20 +882,26 @@ void program() {
 
         get_next_token();
         statement();
+
         consume_token(L_RCURL,
                       "missing right curl bracket in function declaration");
+
+        // check if function is return correctly
         check_func_return();
+
         generate_func_declaration(parser.local_symtable,
                                   parser.declared_function->name, true);
         generate_func_end(function_scope, parser.declared_function);
-        parser.scope++;
 
         htab_free(parser.local_symtable);
-
+        parser.in_function = false;
         get_next_token();
         program();
+
         return;
     }
+
+    // <statement> <program>
     statement();
     program();
 
@@ -893,6 +910,7 @@ void program() {
 
 // <prolog> rule
 void prolog() {
+    // <?php declare(strict_types=1);
     if (parser.token->token_type == L_PHPSTART) {
         get_token_consume_token(K_DECLARE, "missing declare after php head");
         get_token_consume_token(L_LPAR,
@@ -915,7 +933,6 @@ void prolog() {
         program();
         return;
     }
-    htab_free(parser.global_symtable);
     clear_and_exit_program(2, "missing php head and strict_types declaration");
 }
 
@@ -930,6 +947,7 @@ void syntax_analyse() {
 
     prolog();
 
+    // check if all function are defined
     check_if_all_func_defined(parser.global_symtable);
 
     htab_free(parser.global_symtable);
