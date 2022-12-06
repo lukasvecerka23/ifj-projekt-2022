@@ -318,6 +318,14 @@ void symtable_var_check() {
     }
 }
 
+void check_param_count() {
+    if (parser.func_check &&
+        parser.param_counter !=
+            parser.global_symtable_data->func_data.param_count) {
+        clear_and_exit_program(4, "wrong param count in function call");
+    }
+}
+
 void expression_parser(token_t* token, token_t* token2, bool check_semicolon) {
     // tree is given by reference
     ast_node_t* new_tree;
@@ -511,38 +519,40 @@ void list_input_params() {
 }
 
 // <statement> rule
-bool statement() {
+void statement() {
     if (parser.token->token_type == L_VARID) {
         // add var to hashtable
         symtable_var_check();
+        // store data about variable
         token_t* tmp_var = (token_t*)malloc(sizeof(token_t));
         *tmp_var = *parser.token;
         get_next_token();
+        // $a = ...
         if (parser.token->token_type == L_ASSIGN) {
             get_next_token();
+            // $a = funcid(...);
             if (parser.token->token_type == L_FUNCID) {
                 check_func_id(false);
                 get_token_consume_token(L_LPAR,
                                         "missing left paren in function call");
                 generate_tmp_frame();
+
                 get_next_token();
                 list_input_params();
 
-                if (parser.func_check &&
-                    parser.param_counter !=
-                        parser.global_symtable_data->func_data.param_count) {
-                    clear_and_exit_program(
-                        4, "wrong param count in function call");
-                }
+                // check if param count are correct
+                check_param_count();
 
                 consume_token(L_RPAR, "missing right paren in function call");
                 get_token_consume_token(L_SEMICOL,
                                         "missing semicolon after statement");
+
                 if (strcmp(parser.global_symtable_data->name, "write") == 0) {
                     generate_null_assignment();
                 } else {
                     generate_func_call(parser.global_symtable_data->name);
                 }
+                // assignment to variable
                 if (parser.in_function) {
                     generate_local_assignment(tmp_var->string);
                 } else {
@@ -550,8 +560,9 @@ bool statement() {
                 }
                 get_next_token();
                 statement();
-                return true;
+                return;
             } else {
+                // $x = 5 + ...
                 expression_parser(parser.token, NULL, true);
                 if (parser.in_function) {
                     generate_exp_local_assignment(tmp_var->string);
@@ -560,6 +571,7 @@ bool statement() {
                 }
             }
         } else {
+            // $x; or $x + ...
             if (!check_token_type(L_SEMICOL))
                 expression_parser(tmp_var, parser.token, true);
             else if (parser.in_function)
@@ -569,85 +581,102 @@ bool statement() {
                 generate_one_operand(tmp_var, parser.in_function,
                                      parser.global_symtable);
         }
+
         get_next_token();
         statement();
-        return true;
+        return;
     }
+    // funcid(...);
     if (parser.token->token_type == L_FUNCID) {
-        check_func_id(false);
+        check_func_id(false);  // check funcid in symtable
         get_token_consume_token(L_LPAR, "missing left paren in function call");
         generate_tmp_frame();
+
         get_next_token();
         list_input_params();
 
-        if (parser.func_check &&
-            parser.param_counter !=
-                parser.global_symtable_data->func_data.param_count) {
-            clear_and_exit_program(4, "wrong param count in function call");
-        }
+        // check if func param count are correct
+        check_param_count();
 
         consume_token(L_RPAR, "missing right paren in function call");
         get_token_consume_token(L_SEMICOL, "missing semicolon after statement");
+
         if (strcmp(parser.global_symtable_data->name, "write") != 0) {
             generate_func_call(parser.global_symtable_data->name);
         }
+
         get_next_token();
         statement();
-        return true;
+        return;
     }
+    // if(...){...}else{...}
     if (parser.token->token_type == K_IF) {
-        int if_scope = parser.scope + 1;
         parser.scope++;
+        int if_scope = parser.scope;
         parser.in_while_if = true;
+
         get_token_consume_token(L_LPAR, "missing left paren in if statement");
+
         expression_parser(parser.token, NULL, false);
-        // consume_token(L_RPAR, "missing right paren in if statement");
         generate_if_then(if_scope);
-        // consume_token(L_LCURL, "missing left curl bracket in if statement");
+
         get_next_token();
         statement();
+        // after get back from statement, have to update parser state
         parser.in_while_if = true;
+
         consume_token(L_RCURL, "missing right curl bracket in if statement");
         get_token_consume_token(K_ELSE, "missing else");
+
         generate_if_else(if_scope);
+
         get_token_consume_token(L_LCURL,
                                 "missing left curl bracket in if statement");
         get_next_token();
         statement();
+        // update parser state
         parser.in_while_if = true;
+
         consume_token(L_RCURL, "missing right curl bracket in if statement");
+
         generate_if_end(if_scope);
-        get_next_token();
-        statement();
-        parser.in_while_if = false;
-        return true;
-    }
-    if (parser.token->token_type == K_WHILE) {
-        parser.in_while_if = true;
-        int while_scope = parser.scope + 1;
-        parser.scope++;
-        get_token_consume_token(L_LPAR,
-                                "missing left paren in while statement");
-        generate_while_start(while_scope);
-        expression_parser(parser.token, NULL, false);
-        // get_token_consume_token(L_RPAR,
-        //                         "missing right paren in while statement");
-        generate_while_condition(while_scope);
-        // get_token_consume_token(L_LCURL,
-        //                         "missing left curl bracket in if statement");
-        // consume_token(L_LCURL, "missing left curl bracket in while
-        // statement");
 
         get_next_token();
         statement();
+        parser.in_while_if = false;
+
+        return;
+    }
+    // while(...){...}
+    if (parser.token->token_type == K_WHILE) {
+        parser.scope++;
+        int while_scope = parser.scope;
         parser.in_while_if = true;
+
+        get_token_consume_token(L_LPAR,
+                                "missing left paren in while statement");
+        generate_while_start(while_scope);
+
+        expression_parser(parser.token, NULL, false);
+
+        generate_while_condition(while_scope);
+
+        get_next_token();
+        statement();
+        // have to update state of parser
+        parser.in_while_if = true;
+
         consume_token(L_RCURL, "missing right curl bracket in if statement");
+
         generate_while_end(while_scope);
+
         get_next_token();
         statement();
         parser.in_while_if = false;
-        return true;
+
+        return;
     }
+    // return; or return ...;
     if (parser.token->token_type == K_RETURN) {
         if (parser.in_function) {
             if (parser.declared_function->func_data.ret_type == RETTYPE_VOID) {
@@ -674,30 +703,35 @@ bool statement() {
             }
             generate_exit_program();
         }
+
         get_next_token();
         statement();
-        return true;
+
+        return;
     }
 
-    // epsilon
+    // check all combination of empty statement, then return epsilon
     if (check_token_type(LEOF) || check_token_type(K_FUNCTION) ||
         check_token_type(L_PHPEND) ||
         (check_token_type(L_RCURL) &&
          (parser.in_while_if || parser.in_function)))
-        return true;
+        return;
 
+    // if not epsilon try to parse expression
+    // <expression>;
     if (check_token_type(L_NUMBER) || check_token_type(L_STRING) ||
         check_token_type(L_FLOAT) || check_token_type(L_LPAR)) {
         expression_parser(parser.token, NULL, true);
         get_next_token();
         statement();
-        return true;
+        return;
     }
+
     clear_and_exit_program(2, "syntax error in statement");
 }
 
 // <next_parameter> rule
-bool next_parameter() {
+void next_parameter() {
     int param_scope = parser.scope;
     if (!check_token_type(L_RPAR)) {
         create_new_local_data();
@@ -731,11 +765,11 @@ bool next_parameter() {
 
         get_next_token();
         next_parameter();
-        return true;
+        return;
     }
 
     // epsilon
-    return true;
+    return;
 }
 
 // <list_params> rule
@@ -784,7 +818,7 @@ void list_params() {
 }
 
 // <program> rule
-bool program() {
+void program() {
     parser.in_while_if = false;
     parser.in_function = false;
     parser.local_symtable = htab_init(10);
@@ -792,14 +826,14 @@ bool program() {
         generate_func_declaration(parser.global_symtable, "main", false);
         generate_end();
         htab_free(parser.local_symtable);
-        return true;
+        return;
     }
     if (parser.token->token_type == L_PHPEND) {
         get_token_consume_token(LEOF, "missing eof after php epilogue");
         generate_func_declaration(parser.global_symtable, "main", false);
         generate_end();
         htab_free(parser.local_symtable);
-        return true;
+        return;
     }
     if (parser.token->token_type == K_FUNCTION) {
         parser.in_function = true;
@@ -849,17 +883,12 @@ bool program() {
 
         get_next_token();
         program();
-        return true;
+        return;
     }
-    if (statement()) {
-        // get_next_token();
-        program();
-        return true;
-    }
+    statement();
+    program();
 
     clear_and_exit_program(2, "missing eof or php epilog");
-
-    return false;
 }
 
 // <prolog> rule
@@ -874,7 +903,7 @@ void prolog() {
         get_token_consume_token(
             L_NUMBER, "value assigned to strict_types must be integer");
         if (parser.token->val != 1) {
-            clear_and_exit_program(2, "strict_type muset be set to 1");
+            clear_and_exit_program(2, "strict_type must be set to 1");
         }
         get_token_consume_token(L_RPAR,
                                 "missing right paren in declare strict types");
@@ -888,10 +917,9 @@ void prolog() {
     }
     htab_free(parser.global_symtable);
     clear_and_exit_program(2, "missing php head and strict_types declaration");
-    return;
 }
 
-bool syntax_analyse() {
+void syntax_analyse() {
     get_next_token();
 
     parser.global_symtable = htab_init(10);
@@ -906,6 +934,6 @@ bool syntax_analyse() {
 
     htab_free(parser.global_symtable);
 
-    return true;
+    return;
 }
 /*END OF FILE*/

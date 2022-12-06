@@ -136,6 +136,11 @@ void check_func_id(bool def_check);
 void symtable_var_check();
 
 /**
+ * Check if parameters of function call is correct
+ */
+void check_param_count();
+
+/**
  * Function which gives parsing to expression parser, when expression is parser
  * check which error code expression parser returned
  * 0 - generate code from AST, or if AST's height is 1 generate one operand
@@ -192,16 +197,20 @@ void next_input_parameter();
  */
 void list_input_params();
 
-bool statement();
+/**
+ * STATEMENT grammar rule
+ * Check all possible statements
+ */
+void statement();
 
-bool next_parameter();
+void next_parameter();
 
 void list_params();
 
-bool program();
+void program();
 
 void prolog();
 
-bool syntax_analyse();
+void syntax_analyse();
 #endif
 /*END OF FILE*/
