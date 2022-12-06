@@ -155,18 +155,53 @@ void expression_parser(token_t* token, token_t* token2, bool check_semicolon);
  */
 void check_func_return();
 
-// funtions for rule checking
-bool type();
-bool program();
-bool list_params();
-bool syntax_analyse();
-bool next_parameter();
-bool list_input_params();
-bool next_input_parameter();
-bool term();
-bool return_type();
+/**
+ * TERM grammar rule
+ * Based on type of term, generate function input parameter
+ * If term is not on of (VARID, INT, FLOAT, STRING, NULL) exit program
+ */
+void term();
+
+/**
+ * TYPE grammar rule
+ * Check if type of parameter in function declaration is correct
+ * Update symbtalbe with this data type and check if parameter is
+ * optional
+ */
+void type();
+
+/**
+ * RETURN_TYPE grammar rule
+ * Check if return type in function declaration is correct
+ * Update symtable data with return type, check if return value is
+ * optional
+ */
+void return_type();
+
+/**
+ * NEXT_INPUT_PARAMETER grammar rule
+ * Check if parameter in function call is term
+ * Check or update function parameter count in symtable
+ */
+void next_input_parameter();
+
+/**
+ * LIST_INPUT_PARAMETER grammar rule
+ * Check if first parameter in function call is term
+ * Check or update function parameter count in symtable
+ */
+void list_input_params();
+
 bool statement();
 
-// void prolog();
+bool next_parameter();
+
+void list_params();
+
+bool program();
+
+void prolog();
+
+bool syntax_analyse();
 #endif
 /*END OF FILE*/
