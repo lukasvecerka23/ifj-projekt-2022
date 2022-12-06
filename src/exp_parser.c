@@ -15,6 +15,7 @@ void stack_init(Stack* stack) {
     stack->top = NULL;
 }
 
+// 2D array which represents precedence table
 precedence_symbols prec_table[TABLE_SIZE][TABLE_SIZE] = {
     /*   +  *  (  )  i  $  -  /  .   <  >  <= >= === !==*/
     {R, S, S, R, S, R, R, S, Er, R, R, R, R, R, R},       // +
@@ -144,14 +145,13 @@ void stack_shift_push(Stack* stack) {
     }
 }
 
-void stack_print_stack(Stack* stack) {
+void stack_print_stack(Stack* stack) {  // todo delete
     Stack_exp tmp = stack->top;
     while (tmp != NULL) {
         tmp = tmp->next_element;
     }
 }
 
-// pops first element
 Stack_exp stack_pop(Stack* stack) {
     if (stack->top->data != EMPTY) {
         Stack_exp to_return = stack->top;

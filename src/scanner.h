@@ -6,7 +6,7 @@
  * @author Andrej Nespor xnespo10
  * @author Matej Tomko xtomko06
  *
- * @brief Header file for scanner
+ * @brief Header file for scanner.h
  */
 
 #ifndef IFJ_SCANNER_H
@@ -17,6 +17,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+/**
+ * @enum states of our Finite-state machine.
+ */
 typedef enum States {
     START,
     LPAR,
@@ -69,6 +72,9 @@ typedef enum States {
     STAR_END
 } States;
 
+/**
+ * @enum names of generated tokens
+ */
 typedef enum lex {
     L_PHPEND,
     L_LPAR,
@@ -114,6 +120,9 @@ typedef enum lex {
     K_FLOAT
 } token_type;
 
+/**
+ * @struct data for token
+ */
 typedef struct {
     token_type token_type;
     unsigned long long line_index;
@@ -126,6 +135,9 @@ typedef struct {
 
 } token_t;
 
+/**
+ * @struct data for scanner
+ */
 typedef struct {
     unsigned long long line_num;
     int err_flag;
@@ -136,11 +148,72 @@ typedef struct {
     int usedmem;
 } scanner_t;
 
+/**
+ * Our Implementation of FSM. Decides the next state based on the current state
+ * and the current character
+ * @param curr_state current state
+ * @param edge current character
+ * @return new current state
+ */
 States FSM(States curr_state, char edge);
+
+/**
+ * Create token based on passed string and gives it token type based on final
+ * state
+ * @param final state which decides type of parsed token
+ * @param token string with current token data
+ * @return token struct with all necessary token data
+ */
 token_t create_lex(States final, char* token);
+
+/**
+ * Called to recieve new token
+ * @return pointer to a new token
+ */
 token_t* get_lex_value();
+
+/**
+ * Determines if parsed identifier is predefined keyword or function id
+ * @param keywd pointer to the string
+ * @return token struct with all necessary token data
+ */
 token_t isKeyword(char* keywd);
 
-void print_lex(token_t* token);
+/**
+ * Loads characters based on states of FSM, in case of final state returns
+ * token, otherwise exits program.
+ * @param scan struct with scanner data
+ * @return token struct with all necessary token data
+ */
+token_t get_token_data(scanner_t* scan);
+
+/**
+ * parse the input string, converts symbols with backslash based on given rules
+ * @param str pointer to input string to be parsed
+ * @return pointer to a new modified string
+ */
+char* escape_sequence_parser(char* str);
+
+/**
+ * converts double float number from string
+ * @param token pointer to a str representing token with float type
+ * @return float number as double
+ */
+double return_float(char* token);
+
+/**
+ * converts integer number from string
+ * @param token pointer to a str representing token with int type
+ * @return int number
+ */
+int return_digit(char* token);
+
+/**
+ * frees token
+ * @param token to be freed
+ */
+void token_free(char* token);
+
 #endif
+
 /*END OF FILE*/
