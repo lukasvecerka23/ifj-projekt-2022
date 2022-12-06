@@ -6,15 +6,16 @@
  * @author Andrej Nespor xnespo10
  * @author Matej Tomko xtomko06
  *
- * @brief Scanner, returns tokens
+ * @brief Scanner which utilizes implementation of FSM to parse and return
+ * tokens
  */
 
 #include "scanner.h"
 #include <string.h>
 #include "error.h"
 
-int err_flag = 0;
-unsigned long char_cnt = 0;
+int err_flag = 0;            // todo delete
+unsigned long char_cnt = 0;  // fuck xd
 
 void token_free(char* token) {
     if (token != NULL) {
@@ -62,7 +63,6 @@ void print_lex(token_t* token) {
             return;
         case L_EXP:
             printf("( exp, %f)\n", token->float_val);
-            // printf("( exp, %s)\n", lex.string);
             return;
         case L_NUMBER:
             printf("(integer, %lld)\n", token->val);
@@ -181,7 +181,6 @@ char* escape_sequence_parser(char* str) {
             i++;
             if (str[i] == '$') {
                 tmp[j] = '$';
-                // printf("hit\n");
                 continue;
             }
             if (str[i] == 'n') {
