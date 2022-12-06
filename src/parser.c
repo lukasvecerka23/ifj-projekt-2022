@@ -336,19 +336,15 @@ void expression_parser(token_t* token, token_t* token2, bool check_semicolon) {
         case 0:
             if (check_semicolon == false && ast_height(new_tree) == 1)
                 if (parser.in_function)
-                    generate_one_operand(new_tree->token, parser.in_function,
-                                         parser.local_symtable);
+                    generate_one_operand(new_tree->token, parser.in_function);
                 else
-                    generate_one_operand(new_tree->token, parser.in_function,
-                                         parser.global_symtable);
+                    generate_one_operand(new_tree->token, parser.in_function);
             else if (parser.in_function) {
                 parser.scope++;
-                generate_ast(new_tree, parser.in_function,
-                             parser.local_symtable, &parser.scope);
+                generate_ast(new_tree, parser.in_function, &parser.scope);
             } else {
                 parser.scope++;
-                generate_ast(new_tree, parser.in_function,
-                             parser.global_symtable, &parser.scope);
+                generate_ast(new_tree, parser.in_function, &parser.scope);
             }
             break;
         case 2:
@@ -575,11 +571,9 @@ void statement() {
             if (!check_token_type(L_SEMICOL))
                 expression_parser(tmp_var, parser.token, true);
             else if (parser.in_function)
-                generate_one_operand(tmp_var, parser.in_function,
-                                     parser.local_symtable);
+                generate_one_operand(tmp_var, parser.in_function);
             else
-                generate_one_operand(tmp_var, parser.in_function,
-                                     parser.global_symtable);
+                generate_one_operand(tmp_var, parser.in_function);
         }
 
         get_next_token();

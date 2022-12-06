@@ -239,6 +239,7 @@ void prolog();
 /**
  * Main function
  * initialisation of global symtable, loading builtin functions to symtable
+ * check if all function in program are defined
  */
 void syntax_analyse();
 #endif
