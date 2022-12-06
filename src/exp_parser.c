@@ -330,14 +330,13 @@ int parse_expression(token_t* used_token,
         switch (prec_table[top][current_token_enum]) {
             case W:  // get next token and push current
                 // next token
+                prev_token = current_token;
                 stack_push(&stack, current_token_enum);
                 stack.top->token = current_token;
                 if (used_token2 != NULL && second_token) {
-                    prev_token = current_token;
                     current_token = used_token2;
                     second_token = 0;
                 } else {
-                    prev_token = current_token;
                     current_token = get_lex_value();
                 }
                 current_token_enum = map_token_to_enum(current_token);
@@ -347,14 +346,13 @@ int parse_expression(token_t* used_token,
                 break;
             case S:  // shift
                 stack_shift_push(&stack);
+                prev_token = current_token;
                 stack_push(&stack, current_token_enum);
                 stack.top->token = current_token;
                 if (used_token2 != NULL && second_token) {
-                    prev_token = current_token;
                     current_token = used_token2;
                     second_token = 0;
                 } else {
-                    prev_token = current_token;
                     current_token = get_lex_value();
                 }
                 if (!first_token_used) {
@@ -362,7 +360,6 @@ int parse_expression(token_t* used_token,
                     if (used_token != NULL) {
                         if (current_token->token_type == L_RPAR &&
                             used_token->token_type == L_LPAR) {
-                            prev_token = current_token;
                             current_token = get_lex_value();
                             if (current_token->token_type == L_LCURL) {
                                 *tree = NULL;
