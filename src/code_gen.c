@@ -50,7 +50,7 @@ char* formate_string(char* string) {
         exit_program(99, "malloc error");
     char c;
     bool skip = true;
-    char escape_seq[3];
+    char escape_seq[4];
     for (int i = 0; (c = string[i]) != '\0'; i++) {
         // transfer to escape sequence
         if (c == '#' || c <= 32 || (c == '\\' && !isdigit(string[i + 1]))) {
