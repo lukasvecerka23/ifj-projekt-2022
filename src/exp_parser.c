@@ -11,13 +11,9 @@
 
 #include "exp_parser.h"
 
-void stack_init(Stack* stack) {
-    stack->top = NULL;
-}
-
 // 2D array which represents precedence table
 precedence_symbols prec_table[TABLE_SIZE][TABLE_SIZE] = {
-    /*   +  *  (  )  i  $  -  /  .   <  >  <= >= === !==*/
+    /*   +  *  (  )  i  $  -  /  .   <  >  <= >= === !==    */
     {R, S, S, R, S, R, R, S, Er, R, R, R, R, R, R},       // +
     {R, R, S, R, S, R, R, R, Er, R, R, R, R, R, R},       // *
     {S, S, S, W, S, Er, S, S, S, S, S, S, S, S, S},       // (
@@ -33,7 +29,6 @@ precedence_symbols prec_table[TABLE_SIZE][TABLE_SIZE] = {
     {S, S, S, R, S, R, S, S, S, Er, Er, Er, Er, Er, Er},  // >=
     {S, S, S, R, S, R, S, S, S, Er, Er, Er, Er, Er, Er},  // ===
     {S, S, S, R, S, R, S, S, S, Er, Er, Er, Er, Er, Er}   // !==
-
 };
 
 precedence_symbols map_token_to_enum(token_t* token) {
@@ -87,6 +82,10 @@ precedence_symbols map_token_to_enum(token_t* token) {
     return T_INVALID;
 }
 
+void stack_init(Stack* stack) {
+    stack->top = NULL;
+}
+
 precedence_symbols stack_top_nonterminal(Stack* stack) {
     Stack_exp tmp;
     tmp = stack->top;
@@ -94,7 +93,6 @@ precedence_symbols stack_top_nonterminal(Stack* stack) {
         if (tmp->data >= T_PLUS && tmp->data <= T_NEQ) {
             return tmp->data;
         }
-
         tmp = tmp->next_element;
     }
     return EMPTY;
@@ -107,6 +105,7 @@ precedence_symbols stack_top(Stack* stack) {
 void stack_push(Stack* stack, precedence_symbols data) {
     Stack_exp new_element = malloc(sizeof(struct stack_el));
     if (new_element == NULL) {
+        exit_program(99, "malloc error");
     }
     new_element->data = data;
     if (stack->top != NULL) {
@@ -127,6 +126,7 @@ void stack_shift_push(Stack* stack) {
         if (tmp->data >= T_PLUS && tmp->data <= T_NEQ) {
             Stack_exp new_element = malloc(sizeof(struct stack_el));
             if (new_element == NULL) {
+                exit_program(99, "malloc error");
             }
             new_element->data = S;
             if (prev != NULL) {
@@ -173,19 +173,12 @@ int stack_empty(Stack* stack) {
 }
 
 int exp_correct_syntax(Stack* stack) {
-    if (stack->top != NULL) {
-        if (stack->top->data == E) {
-            if (stack->top->next_element != NULL) {
-                if (stack->top->next_element->data == $) {
-                    if (stack->top->next_element->next_element != NULL) {
-                        if (stack->top->next_element->next_element->data ==
-                            EMPTY) {
-                            return 1;
-                        }
-                    }
-                }
-            }
-        }
+    if (stack->top != NULL && stack->top->data == E &&
+        stack->top->next_element != NULL &&
+        stack->top->next_element->data == $ &&
+        stack->top->next_element->next_element != NULL &&
+        stack->top->next_element->next_element->data == EMPTY) {
+        return 1;
     }
     return 0;
 }
@@ -194,6 +187,9 @@ int rule_reduction(Stack* stack) {
     Stack_exp stack_data[4];
     for (int j = 0; j < 5; j++) {
         stack_data[j] = malloc(sizeof(Stack_exp));
+        if (stack_data[j] == NULL) {
+            exit_program(99, "malloc_error");
+        }
     }
     for (int i = 0; i <= 3; i++) {
         stack_data[i] = stack_pop(stack);
@@ -288,6 +284,7 @@ int rule_reduction(Stack* stack) {
     } else {
         return 0;
     }
+    return 0;
 }
 
 int parse_expression(token_t* used_token,
