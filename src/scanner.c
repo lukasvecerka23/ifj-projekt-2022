@@ -14,8 +14,8 @@
 #include <string.h>
 #include "error.h"
 
-int err_flag = 0;            // todo delete
-unsigned long char_cnt = 0;  // fuck xd
+unsigned long char_cnt = 0;  // counter
+int err_flag = 0;            // global variable for error_flag
 
 void token_free(char* token) {
     if (token != NULL) {
@@ -38,13 +38,13 @@ char* escape_sequence_parser(char* str) {
     unsigned int j = 0;
     char* tmp = malloc(sizeof(char) * (strlen(str) * 2));
     for (i, j = 0; str[i] != '\0'; i++, j++) {
-        if (str[i] == '$') {  // error
+        if (str[i] == '$') {
             exit_program(1,
                          "Error when parsing string, $ must be written with \\ "
                          "try -> \\$");
         }
         if (str[i] == '\\') {
-            i++;
+            i++;  // ignores '\'
             if (str[i] == '$') {
                 tmp[j] = '$';
                 continue;
@@ -70,17 +70,23 @@ char* escape_sequence_parser(char* str) {
                 continue;
             }
             if (str[i] == 'x') {
+                /*
+                refactor
+                */
                 char hex_num[3];
                 int k;
-                for (k = 0; k < 2; k++) {
-                    hex_num[k] =
-                        str[(i + k + 1)];  // load of hex number to buffer
+                for (k = 0; k < 2; k++) {  // stores digits of hex number
+                    hex_num[k] = str[(i + k + 1)];
                 }
                 char* err_str;
                 int num = (int)strtol(hex_num, &err_str, 16);  // hex -> dec
                 hex_num[k++] = '\0';
-                if (strlen(err_str) >=
-                    1) {  // check if if valid hex else skip parsing hex.
+                /*
+                refactor
+                */
+                /* checks if err_str contains any characters, in that case
+                original number was not correct hex number */
+                if (strlen(err_str) >= 1) {
                     tmp[j] = str[i];
                     continue;
                 } else {
@@ -88,33 +94,44 @@ char* escape_sequence_parser(char* str) {
                     sprintf(buffer, "%d", num);  // convert dec num to str form.
                     tmp[j++] = '\\';
                     tmp[j++] = '0';
+                    // stores the result in decadic form in the tmp string
                     for (int l = 0; buffer[l] != '\0'; l++, j++) {
-                        tmp[j] = buffer[l];  // load dec number to tmp
+                        tmp[j] = buffer[l];
                     }
                 }
-                j--;
+                j--;        // for index correction
                 i = i + 2;  // skip original chars
                 continue;
             }
 
             if (isdigit(str[i])) {
+                /*
+                refactor
+                */
                 char dec_num[4];
                 int k;
-                for (k = 0; k <= 2; k++) {
+                for (k = 0; k <= 2; k++) {  // stores digits of octal number
                     dec_num[k] = str[i + k];
                 }
                 dec_num[3] = '\0';
                 char* err_str_dec;
-                int num = (int)strtol(dec_num, &err_str_dec, 8);
-                dec_num[k++] = '\0';
+                int num = (int)strtol(dec_num, &err_str_dec,
+                                      8);  // oct -> dec conversion
+                /*
+                refactor
+                */
+                /* if err_str_dec is not empty (excluding \0 char) it means the
+                 * original data was not a correct octal number*/
                 if (strlen(err_str_dec) >= 1) {
                     tmp[j] = str[i];
                     continue;
                 } else {
                     char buffer_dec[4];
+                    // convert dec num to str form.
                     sprintf(buffer_dec, "%d", num);
                     tmp[j++] = '\\';
                     tmp[j++] = '0';
+                    // stores the result in decadic form in the tmp string
                     for (int l = 0; buffer_dec[l] != '\0'; l++) {
                         tmp[j++] = buffer_dec[l];
                     }
@@ -302,7 +319,7 @@ States FSM(States curr_state, char edge) {
             if (edge == '/')
                 return START;
             else {
-                return MULT_L_COMMENT;  // fix kdyz narazi na eof ted
+                return MULT_L_COMMENT;
             }
         case ONE_L_COMMENT:
             if (edge == '\n' || edge == EOF)
@@ -481,10 +498,10 @@ token_t create_lex(States final, char* token) {
         case PHPEND:
             tmp_token = (token_t){.token_type = L_VARPREF};
             break;
-        case TOKEN_END:
-            free(token);
-            exit_program(1, "wrong token");
-            break;
+        // case TOKEN_END:
+        //     free(token);
+        //     exit_program(1, "wrong token");
+        //     break;
         default:
             free(token);
             exit_program(1, "undefined lexeme");
@@ -494,13 +511,18 @@ token_t create_lex(States final, char* token) {
 }
 
 token_t get_token_data(scanner_t* scan) {
+    /*
+    mby add to init function
+    */
     States now = START;
     scan->tokenmem = 5;
     scan->usedmem = 0;
-    scan->token =
-        (char*)calloc(scan->tokenmem, sizeof(char*));  // tmp, create fnc
+    scan->token = (char*)calloc(scan->tokenmem, sizeof(char*));
     char edge = ' ';
     int idx = 0;
+    /*
+    mby add to init function
+    */
     while (true) {
         if (edge == '\n')
             scan->line_num++;
