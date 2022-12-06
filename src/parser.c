@@ -832,7 +832,6 @@ void program() {
     }
     // phpend
     if (parser.token->token_type == L_PHPEND) {
-        get_token_consume_token(LEOF, "missing eof after php epilogue");
         generate_func_declaration(parser.global_symtable, "main", false);
         generate_end();
         return;
