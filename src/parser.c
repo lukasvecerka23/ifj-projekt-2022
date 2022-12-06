@@ -843,6 +843,7 @@ void program() {
         generate_end();
         return;
     }
+
     // function funcid(<list_params>): <ret_type>{...}
     if (parser.token->token_type == K_FUNCTION) {
         parser.local_symtable = htab_init(10);  // local table for this function
@@ -904,8 +905,7 @@ void program() {
     // <statement> <program>
     statement();
     program();
-
-    clear_and_exit_program(2, "missing eof or php epilog");
+    return;
 }
 
 // <prolog> rule
