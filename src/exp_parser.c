@@ -218,6 +218,9 @@ int rule_reduction(Stack* stack) {
     if (stack_data[0]->data == E && stack_data[2]->data == E) {  // E op E
         ast_node_t* tree_ptr;
         token_t* operator=(token_t*) malloc(sizeof(token_t));
+        if (operator== NULL) {
+            exit_program(99, "malloc error");
+        }
         switch (stack_data[1]->data) {
             case T_PLUS:
                 operator->token_type = L_PLUS;
@@ -295,6 +298,7 @@ int parse_expression(token_t* used_token,
     Stack stack;
     stack_init(&stack);
     stack_push(&stack, EMPTY);
+    token_t* prev_token;
     int first_token_used = 0;
     int second_token = 0;
     if (used_token2 != NULL) {
@@ -321,6 +325,7 @@ int parse_expression(token_t* used_token,
     stack_push(&stack, $);
 
     do {
+        prev_token = current_token;
         stack_print_stack(&stack);
         top = stack_top_nonterminal(&stack);
         switch (prec_table[top][current_token_enum]) {
@@ -394,6 +399,9 @@ int parse_expression(token_t* used_token,
             if (current_token->token_type != L_LCURL) {
                 return 2;
             }
+        }
+        if (is_expression == 0 && prev_token->token_type != L_RPAR) {
+            return 2;
         }
         *tree = stack.top->tree;
         return 0;
