@@ -23,140 +23,6 @@ void token_free(char* token) {
     }
 }
 
-void print_lex(token_t* token) {
-    switch (token->token_type) {
-        case L_LPAR:
-            printf("( ( )\n");
-            return;
-        case L_RPAR:
-            printf("( ) )\n");
-            return;
-        case L_COMMA:
-            printf("( , )\n");
-            return;
-        case L_DOT:
-            printf("( . )\n");
-            return;
-        case L_LCURL:
-            printf("( { )\n");
-            return;
-        case L_RCURL:
-            printf("( } )\n");
-            return;
-        case L_SEMICOL:
-            printf("( ; )\n");
-            return;
-        case L_COLON:
-            printf("( : )\n");
-            return;
-        case LEOF:
-            printf("( EOF )\n");
-            return;
-        case L_PLUS:
-            printf("( + )");
-            return;
-        case L_MUL:
-            printf("( * )\n");
-            return;
-        case L_SLASH:
-            printf("( / )\n");
-            return;
-        case L_EXP:
-            printf("( exp, %f)\n", token->float_val);
-            return;
-        case L_NUMBER:
-            printf("(integer, %lld)\n", token->val);
-            return;
-        case L_VARID:
-            printf("(varid, %s)\n", token->string);
-            return;
-        case L_VARPREF:
-            printf("( ? )\n");
-            return;
-        case L_ID:
-            printf("(identifier, %s)\n", token->string);
-            return;
-        case L_STRING:
-            printf("(string, %s)\n", token->string);
-            return;
-        case L_DASH:
-            printf("( - )\n");
-            return;
-        case L_ASSIGN:
-            printf("( = )\n");
-            return;
-        case L_EQ:
-            printf("( === )\n");
-            return;
-        case L_NEQ:
-            printf("( !== )\n");
-            return;
-        case L_LESS:
-            printf("( < )\n");
-            return;
-        case L_GREATER:
-            printf("( > )\n");
-            return;
-        case L_LESSEQ:
-            printf("( <= )\n");
-            return;
-        case L_GREATEREQ:
-            printf("( >= )\n");
-            return;
-        case L_FLOAT:
-            printf("(float, %f)\n", token->float_val);
-            return;
-        case K_ELSE:
-            printf("( else )\n");
-            return;
-        case K_FUNCTION:
-            printf("( function )\n");
-            return;
-        case K_IF:
-            printf("( if )\n");
-            return;
-        case K_INT:
-            printf("( int )");
-            return;
-        case K_NULL:
-            printf("( null )\n");
-            return;
-        case K_RETURN:
-            printf("( return )\n");
-            return;
-        case K_STRING:
-            printf("( string )\n");
-            return;
-        case K_VOID:
-            printf("( void )\n");
-            return;
-        case K_WHILE:
-            printf("( while )\n");
-            return;
-        case K_FLOAT:
-            printf("( float )\n");
-            return;
-        case L_FUNCID:
-            printf("( funcid, %s )\n", token->string);
-            return;
-        case L_PHPEND:
-            printf("( php end )\n");
-            return;
-        case L_PHPSTART:
-            printf("( php start )\n");
-            return;
-        case K_STRICTTYPES:
-            printf("( strict_types )\n");
-            return;
-        case K_DECLARE:
-            printf("( declare )\n");
-            return;
-        default:
-            return;
-    }
-    return;
-}
-
 int return_digit(char* token) {
     int i = atoi(token);
     return i;
@@ -168,9 +34,9 @@ double return_float(char* token) {
 }
 
 char* escape_sequence_parser(char* str) {
-    unsigned long long i = 0;
+    unsigned int i = 0;
+    unsigned int j = 0;
     char* tmp = malloc(sizeof(char) * (strlen(str) * 2));
-    unsigned long long j = 0;
     for (i, j = 0; str[i] != '\0'; i++, j++) {
         if (str[i] == '$') {  // error
             exit_program(1,
@@ -216,18 +82,19 @@ char* escape_sequence_parser(char* str) {
                 if (strlen(err_str) >=
                     1) {  // check if if valid hex else skip parsing hex.
                     tmp[j] = str[i];
-                    // printf("err\n");
                     continue;
                 } else {
                     char buffer[3];
                     sprintf(buffer, "%d", num);  // convert dec num to str form.
                     tmp[j++] = '\\';
                     tmp[j++] = '0';
-                    for (int l = 0; buffer[l] != '\0'; l++) {
-                        tmp[j++] = buffer[l];  // load dec number to tmp
+                    for (int l = 0; buffer[l] != '\0'; l++, j++) {
+                        tmp[j] = buffer[l];  // load dec number to tmp
                     }
                 }
-                i = i + 3;  // skip original chars
+                j--;
+                i = i + 2;  // skip original chars
+                continue;
             }
 
             if (isdigit(str[i])) {
@@ -252,7 +119,9 @@ char* escape_sequence_parser(char* str) {
                         tmp[j++] = buffer_dec[l];
                     }
                 }
-                i = i + 3;
+                j--;
+                i = i + 2;
+                continue;
             }
             tmp[j] = str[i];
 
@@ -385,7 +254,6 @@ States FSM(States curr_state, char edge) {
                     return TOKEN_END;
                 }
             }
-            //<?php
             err_flag = 1;
             return TOKEN_END;
         case PHPEND:
@@ -399,7 +267,6 @@ States FSM(States curr_state, char edge) {
             }
             err_flag = 1;
             return TOKEN_END;
-        // case DECLARE:
         case STRING_LIT_E:
             if (edge == '"') {
                 return STRING_LIT_END;
@@ -412,7 +279,7 @@ States FSM(States curr_state, char edge) {
                 return TOKEN_END;
             }
             return STRING_LIT_E;
-        case STRING_SLASH:  // todo delete
+        case STRING_SLASH:
             if (edge == '"')
                 return STRING_LIT_E;
             return STRING_LIT_E;
@@ -468,7 +335,7 @@ States FSM(States curr_state, char edge) {
         case EXP_1:
             if (edge == '+' || edge == '-')
                 return EXP_1_5;
-            if (isdigit(edge))  // add one state to fix 10E+ is valid
+            if (isdigit(edge))
                 return EXP_2;
             else {
                 err_flag = 1;
@@ -509,7 +376,7 @@ States FSM(States curr_state, char edge) {
             err_flag = 1;
             return TOKEN_END;
         case ID1:
-            if (isalnum(edge) || edge == '_')  // changes from isalpha()
+            if (isalnum(edge) || edge == '_')
                 return ID1;
             return TOKEN_END;
         case GREATER:
@@ -643,7 +510,6 @@ token_t get_token_data(scanner_t* scan) {
             if (now == START) {
                 return (token_t){.token_type = LEOF};
             }
-            // return create_lex(now, scan.token);
         }
         States next = FSM(now, edge);
         if (next == TOKEN_END) {

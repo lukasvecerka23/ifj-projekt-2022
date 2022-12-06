@@ -214,12 +214,6 @@ int return_digit(char* token);
  */
 void token_free(char* token);
 
-/**
- * todo delete
- * @param token
- */
-void print_lex(token_t* token);
-
 #endif
 
 /*END OF FILE*/
