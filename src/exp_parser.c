@@ -86,7 +86,7 @@ void stack_init(Stack* stack) {
     stack->top = NULL;
 }
 
-precedence_symbols stack_top_nonterminal(Stack* stack) {
+precedence_symbols stack_top_terminal(Stack* stack) {
     Stack_exp tmp;
     tmp = stack->top;
     while (tmp->data != EMPTY) {
@@ -328,7 +328,7 @@ int parse_expression(token_t* used_token,
 
     do {
         stack_print_stack(&stack);
-        top = stack_top_nonterminal(&stack);
+        top = stack_top_terminal(&stack);
         switch (prec_table[top][current_token_enum]) {
             case W:  // get next token and push current
                 // next token
