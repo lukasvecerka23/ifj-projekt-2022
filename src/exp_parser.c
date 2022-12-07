@@ -76,6 +76,8 @@ precedence_symbols map_token_to_enum(token_t* token) {
         case L_LCURL:
             return $;
         default:
+            // T_INVALID returned when token not recognized by expression parser
+            // is returned by lexer.
             return T_INVALID;
             break;
     }
@@ -147,13 +149,6 @@ void stack_shift_push(Stack* stack) {
     }
 }
 
-void stack_print_stack(Stack* stack) {  // todo delete
-    Stack_exp tmp = stack->top;
-    while (tmp != NULL) {
-        tmp = tmp->next_element;
-    }
-}
-
 Stack_exp stack_pop(Stack* stack) {
     if (stack->top->data != EMPTY) {
         Stack_exp to_return = stack->top;
@@ -187,12 +182,14 @@ int exp_correct_syntax(Stack* stack) {
 
 int rule_reduction(Stack* stack) {
     Stack_exp stack_data[4];
+    // preparing array of pointers to stack elements for rule parsing
     for (int j = 0; j < 5; j++) {
         stack_data[j] = malloc(sizeof(Stack_exp));
         if (stack_data[j] == NULL) {
             exit_program(99, "malloc_error");
         }
     }
+    // store up to 4 elements from stack including < (shift)
     for (int i = 0; i <= 3; i++) {
         stack_data[i] = stack_pop(stack);
         if ((stack_data[i])->data == S) {
@@ -202,7 +199,8 @@ int rule_reduction(Stack* stack) {
     if (stack_data[0]->data == S) {
         return 0;
     }
-    if (stack_data[1]->data == S && stack_data[0]->data == T_INT) {  // i -> E
+    // E -> i
+    if (stack_data[1]->data == S && stack_data[0]->data == T_INT) {
         stack_push(stack, E);
         if (stack_data[0]->token->token_type == L_VARID) {
         }
@@ -210,6 +208,7 @@ int rule_reduction(Stack* stack) {
         stack->top->token = stack_data[0]->token;
         return 1;
     }
+    // E -> (E)
     if (stack_data[0]->data == T_RPAR && stack_data[1]->data == E &&
         stack_data[2]->data == T_LPAR) {
         stack_push(stack, E);
@@ -217,7 +216,8 @@ int rule_reduction(Stack* stack) {
         stack->top->tree = stack_data[1]->tree;
         return 1;
     }
-    if (stack_data[0]->data == E && stack_data[2]->data == E) {  // E op E
+    // E -> E op E, op are operators in precedence table
+    if (stack_data[0]->data == E && stack_data[2]->data == E) {
         ast_node_t* tree_ptr;
         token_t* operator=(token_t*) malloc(sizeof(token_t));
         if (operator== NULL) {
@@ -309,13 +309,16 @@ int parse_expression(token_t* used_token,
 
     token_t* current_token;
     precedence_symbols current_token_enum;
-    if (used_token != NULL) {
+
+    if (used_token !=
+        NULL) {  // case when first token was passed from paser to exp parser
         current_token_enum = map_token_to_enum(used_token);
         if (current_token_enum == T_INVALID) {
             return 2;
         }
         current_token = used_token;
-    } else {
+
+    } else {  // case when none tokens were passed from parser to exp parser
         current_token = get_lex_value();
         current_token_enum = map_token_to_enum(current_token);
         if (current_token_enum == T_INVALID) {
@@ -327,7 +330,6 @@ int parse_expression(token_t* used_token,
     stack_push(&stack, $);
 
     do {
-        stack_print_stack(&stack);
         top = stack_top_terminal(&stack);
         switch (prec_table[top][current_token_enum]) {
             case W:  // get next token and push current
@@ -358,7 +360,14 @@ int parse_expression(token_t* used_token,
                     current_token = get_lex_value();
                 }
                 if (!first_token_used) {
+                    // this is done only for the first token after the exp
+                    // parser call
                     first_token_used = 1;
+                    /*  edgecase of empty condition if() { ...
+                        when first token is ( and second token is ) then it is
+                       empty condition and we return empty tree (we also check
+                       if { is after ) to check correct syntax of the if
+                       statement */
                     if (used_token != NULL) {
                         if (current_token->token_type == L_RPAR &&
                             used_token->token_type == L_LPAR) {
@@ -381,10 +390,8 @@ int parse_expression(token_t* used_token,
                 if (!rule_reduction(&stack)) {
                     return 2;
                 }
-                stack_print_stack(&stack);
                 break;
             case Er:
-                stack_print_stack(&stack);
                 return 2;
                 break;
             default:
@@ -392,7 +399,6 @@ int parse_expression(token_t* used_token,
                 break;
         }
     } while ((current_token_enum != $) || (exp_correct_syntax(&stack) == 0));
-    stack_print_stack(&stack);
     if (exp_correct_syntax(&stack)) {
         if (is_expression) {
             if (current_token->token_type != L_SEMICOL) {

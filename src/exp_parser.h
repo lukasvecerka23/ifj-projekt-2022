@@ -18,7 +18,8 @@
 #define TABLE_SIZE 15
 
 /**
- * @enum data representing tokens, actions of precedence table
+ * @enum data representing terminals, non terminals, and actions of precedence
+ * table
  */
 typedef enum precedence_symbols {
     T_PLUS,
