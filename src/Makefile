@@ -4,6 +4,7 @@ PROG=$(PROJECT)-test
 CFLAGS=-std=c99 -Wall -Wextra -pedantic -lm -fcommon -g
 EXEC = ifj22_compiler
 OBJ = ifj22_compiler.o scanner.o error.o parser.o exp_parser.o symtable.o code_gen.o ast.o
+FILES = *.c *.h dokumentace.pdf rozdeleni Makefile
 
 .PHONY: ifj22_compiler
 
@@ -39,3 +40,6 @@ code_gen.o: code_gen.c code_gen.h
 
 clean:
 	rm $(EXEC) *.o
+
+zip:
+	tar -cvf xvecer30.tgz $(FILES) 
