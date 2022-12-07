@@ -195,9 +195,6 @@ int rule_reduction(Stack* stack) {
     }
     for (int i = 0; i <= 3; i++) {
         stack_data[i] = stack_pop(stack);
-        if (stack_data[i] == NULL) {
-            return 0;
-        }
         if ((stack_data[i])->data == S) {
             break;
         }
