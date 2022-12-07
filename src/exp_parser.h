@@ -78,7 +78,7 @@ void stack_init(Stack* stack);
  * @return enum value representing token type on top, else returns enum value
  * EMPTY
  */
-precedence_symbols stack_top_terminal(Stack* stack);
+precedence_symbols stack_top_nonterminal(Stack* stack);
 
 /**
  * finds data of enum value on stack top
