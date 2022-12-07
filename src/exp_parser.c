@@ -22,7 +22,7 @@ precedence_symbols prec_table[TABLE_SIZE][TABLE_SIZE] = {
     {S, S, S, Er, S, Er, S, S, S, S, S, S, S, S, S},      // $
     {R, S, S, R, S, R, R, S, Er, R, R, R, R, R, R},       // -
     {R, R, S, R, S, R, R, R, Er, R, R, R, R, R, R},       // /
-    {Er, E, S, R, S, R, Er, E, R, R, R, R, R, R, R},      // .
+    {Er, Er, S, R, S, R, Er, Er, R, R, R, R, R, R, R},    // .
     {S, S, S, R, S, R, S, S, S, Er, Er, Er, Er, Er, Er},  // <
     {S, S, S, R, S, R, S, S, S, Er, Er, Er, Er, Er, Er},  // >
     {S, S, S, R, S, R, S, S, S, Er, Er, Er, Er, Er, Er},  // <=
