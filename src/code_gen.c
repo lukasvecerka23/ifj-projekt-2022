@@ -17,7 +17,8 @@ void string_add_char(dynamic_string_t* string, char c) {
     if (string->usedmem + 1 >= (string->stringmem * 0.9)) {
         string->stringmem = string->stringmem * 2;
         string->string = (char*)realloc(string->string, string->stringmem);
-        string->usedmem = 0;
+        if (string->string == NULL)
+            exit_program(99, "realloc error");
     }
 
     string->string[string->usedmem++] = c;
@@ -30,7 +31,8 @@ void string_add_string(dynamic_string_t* string, char* string2) {
     if ((string->usedmem + string_len) >= (string->stringmem * 0.9)) {
         string->stringmem = string->stringmem * 2;
         string->string = (char*)realloc(string->string, string->stringmem);
-        string->usedmem = 0;
+        if (string->string == NULL)
+            exit_program(99, "realloc error");
     }
 
     string->usedmem += string_len;
