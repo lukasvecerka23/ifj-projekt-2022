@@ -309,9 +309,8 @@ int parse_expression(token_t* used_token,
 
     token_t* current_token;
     precedence_symbols current_token_enum;
-
-    if (used_token !=
-        NULL) {  // case when first token was passed from paser to exp parser
+    // case when first token was passed from paser to exp parser
+    if (used_token != NULL) {
         current_token_enum = map_token_to_enum(used_token);
         if (current_token_enum == T_INVALID) {
             return 2;
@@ -401,14 +400,18 @@ int parse_expression(token_t* used_token,
     } while ((current_token_enum != $) || (exp_correct_syntax(&stack) == 0));
     if (exp_correct_syntax(&stack)) {
         if (is_expression) {
+            // when parsing an expression it should end with ;
             if (current_token->token_type != L_SEMICOL) {
                 return 2;
             }
         } else {
+            // when we expect parssing condition it should end with {
             if (current_token->token_type != L_LCURL) {
                 return 2;
             }
         }
+        /*edge case when we check that previous token before terminating token
+         * was ) to make sure if statement was in if(cond) form */
         if (is_expression == 0 && prev_token->token_type != L_RPAR) {
             return 2;
         }

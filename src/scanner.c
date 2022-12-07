@@ -70,9 +70,6 @@ char* escape_sequence_parser(char* str) {
                 continue;
             }
             if (str[i] == 'x') {
-                /*
-                refactor
-                */
                 char hex_num[3];
                 int k;
                 for (k = 0; k < 2; k++) {  // stores digits of hex number
@@ -81,9 +78,6 @@ char* escape_sequence_parser(char* str) {
                 char* err_str;
                 int num = (int)strtol(hex_num, &err_str, 16);  // hex -> dec
                 hex_num[k++] = '\0';
-                /*
-                refactor
-                */
                 /* checks if err_str contains any characters, in that case
                 original number was not correct hex number */
                 if (strlen(err_str) >= 1) {
@@ -105,9 +99,6 @@ char* escape_sequence_parser(char* str) {
             }
 
             if (isdigit(str[i])) {
-                /*
-                refactor
-                */
                 char dec_num[4];
                 int k;
                 for (k = 0; k <= 2; k++) {  // stores digits of octal number
@@ -117,9 +108,6 @@ char* escape_sequence_parser(char* str) {
                 char* err_str_dec;
                 int num = (int)strtol(dec_num, &err_str_dec,
                                       8);  // oct -> dec conversion
-                /*
-                refactor
-                */
                 /* if err_str_dec is not empty (excluding \0 char) it means the
                  * original data was not a correct octal number*/
                 if (strlen(err_str_dec) >= 1) {
