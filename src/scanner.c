@@ -498,10 +498,6 @@ token_t create_lex(States final, char* token) {
         case PHPEND:
             tmp_token = (token_t){.token_type = L_VARPREF};
             break;
-        // case TOKEN_END:
-        //     free(token);
-        //     exit_program(1, "wrong token");
-        //     break;
         default:
             free(token);
             exit_program(1, "undefined lexeme");
@@ -511,18 +507,12 @@ token_t create_lex(States final, char* token) {
 }
 
 token_t get_token_data(scanner_t* scan) {
-    /*
-    mby add to init function
-    */
     States now = START;
     scan->tokenmem = 5;
     scan->usedmem = 0;
     scan->token = (char*)calloc(scan->tokenmem, sizeof(char*));
     char edge = ' ';
     int idx = 0;
-    /*
-    mby add to init function
-    */
     while (true) {
         if (edge == '\n')
             scan->line_num++;

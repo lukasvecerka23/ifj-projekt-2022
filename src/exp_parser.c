@@ -86,7 +86,7 @@ void stack_init(Stack* stack) {
     stack->top = NULL;
 }
 
-precedence_symbols stack_top_nonterminal(Stack* stack) {
+precedence_symbols stack_top_terminal(Stack* stack) {
     Stack_exp tmp;
     tmp = stack->top;
     while (tmp->data != EMPTY) {
@@ -128,7 +128,9 @@ void stack_shift_push(Stack* stack) {
             if (new_element == NULL) {
                 exit_program(99, "malloc error");
             }
-            new_element->data = S;
+            // new_element->data = S;
+            // new_element->token = NULL;
+            // new_element->tree = NULL;
             if (prev != NULL) {
                 new_element->next_element = prev->next_element;
                 prev->next_element = new_element;
@@ -193,6 +195,9 @@ int rule_reduction(Stack* stack) {
     }
     for (int i = 0; i <= 3; i++) {
         stack_data[i] = stack_pop(stack);
+        if (stack_data[i] == NULL) {
+            return 0;
+        }
         if ((stack_data[i])->data == S) {
             break;
         }
@@ -326,7 +331,7 @@ int parse_expression(token_t* used_token,
 
     do {
         stack_print_stack(&stack);
-        top = stack_top_nonterminal(&stack);
+        top = stack_top_terminal(&stack);
         switch (prec_table[top][current_token_enum]) {
             case W:  // get next token and push current
                 // next token
